@@ -7,18 +7,14 @@ pip install -r requirements.txt
 echo "📦 Coletando arquivos estáticos..."
 python manage.py collectstatic --noinput
 
-echo "🚀 Aplicando migrações na ordem correta..."
+echo "🚀 Configurando migrações..."
 
-python manage.py migrate auth --noinput
-python manage.py migrate contenttypes --noinput
-python manage.py migrate sessions --noinput
-python manage.py migrate admin --noinput
+# Criar migrações para cada app individualmente
+python manage.py makemigrations core --noinput || echo "⚠️ Nenhuma migração para core"
+python manage.py makemigrations produtos --noinput || echo "⚠️ Nenhuma migração para produtos"
+python manage.py makemigrations chat --noinput || echo "⚠️ Nenhuma migração para chat"
 
-python manage.py migrate core --noinput
-
-python manage.py migrate produtos --noinput
-python manage.py migrate chat --noinput
-
+# Aplicar todas as migrações
 python manage.py migrate --noinput
 
 echo "✅ Build concluído!"
