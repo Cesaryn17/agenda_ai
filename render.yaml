@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: agenda-ai
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn agenda_ai.wsgi:application --bind 0.0.0.0:8000"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
