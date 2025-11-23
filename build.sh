@@ -7,15 +7,10 @@ pip install -r requirements.txt
 echo "📦 Coletando arquivos estáticos..."
 python manage.py collectstatic --noinput
 
-echo "🗃️ Aplicando migrações..."
-python manage.py migrate
+echo "🗃️ Criando migrações para TODOS os apps..."
+python manage.py makemigrations --noinput
 
-echo "👤 Criando superusuário se não existir..."
-python manage.py shell -c "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(email='admin@agenda.ai').exists():
-    User.objects.create_superuser('admin@agenda.ai', 'admin123')
-"
+echo "🚀 Aplicando TODAS as migrações..."
+python manage.py migrate --noinput
 
-echo "✅ Build concluído!"
+echo "✅ Build concluído com migrações aplicadas!"
