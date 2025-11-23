@@ -1,0 +1,67 @@
+{% extends "account/base.html" %}
+
+{% block content %}
+<div class="auth-header">
+    <h1>Contas Conectadas 🔗</h1>
+    <p>Gerencie suas contas de redes sociais</p>
+</div>
+
+{% if form.accounts %}
+<div style="margin-bottom: 30px;">
+    <p>Estas são as contas de redes sociais conectadas à sua conta:</p>
+    
+    <form method="post" action="{% url 'socialaccount_connections' %}">
+        {% csrf_token %}
+        
+        {% for base_account in form.accounts %}
+            {% with base_account.get_provider_account as account %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; border: 1px solid #e1e1e1; border-radius: 8px; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 20px;">
+                        {% if account.get_brand.name == "Google" %}🔍
+                        {% elif account.get_brand.name == "Facebook" %}📘
+                        {% else %}🔗{% endif %}
+                    </span>
+                    <div>
+                        <strong>{{ account.get_brand.name }}</strong>
+                        <div style="color: #666; font-size: 14px;">{{ account.account.extra_data.email|default:account.account.uid }}</div>
+                    </div>
+                </div>
+                <div>
+                    <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}"/>
+                    <label for="id_account_{{ base_account.id }}">Remover</label>
+                </div>
+            </div>
+            {% endwith %}
+        {% endfor %}
+        
+        <button type="submit" class="auth-button" style="background: #dc3545;">
+            🗑️ Remover contas selecionadas
+        </button>
+    </form>
+</div>
+{% else %}
+<div style="text-align: center; margin: 30px 0;">
+    <div style="font-size: 48px; margin-bottom: 20px;">🔗</div>
+    <p style="color: #666;">Você não tem nenhuma conta de rede social conectada.</p>
+</div>
+{% endif %}
+
+<div style="margin: 30px 0;">
+    <h3 style="margin-bottom: 15px; color: #333;">Adicionar conta social</h3>
+    
+    <div class="social-login">
+        <a href="{% provider_login_url 'google' process='connect' %}" class="social-btn google">
+            <span>🔍</span> Conectar conta Google
+        </a>
+        
+        <a href="{% provider_login_url 'facebook' process='connect' %}" class="social-btn facebook">
+            <span>📘</span> Conectar conta Facebook
+        </a>
+    </div>
+</div>
+
+<div class="auth-links">
+    <p><a href="{% url 'settings' %}">⚙️ Voltar para configurações</a></p>
+</div>
+{% endblock %}

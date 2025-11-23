@@ -1,0 +1,12 @@
+pip install Django==4.2.7
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django-cors-headers
+pip install django-filter
+pip install drf-yasg
+pip install django-allauth
+pip install channels
+pip install mysqlclient
+pip install python-dotenv
+pip install Pillow
+

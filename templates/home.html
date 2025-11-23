@@ -1,0 +1,1456 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agenda AI - Plataforma de Anúncios Premium{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 8px;
+        --border-radius-sm: 6px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+        --shadow-md: 0 2px 8px rgba(0,0,0,0.12);
+        --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    html {
+        font-size: 14px;
+    }
+    
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .home-container {
+        width: 100%;
+        max-width: 100vw;
+        margin: 0 auto;
+        padding: 0 0.5rem;
+        overflow-x: hidden;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+        color: var(--white);
+        padding: 1.5rem 0.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/hero-pattern.svg" %}') center/cover;
+        opacity: 0.1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 0.25rem;
+    }
+    
+    .hero-title {
+        font-size: clamp(1.4rem, 5vw, 2.2rem);
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        line-height: 1.2;
+        word-wrap: break-word;
+        hyphens: auto;
+        padding: 0 0.25rem;
+    }
+    
+    .hero-subtitle {
+        font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+        margin-bottom: 1.25rem;
+        opacity: 0.95;
+        font-weight: 300;
+        line-height: 1.4;
+        word-wrap: break-word;
+        padding: 0 0.5rem;
+    }
+    
+    .hero-search {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        background: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--medium-blue);
+    }
+    
+    .hero-search input {
+        width: 100%;
+        padding: 0.875rem;
+        border: none;
+        font-size: 0.9rem;
+        outline: none;
+        background: transparent;
+        color: var(--black);
+        min-width: 0;
+    }
+    
+    .hero-search input::placeholder {
+        color: var(--dark-gray);
+    }
+    
+    .hero-search button {
+        width: 100%;
+        padding: 0.875rem;
+        background: var(--primary-cyan);
+        color: var(--white);
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-width: 0;
+    }
+    
+    .hero-search button:hover {
+        background: var(--primary-dark-cyan);
+    }
+    
+    .categories-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 0.5rem;
+        padding: 0.75rem 0.25rem;
+        margin-bottom: 1rem;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .categories-scroll::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .category-filter {
+        flex: 0 0 auto;
+        padding: 0.5rem 0.875rem;
+        background: var(--white);
+        border-radius: 50px;
+        border: 1px solid var(--medium-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        white-space: nowrap;
+        font-weight: 500;
+        color: var(--dark-gray);
+        font-size: 0.8rem;
+        min-width: max-content;
+    }
+    
+    .category-filter:hover,
+    .category-filter.active {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--light-gray);
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .section-title {
+        font-size: clamp(1rem, 4vw, 1.4rem);
+        font-weight: 700;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .section-title i {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 1.2rem;
+    }
+    
+    .view-all {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .view-all:hover {
+        color: var(--primary-dark-blue);
+        background: var(--light-gray);
+    }
+    
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .category-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        padding: 0.875rem 0.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        cursor: pointer;
+        border: 1px solid var(--light-gray);
+        text-decoration: none;
+        color: var(--black);
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        min-height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+    
+    .category-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        opacity: 0;
+        transition: var(--transition);
+    }
+    
+    .category-card:hover::before {
+        opacity: 1;
+    }
+    
+    .category-icon {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, var(--light-blue) 0%, #e0f2fe 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        color: var(--primary-blue);
+        font-size: 0.9rem;
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
+        flex-shrink: 0;
+    }
+    
+    .category-card:hover .category-icon {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        transform: scale(1.05);
+    }
+    
+    .category-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .category-name {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--black);
+        word-wrap: break-word;
+        line-height: 1.2;
+    }
+    
+    .category-count {
+        font-size: 0.7rem;
+        color: var(--dark-gray);
+        font-weight: 500;
+    }
+    
+    .ads-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .ad-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        border: 1px solid var(--light-gray);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+    
+    .ad-badge {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        z-index: 2;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .ad-premium {
+        background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+    }
+    
+    .ad-image {
+        height: 140px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        flex-shrink: 0;
+    }
+    
+    .ad-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+    }
+    
+    .ad-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .ad-card:hover .ad-image img {
+        transform: scale(1.03);
+    }
+    
+    .ad-details {
+        padding: 0.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-price {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 0.375rem;
+        display: flex;
+        align-items: center;
+        word-wrap: break-word;
+        line-height: 1.2;
+    }
+    
+    .ad-price::before {
+        content: 'R$';
+        font-size: 0.75rem;
+        margin-right: 0.125rem;
+        color: var(--dark-gray);
+        font-weight: 600;
+    }
+    
+    .ad-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 0.375rem;
+        line-height: 1.3;
+        color: var(--black);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.2rem;
+        word-wrap: break-word;
+    }
+    
+    .ad-location {
+        display: flex;
+        align-items: center;
+        color: var(--dark-gray);
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+    
+    .ad-location i {
+        margin-right: 0.375rem;
+        font-size: 0.7rem;
+        color: var(--primary-blue);
+        flex-shrink: 0;
+    }
+    
+    .ad-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--light-gray);
+        margin-top: auto;
+        width: 100%;
+    }
+    
+    .ad-seller {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        width: 100%;
+    }
+    
+    .seller-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.375rem;
+        color: var(--white);
+        font-size: 0.65rem;
+        font-weight: 700;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .seller-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .seller-avatar .avatar-initials {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .seller-name {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--black);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .ad-actions {
+        display: flex;
+        gap: 0.375rem;
+        width: 100%;
+    }
+    
+    .action-btn {
+        flex: 1;
+        height: 30px;
+        border-radius: 6px;
+        background: var(--light-gray);
+        border: 1px solid var(--medium-gray);
+        color: var(--dark-gray);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        font-size: 0.75rem;
+        min-width: 0;
+    }
+    
+    .action-btn:hover {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: transparent;
+    }
+    
+    .action-btn.favorited {
+        background: var(--error);
+        color: var(--white);
+        border-color: var(--error);
+    }
+    
+    .action-btn.favorited:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+    }
+    
+    .create-ad-btn {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        border: none;
+        box-shadow: var(--shadow-lg);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .create-ad-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+    }
+    
+    .filters-panel {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--light-gray);
+        width: 100%;
+    }
+    
+    .filter-group {
+        margin-bottom: 0.875rem;
+        width: 100%;
+    }
+    
+    .filter-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--black);
+        font-size: 0.85rem;
+    }
+    
+    .filter-title i {
+        color: var(--primary-blue);
+        font-size: 0.85rem;
+    }
+    
+    .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        width: 100%;
+    }
+    
+    .filter-option {
+        padding: 0.375rem 0.625rem;
+        background: var(--light-gray);
+        border-radius: 50px;
+        border: 1px solid var(--medium-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--dark-gray);
+        flex-shrink: 0;
+    }
+    
+    .filter-option:hover,
+    .filter-option.active {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+    }
+    
+    .price-range {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .price-input {
+        width: 100%;
+        padding: 0.625rem;
+        border: 1px solid var(--medium-gray);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        transition: var(--transition);
+        background: var(--light-gray);
+        min-width: 0;
+    }
+    
+    .price-input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        background: var(--white);
+    }
+    
+    .no-ads-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 1.5rem 0.75rem;
+        background: linear-gradient(135deg, var(--light-gray) 0%, #f1f5f9 100%);
+        border-radius: var(--border-radius);
+        border: 1px dashed var(--medium-gray);
+        color: var(--dark-gray);
+        width: 100%;
+    }
+    
+    .no-ads-message i {
+        font-size: 1.5rem;
+        color: var(--medium-gray);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .no-ads-message p {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 0.5rem;
+        right: 0.5rem;
+        left: 0.5rem;
+        background: var(--success);
+        color: var(--white);
+        padding: 0.875rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: slideInRight 0.4s ease;
+        font-weight: 600;
+        text-align: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    
+    .toast-notification.error {
+        background: var(--error);
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    /* Melhorias específicas para telas muito pequenas */
+    @media (max-width: 320px) {
+        html {
+            font-size: 13px;
+        }
+        
+        .home-container {
+            padding: 0 0.375rem;
+        }
+        
+        .categories-grid {
+            grid-template-columns: 1fr;
+            gap: 0.375rem;
+        }
+        
+        .category-card {
+            padding: 0.75rem 0.375rem;
+            min-height: 80px;
+        }
+        
+        .category-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+        }
+        
+        .ad-image {
+            height: 120px;
+        }
+        
+        .create-ad-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 0.9rem;
+            bottom: 0.75rem;
+            right: 0.75rem;
+        }
+    }
+
+    @media (min-width: 375px) {
+        .home-container {
+            padding: 0 0.75rem;
+        }
+        
+        .hero-section {
+            padding: 1.75rem 1rem;
+        }
+        
+        .categories-grid {
+            gap: 0.75rem;
+        }
+        
+        .category-card {
+            padding: 1rem 0.75rem;
+        }
+        
+        .category-icon {
+            width: 40px;
+            height: 40px;
+        }
+    }
+    
+    @media (min-width: 480px) {
+        .home-container {
+            padding: 0 1rem;
+        }
+        
+        .hero-section {
+            padding: 2rem 1.5rem;
+        }
+        
+        .categories-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .filter-options {
+            flex-direction: row;
+        }
+        
+        .price-range {
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .price-input {
+            min-width: 100px;
+        }
+        
+        .ad-footer {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ad-actions {
+            width: auto;
+            justify-content: flex-end;
+        }
+        
+        .action-btn {
+            width: 32px;
+            border-radius: 50%;
+        }
+        
+        .create-ad-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+    }
+    
+    @media (min-width: 768px) {
+        html {
+            font-size: 16px;
+        }
+        
+        .home-container {
+            padding: 0 1.5rem;
+            max-width: 1200px;
+        }
+        
+        .hero-section {
+            padding: 3rem 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-search {
+            flex-direction: row;
+            border-radius: 50px;
+            max-width: 500px;
+        }
+        
+        .hero-search input {
+            border-radius: 50px 0 0 50px;
+            padding: 1rem 1.25rem;
+        }
+        
+        .hero-search button {
+            border-radius: 0 50px 50px 0;
+            padding: 1rem 1.5rem;
+            width: auto;
+        }
+        
+        .categories-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        
+        .category-card {
+            padding: 1.25rem 0.875rem;
+        }
+        
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        
+        .ad-details {
+            padding: 1.25rem;
+        }
+        
+        .ad-price {
+            font-size: 1.3rem;
+        }
+        
+        .ad-title {
+            font-size: 1rem;
+        }
+        
+        .filters-panel {
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header {
+            margin-bottom: 1.25rem;
+        }
+        
+        .create-ad-btn {
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 55px;
+            height: 55px;
+            font-size: 1.4rem;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .home-container {
+            padding: 0 2rem;
+        }
+        
+        .hero-section {
+            padding: 3.5rem 2rem;
+        }
+        
+        .categories-scroll {
+            gap: 0.75rem;
+            padding: 1.25rem 0;
+            margin-bottom: 1.25rem;
+        }
+        
+        .category-filter {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        
+        .create-ad-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Prevenir overflow horizontal */
+    .home-container * {
+        max-width: 100%;
+    }
+    
+    /* Melhorar scroll no iOS */
+    .categories-scroll {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Garantir que imagens não causem overflow */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+<div class="home-container">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Encontre os melhores serviços perto de você</h1>
+            <p class="hero-subtitle">Conectamos você a profissionais qualificados em diversas categorias</p>
+            
+            <div class="hero-search">
+                <input type="text" id="heroSearchInput" placeholder="O que você está procurando?">
+                <button id="heroSearchBtn">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="categories-scroll">
+        <div class="category-filter active" data-category="all">Todos</div>
+        {% for categoria in categorias|slice:":8" %}
+        <div class="category-filter" data-category="{{ categoria.slug }}">{{ categoria.titulo }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="filters-panel">
+        <div class="filter-group">
+            <h3 class="filter-title"><i class="fas fa-filter"></i> Filtros</h3>
+            <div class="filter-options">
+                <div class="filter-option active" data-filter="all">Todos</div>
+                <div class="filter-option" data-filter="premium">Premium</div>
+                <div class="filter-option" data-filter="recent">Recentes</div>
+            </div>
+        </div>
+        
+        <div class="filter-group">
+            <h3 class="filter-title"><i class="fas fa-tag"></i> Preço</h3>
+            <div class="price-range">
+                <input type="number" class="price-input" id="minPrice" placeholder="Mínimo">
+                <span>até</span>
+                <input type="number" class="price-input" id="maxPrice" placeholder="Máximo">
+            </div>
+        </div>
+    </div>
+
+    <section id="categoriesSection">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-tags"></i>
+                <span>Categorias</span>
+            </h2>
+            <a href="{% url 'categories' %}" class="view-all">Ver todas</a>
+        </div>
+
+        <div class="categories-grid" id="categoriesGrid">
+            {% for categoria in categorias %}
+            <a href="{% url 'category' slug=categoria.slug %}" class="category-card">
+                <div class="category-icon">
+                    {% if categoria.imagem %}
+                    <img src="{{ categoria.imagem.url }}" alt="{{ categoria.titulo }}" loading="lazy">
+                    {% else %}
+                    <i class="fas fa-tag"></i>
+                    {% endif %}
+                </div>
+                <h3 class="category-name">{{ categoria.titulo }}</h3>
+                <p class="category-count">{{ categoria.total_anuncios }}</p>
+            </a>
+            {% empty %}
+            <div class="no-ads-message">
+                <i class="fas fa-tags"></i>
+                <p>Nenhuma categoria disponível</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="featuredAdsSection">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                <span>Em Destaque</span>
+            </h2>
+            <a href="{% url 'featured' %}" class="view-all">Ver todos</a>
+        </div>
+
+        <div class="ads-grid" id="featuredAdsGrid">
+            {% for anuncio in anuncios_destaque %}
+            <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card">
+                {% if anuncio.destaque %}
+                <span class="ad-badge ad-premium">Premium</span>
+                {% endif %}
+                <div class="ad-image">
+                    {% if anuncio.first_image %}
+                    <img src="{{ anuncio.first_image.imagem.url }}" alt="{{ anuncio.titulo }}" loading="lazy">
+                    {% else %}
+                    <img src="{% static 'images/default-ad.jpg' %}" alt="Sem imagem" loading="lazy">
+                    {% endif %}
+                </div>
+                <div class="ad-details">
+                    <div class="ad-price">
+                        {% if anuncio.valor %}
+                            {{ anuncio.valor|floatformat:2 }}
+                        {% else %}
+                            A combinar
+                        {% endif %}
+                    </div>
+                    <h3 class="ad-title">{{ anuncio.titulo }}</h3>
+                    <div class="ad-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>
+                            {% if anuncio.localizacao %}
+                                {{ anuncio.localizacao.cidade }}
+                            {% else %}
+                                Local não informado
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="ad-footer">
+                        <div class="ad-seller">
+                            <div class="seller-avatar">
+                                {% if anuncio.usuario.foto_perfil %}
+                                    <img src="{{ anuncio.usuario.foto_perfil.url }}" alt="{{ anuncio.usuario.nome|default:anuncio.usuario.username }}" loading="lazy">
+                                    <div class="avatar-initials" style="display: none;">
+                                        {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                    </div>
+                                {% else %}
+                                    <div class="avatar-initials">
+                                        {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <span class="seller-name">
+                                {{ anuncio.usuario.nome|default:anuncio.usuario.username|truncatechars:15 }}
+                            </span>
+                        </div>
+                        <div class="ad-actions">
+                            <button class="action-btn favorite-btn {% if anuncio.favoritado %}favorited{% endif %}" 
+                                    data-ad-id="{{ anuncio.id }}"
+                                    data-favoritado="{{ anuncio.favoritado|yesno:'true,false' }}">
+                                <i class="{% if anuncio.favoritado %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </button>
+                            <button class="action-btn share-btn" data-ad-id="{{ anuncio.id }}">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="no-ads-message">
+                <i class="fas fa-star"></i>
+                <p>Nenhum anúncio em destaque</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="recentAdsSection">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-clock"></i>
+                <span>Recentes</span>
+            </h2>
+            <a href="{% url 'recent-ads' %}" class="view-all">Ver todos</a>
+        </div>
+
+        <div class="ads-grid" id="recentAdsGrid">
+            {% for anuncio in anuncios_recentes %}
+            <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card">
+                {% if anuncio.destaque %}
+                <span class="ad-badge ad-premium">Premium</span>
+                {% endif %}
+                <div class="ad-image">
+                    {% if anuncio.first_image %}
+                    <img src="{{ anuncio.first_image.imagem.url }}" alt="{{ anuncio.titulo }}" loading="lazy">
+                    {% else %}
+                    <img src="{% static 'images/default-ad.jpg' %}" alt="Sem imagem" loading="lazy">
+                    {% endif %}
+                </div>
+                <div class="ad-details">
+                    <div class="ad-price">
+                        {% if anuncio.valor %}
+                            {{ anuncio.valor|floatformat:2 }}
+                        {% else %}
+                            A combinar
+                        {% endif %}
+                    </div>
+                    <h3 class="ad-title">{{ anuncio.titulo }}</h3>
+                    <div class="ad-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>
+                            {% if anuncio.localizacao %}
+                                {{ anuncio.localizacao.cidade }}
+                            {% else %}
+                                Local não informado
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="ad-footer">
+                        <div class="ad-seller">
+                            <div class="seller-avatar">
+                                {% if anuncio.usuario.foto_perfil %}
+                                    <img src="{{ anuncio.usuario.foto_perfil.url }}" alt="{{ anuncio.usuario.nome|default:anuncio.usuario.username }}" loading="lazy">
+                                    <div class="avatar-initials" style="display: none;">
+                                        {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                    </div>
+                                {% else %}
+                                    <div class="avatar-initials">
+                                        {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <span class="seller-name">
+                                {{ anuncio.usuario.nome|default:anuncio.usuario.username|truncatechars:15 }}
+                            </span>
+                        </div>
+                        <div class="ad-actions">
+                            <button class="action-btn favorite-btn {% if anuncio.favoritado %}favorited{% endif %}" 
+                                    data-ad-id="{{ anuncio.id }}"
+                                    data-favoritado="{{ anuncio.favoritado|yesno:'true,false' }}">
+                                <i class="{% if anuncio.favoritado %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </button>
+                            <button class="action-btn share-btn" data-ad-id="{{ anuncio.id }}">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="no-ads-message">
+                <i class="fas fa-clock"></i>
+                <p>Nenhum anúncio recente</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<button class="create-ad-btn" id="createAdBtn" aria-label="Criar novo anúncio">
+    <i class="fas fa-plus"></i>
+</button>
+
+<script>
+    // O JavaScript permanece o mesmo, pois as melhorias foram focadas no CSS
+    const APP_CONFIG = {
+        isLoggedIn: {{ user.is_authenticated|yesno:"true,false" }},
+        urls: {
+            search: "{% url 'search' %}",
+            createAd: "{% url 'create-ad' %}",
+            login: "{% url 'login' %}",
+            categories: "{% url 'categories' %}",
+            featured: "{% url 'featured' %}",
+            recentAds: "{% url 'recent-ads' %}",
+            toggleFavorito: "{% url 'toggle-favorito' 0 %}",
+            anuncioDetail: "{% url 'anuncio-detail' anuncio_id=0 %}"
+        },
+        staticUrls: {
+            defaultAdImage: "{% static 'images/default-ad.jpg' %}"
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initSearch();
+        initFilters();
+        initFavoriteButtons();
+        initCreateAdButton();
+        initShareButtons();
+        initImageLoading();
+    });
+
+    function initSearch() {
+        const heroSearchBtn = document.getElementById('heroSearchBtn');
+        const heroSearchInput = document.getElementById('heroSearchInput');
+        
+        if (heroSearchBtn && heroSearchInput) {
+            heroSearchBtn.addEventListener('click', performSearch);
+            
+            heroSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+
+        function performSearch() {
+            const searchTerm = heroSearchInput.value.trim();
+            if (searchTerm) {
+                heroSearchBtn.classList.add('loading');
+                heroSearchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                setTimeout(function() {
+                    window.location.href = APP_CONFIG.urls.search + '?q=' + encodeURIComponent(searchTerm);
+                }, 500);
+            }
+        }
+    }
+
+    function initFilters() {
+        document.querySelectorAll('.category-filter').forEach(function(filter) {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.category-filter').forEach(function(f) {
+                    f.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.filter-option').forEach(function(option) {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.filter-option').forEach(function(o) {
+                    o.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+    }
+
+    function initFavoriteButtons() {
+        document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const adId = this.getAttribute('data-ad-id');
+                const isFavorited = this.getAttribute('data-favoritado') === 'true';
+                
+                if (!APP_CONFIG.isLoggedIn) {
+                    showLoginModal();
+                    return;
+                }
+                
+                toggleFavoriteUI(this, !isFavorited);
+                
+                try {
+                    const url = APP_CONFIG.urls.toggleFavorito.replace('0', adId);
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        showToast(data.action === 'added' ? 'Favoritado! ❤️' : 'Removido');
+                    } else {
+                        toggleFavoriteUI(this, isFavorited);
+                        showToast('Erro', 'error');
+                    }
+                } catch (error) {
+                    toggleFavoriteUI(this, isFavorited);
+                    showToast('Erro de conexão', 'error');
+                }
+            });
+        });
+    }
+
+    function toggleFavoriteUI(button, isFavorited) {
+        const icon = button.querySelector('i');
+        button.setAttribute('data-favoritado', isFavorited.toString());
+        
+        if (isFavorited) {
+            button.classList.add('favorited');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+        } else {
+            button.classList.remove('favorited');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+        }
+    }
+
+    function initCreateAdButton() {
+        const createAdBtn = document.getElementById('createAdBtn');
+        if (createAdBtn) {
+            createAdBtn.addEventListener('click', function() {
+                if (APP_CONFIG.isLoggedIn) {
+                    window.location.href = APP_CONFIG.urls.createAd;
+                } else {
+                    showLoginModal();
+                }
+            });
+        }
+    }
+
+    function initShareButtons() {
+        document.querySelectorAll('.share-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const adId = this.getAttribute('data-ad-id');
+                const shareUrl = APP_CONFIG.urls.anuncioDetail.replace('0', adId);
+                const fullUrl = window.location.origin + shareUrl;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Confira este anúncio!',
+                        text: 'Encontrei este anúncio no Agenda AI',
+                        url: fullUrl
+                    });
+                } else {
+                    navigator.clipboard.writeText(fullUrl)
+                        .then(function() {
+                            showToast('Link copiado!');
+                        });
+                }
+            });
+        });
+    }
+
+    function initImageLoading() {
+        const images = document.querySelectorAll('img[loading="lazy"]');
+        
+        images.forEach(function(img) {
+            img.addEventListener('error', function() {
+                this.src = APP_CONFIG.staticUrls.defaultAdImage;
+            });
+        });
+    }
+
+    function showToast(message, type) {
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification ' + (type === 'error' ? 'error' : '');
+        toast.innerHTML = '<i class="fas ' + (type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle') + '"></i><span>' + message + '</span>';
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(function() {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 3000);
+    }
+
+    function showLoginModal() {
+        const nextUrl = encodeURIComponent(window.location.pathname);
+        const loginUrl = APP_CONFIG.urls.login + '?next=' + nextUrl;
+        window.location.href = loginUrl;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

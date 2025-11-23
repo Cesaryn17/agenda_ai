@@ -1,0 +1,1237 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Meus Anúncios - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --border-radius: 20px;
+        --border-radius-sm: 12px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    
+    * {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+    
+    html {
+        font-size: 14px;
+        overflow-x: hidden;
+    }
+    
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .my-ads-container {
+        width: 100%;
+        max-width: 100vw;
+        margin: 0 auto;
+        padding: 1rem;
+        min-height: 80vh;
+        overflow-x: hidden;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: clamp(1.5rem, 5vw, 2rem);
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        border-radius: var(--border-radius);
+        color: var(--white);
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><path d="M500 50Q550 0 600 50T700 50T800 50T900 50T1000 50V100H0V50Q100 50 200 50T300 50T400 50T500 50Z"/></svg>');
+        background-size: cover;
+    }
+    
+    .page-title {
+        font-size: clamp(1.8rem, 6vw, 3rem);
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        position: relative;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        line-height: 1.2;
+    }
+    
+    .page-subtitle {
+        font-size: clamp(0.9rem, 3vw, 1.2rem);
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+        position: relative;
+        font-weight: 300;
+        line-height: 1.4;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        position: relative;
+        flex-wrap: wrap;
+    }
+    
+    .create-ad-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: clamp(0.8rem, 2.5vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+        background: rgba(255,255,255,0.2);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+        border: 2px solid rgba(255,255,255,0.3);
+        backdrop-filter: blur(10px);
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        min-width: 0;
+    }
+    
+    .create-ad-btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        padding: clamp(1.25rem, 3vw, 2rem);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        text-align: center;
+        transition: var(--transition);
+        border: 2px solid var(--light-gray);
+        position: relative;
+        overflow: hidden;
+        min-width: 0;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .stat-icon {
+        width: clamp(45px, 8vw, 60px);
+        height: clamp(45px, 8vw, 60px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+    }
+    
+    .stat-card:nth-child(1) .stat-icon {
+        background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+        color: var(--primary-blue);
+    }
+    
+    .stat-card:nth-child(2) .stat-icon {
+        background: linear-gradient(135deg, #d1fae5 0%, #dcfce7 100%);
+        color: var(--success);
+    }
+    
+    .stat-card:nth-child(3) .stat-icon {
+        background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+        color: var(--warning);
+    }
+    
+    .stat-card:nth-child(4) .stat-icon {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: var(--error);
+    }
+    
+    .stat-number {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 800;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+        display: block;
+        line-height: 1.2;
+    }
+    
+    .stat-label {
+        color: var(--dark-gray);
+        font-size: clamp(0.8rem, 2.5vw, 1rem);
+        font-weight: 500;
+    }
+    
+    .filters-section {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: clamp(1.5rem, 3vw, 2rem);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 1.5rem;
+        border: 2px solid var(--light-gray);
+        width: 100%;
+    }
+    
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .filters-title {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+        font-weight: 700;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .filters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .filter-btn {
+        padding: clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 2.5vw, 1.5rem);
+        border-radius: 50px;
+        background: var(--light-gray);
+        color: var(--dark-gray);
+        border: 2px solid var(--medium-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+        white-space: nowrap;
+    }
+    
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        border-color: var(--primary-blue);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    
+    .filter-btn:hover:not(.active) {
+        background: var(--medium-gray);
+        border-color: var(--dark-gray);
+    }
+    
+    .search-box {
+        position: relative;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: clamp(0.75rem, 2vw, 0.85rem) clamp(1rem, 2.5vw, 1rem) clamp(0.75rem, 2vw, 0.85rem) clamp(2.5rem, 5vw, 3rem);
+        border: 2px solid var(--medium-gray);
+        border-radius: 50px;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        transition: var(--transition);
+        background: var(--light-gray);
+        min-width: 0;
+    }
+    
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        background: var(--white);
+    }
+    
+    .search-box i {
+        position: absolute;
+        left: clamp(1rem, 2.5vw, 1rem);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-gray);
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+    
+    .ads-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        width: 100%;
+    }
+    
+    .ad-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        position: relative;
+        border: 2px solid var(--light-gray);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        min-width: 0;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+    
+    .ad-header {
+        position: relative;
+        height: clamp(160px, 40vw, 200px);
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .ad-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    
+    .ad-card:hover .ad-image {
+        transform: scale(1.05);
+    }
+    
+    .ad-badges {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .ad-badge {
+        padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.75rem, 2vw, 1rem);
+        border-radius: 50px;
+        font-size: clamp(0.7rem, 2vw, 0.75rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-destaque {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+    }
+    
+    .badge-novo {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+    }
+    
+    .badge-status {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.75rem, 2vw, 1rem);
+        border-radius: 50px;
+        font-size: clamp(0.7rem, 2vw, 0.75rem);
+        font-weight: 700;
+    }
+    
+    .status-ativo {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+    }
+    
+    .status-pendente {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+    }
+    
+    .status-inativo {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        color: #374151;
+    }
+    
+    .ad-content {
+        padding: clamp(1.25rem, 3vw, 1.5rem);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-title {
+        font-size: clamp(1.1rem, 3vw, 1.25rem);
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-wrap: break-word;
+    }
+    
+    .ad-category {
+        color: var(--primary-blue);
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+        padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.75rem, 2vw, 1rem);
+        border-radius: 50px;
+        align-self: flex-start;
+    }
+    
+    .ad-price {
+        font-size: clamp(1.3rem, 4vw, 1.5rem);
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+    
+    .ad-description {
+        color: var(--dark-gray);
+        font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        margin-bottom: 1.25rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+        word-wrap: break-word;
+    }
+    
+    .ad-meta {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        background: var(--light-gray);
+        border-radius: var(--border-radius-sm);
+        width: 100%;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: clamp(0.8rem, 2.5vw, 0.85rem);
+        color: var(--dark-gray);
+    }
+    
+    .meta-item i {
+        color: var(--primary-blue);
+        width: 16px;
+        font-size: clamp(0.8rem, 2.5vw, 0.85rem);
+    }
+    
+    .ad-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: auto;
+        width: 100%;
+    }
+    
+    .btn {
+        padding: clamp(0.75rem, 2vw, 0.75rem) clamp(1rem, 2.5vw, 1rem);
+        border-radius: var(--border-radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        border: 2px solid transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        text-align: center;
+        min-width: 0;
+        flex: 1;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+    }
+    
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    
+    .btn-secondary {
+        background: var(--light-gray);
+        color: var(--dark-gray);
+        border-color: var(--medium-gray);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--medium-gray);
+        transform: translateY(-2px);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+        color: var(--white);
+    }
+    
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning) 0%, #fbbf24 100%);
+        color: var(--white);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+        color: var(--white);
+    }
+    
+    .btn-danger:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+    }
+    
+    .no-ads {
+        text-align: center;
+        padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 3vw, 2rem);
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        margin: 1.5rem 0;
+        border: 2px dashed var(--medium-gray);
+        width: 100%;
+    }
+    
+    .no-ads-icon {
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        margin-bottom: 1.25rem;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .no-ads h3 {
+        font-size: clamp(1.3rem, 4vw, 1.8rem);
+        margin-bottom: 1rem;
+        color: var(--black);
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    
+    .no-ads p {
+        color: var(--dark-gray);
+        margin-bottom: 1.5rem;
+        font-size: clamp(0.9rem, 3vw, 1.1rem);
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.5;
+    }
+    
+    .image-placeholder {
+        background: var(--light-gray);
+        height: clamp(160px, 40vw, 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-gray);
+        width: 100%;
+    }
+    
+    .image-placeholder i {
+        font-size: clamp(2rem, 5vw, 3rem);
+        opacity: 0.5;
+    }
+    
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        max-width: 500px;
+        width: 100%;
+        box-shadow: var(--shadow-lg);
+        transform: translateY(30px) scale(0.95);
+        transition: all 0.4s ease;
+        border: 2px solid var(--light-gray);
+    }
+    
+    .modal-overlay.active .modal {
+        transform: translateY(0) scale(1);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .modal-title {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+        font-weight: 700;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .modal-close {
+        background: var(--light-gray);
+        border: none;
+        width: clamp(35px, 8vw, 40px);
+        height: clamp(35px, 8vw, 40px);
+        border-radius: 50%;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        cursor: pointer;
+        color: var(--dark-gray);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+    
+    .modal-close:hover {
+        background: var(--medium-gray);
+        color: var(--black);
+    }
+    
+    .modal-body {
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        color: var(--dark-gray);
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+    
+    .modal-body strong {
+        color: var(--black);
+        font-weight: 600;
+    }
+    
+    .modal-footer {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+    
+    .modal-btn {
+        padding: clamp(0.75rem, 2vw, 0.75rem) clamp(1.25rem, 3vw, 1.5rem);
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 2px solid transparent;
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .modal-btn-cancel {
+        background: var(--light-gray);
+        color: var(--dark-gray);
+        border-color: var(--medium-gray);
+    }
+    
+    .modal-btn-cancel:hover {
+        background: var(--medium-gray);
+        color: var(--black);
+    }
+    
+    .modal-btn-confirm {
+        background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+        color: var(--white);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+    
+    .modal-btn-confirm:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(220, 38, 38, 0.3);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Melhorias para telas muito pequenas */
+    @media (max-width: 320px) {
+        .my-ads-container {
+            padding: 0.75rem;
+        }
+        
+        .page-header {
+            padding: 1.25rem;
+        }
+        
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-buttons {
+            flex-direction: column;
+        }
+        
+        .ad-meta {
+            padding: 0.75rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+
+    @media (min-width: 375px) {
+        .ad-meta {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: row;
+        }
+    }
+
+    @media (min-width: 480px) {
+        .my-ads-container {
+            padding: 1.5rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .filters-container {
+            flex-direction: row;
+            align-items: flex-end;
+        }
+        
+        .filter-buttons {
+            flex: 1;
+        }
+        
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+        }
+        
+        .modal-footer {
+            flex-wrap: nowrap;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .my-ads-container {
+            padding: 2rem;
+            max-width: 1400px;
+        }
+        
+        .stats-container {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        }
+        
+        .ad-meta {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .ad-actions {
+            flex-direction: row;
+        }
+        
+        .action-buttons {
+            flex: 1;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+    }
+
+    /* Prevenir overflow horizontal */
+    .my-ads-container * {
+        max-width: 100%;
+    }
+    
+    /* Garantir que imagens não causem overflow */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+<div class="my-ads-container">
+    <div class="page-header">
+        <h1 class="page-title">📊 Meus Anúncios</h1>
+        <p class="page-subtitle">Gerencie e acompanhe o desempenho dos seus anúncios</p>
+        <div class="header-actions">
+            <a href="{% url 'create-ad' %}" class="create-ad-btn">
+                <i class="fas fa-plus-circle"></i>
+                Criar Novo Anúncio
+            </a>
+        </div>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <span class="stat-number">{{ total_anuncios }}</span>
+            <span class="stat-label">Total de Anúncios</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <span class="stat-number">{{ anuncios_ativos }}</span>
+            <span class="stat-label">Anúncios Ativos</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <span class="stat-number">{{ anuncios_pendentes }}</span>
+            <span class="stat-label">Pendentes</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <span class="stat-number">{{ anuncios_inativos }}</span>
+            <span class="stat-label">Inativos</span>
+        </div>
+    </div>
+    
+    <div class="filters-section">
+        <div class="filters-header">
+            <h2 class="filters-title">
+                <i class="fas fa-filter"></i>
+                Filtros e Busca
+            </h2>
+        </div>
+        
+        <div class="filters-container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-layer-group"></i>
+                    Todos ({{ total_anuncios }})
+                </button>
+                <button class="filter-btn" data-filter="ativo">
+                    <i class="fas fa-check-circle"></i>
+                    Ativos ({{ anuncios_ativos }})
+                </button>
+                <button class="filter-btn" data-filter="pendente">
+                    <i class="fas fa-clock"></i>
+                    Pendentes ({{ anuncios_pendentes }})
+                </button>
+                <button class="filter-btn" data-filter="inativo">
+                    <i class="fas fa-pause-circle"></i>
+                    Inativos ({{ anuncios_inativos }})
+                </button>
+            </div>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchAnuncios" placeholder="Buscar nos meus anúncios...">
+            </div>
+        </div>
+    </div>
+    
+    {% if meus_anuncios %}
+    <div class="ads-grid" id="anuncios-grid">
+        {% for anuncio in meus_anuncios %}
+        <div class="ad-card" data-status="{{ anuncio.status }}" data-title="{{ anuncio.titulo|lower }}" data-category="{{ anuncio.categoria.titulo|lower }}">
+            <div class="ad-header">
+                {% with primeira_imagem=anuncio.imagens.first %}
+                    {% if primeira_imagem and primeira_imagem.imagem %}
+                        <img src="{{ primeira_imagem.imagem.url }}" alt="{{ anuncio.titulo }}" class="ad-image">
+                    {% else %}
+                        <div class="image-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="ad-badges">
+                    {% if anuncio.destaque %}
+                    <span class="ad-badge badge-destaque">
+                        <i class="fas fa-star"></i> Destaque
+                    </span>
+                    {% endif %}
+                    
+                    {% if anuncio.estado_produto == 'novo' %}
+                    <span class="ad-badge badge-novo">
+                        <i class="fas fa-tag"></i> Novo
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <span class="ad-badge badge-status status-{{ anuncio.status }}">
+                    {{ anuncio.get_status_display }}
+                </span>
+            </div>
+            
+            <div class="ad-content">
+                <h3 class="ad-title">{{ anuncio.titulo }}</h3>
+                <span class="ad-category">{{ anuncio.categoria.titulo }}</span>
+                
+                <div class="ad-price">
+                    {% if anuncio.valor > 0 %}
+                        R$ {{ anuncio.valor|floatformat:2 }}
+                    {% else %}
+                        <span style="color: var(--dark-gray); font-style: italic;">A combinar</span>
+                    {% endif %}
+                </div>
+                
+                <p class="ad-description">{{ anuncio.descricao|truncatewords:20 }}</p>
+                
+                <div class="ad-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-eye"></i>
+                        <span>{{ anuncio.visualizacoes }} visualizações</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>{{ anuncio.data_criacao|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>
+                            {% if anuncio.localizacao %}
+                                {{ anuncio.localizacao.cidade }}, {{ anuncio.localizacao.estado }}
+                            {% else %}
+                                Local não informado
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Atualizado {{ anuncio.data_atualizacao|timesince }}</span>
+                    </div>
+                </div>
+                
+                <div class="ad-actions">
+                    <div class="action-buttons">
+                        <a href="{% url 'edit-ad' anuncio.id %}" class="btn btn-secondary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        
+                        {% if anuncio.status != 'ativo' %}
+                        <form method="post" action="{% url 'my-ads' %}" class="d-inline" style="flex: 1;">
+                            {% csrf_token %}
+                            <input type="hidden" name="change_status" value="{{ anuncio.id }}">
+                            <input type="hidden" name="novo_status" value="ativo">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-play-circle"></i> Ativar
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if anuncio.status != 'inativo' %}
+                        <form method="post" action="{% url 'my-ads' %}" class="d-inline" style="flex: 1;">
+                            {% csrf_token %}
+                            <input type="hidden" name="change_status" value="{{ anuncio.id }}">
+                            <input type="hidden" name="novo_status" value="inativo">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-pause-circle"></i> Pausar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    
+                    <form method="post" action="{% url 'my-ads' %}" class="d-inline" style="width: 100%;">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_ad" value="{{ anuncio.id }}">
+                        <button type="button" class="btn btn-danger" onclick="showDeleteModal({{ anuncio.id }}, '{{ anuncio.titulo|escapejs }}')" style="width: 100%;">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-ads">
+        <div class="no-ads-icon">
+            <i class="fas fa-bullhorn"></i>
+        </div>
+        <h3>Nenhum anúncio encontrado</h3>
+        <p>Você ainda não criou nenhum anúncio. Comece agora mesmo e alcance milhares de potenciais clientes!</p>
+        <a href="{% url 'create-ad' %}" class="create-ad-btn" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%); border: none;">
+            <i class="fas fa-plus-circle"></i> Criar Primeiro Anúncio
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h2>
+            <button class="modal-close" onclick="hideDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Tem certeza que deseja excluir permanentemente o anúncio "<strong id="deleteAdTitle"></strong>"?</p>
+            <p style="color: var(--error); font-weight: 600; margin-top: 1rem;">
+                <i class="fas fa-info-circle"></i> Esta ação não pode ser desfeita. Todos os dados e imagens serão perdidos.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" onclick="hideDeleteModal()">Cancelar</button>
+            <form method="post" action="{% url 'my-ads' %}" id="deleteForm">
+                {% csrf_token %}
+                <input type="hidden" name="delete_ad" id="deleteAdId">
+                <button type="submit" class="modal-btn modal-btn-confirm">
+                    <i class="fas fa-trash"></i> Excluir Permanentemente
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const searchInput = document.getElementById('searchAnuncios');
+        const adCards = document.querySelectorAll('.ad-card');
+        const anunciosGrid = document.getElementById('anuncios-grid');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                filterAnuncios(filter, searchInput.value);
+            });
+        });
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+            filterAnuncios(activeFilter, searchTerm);
+        });
+        
+        function filterAnuncios(statusFilter, searchTerm) {
+            let visibleCount = 0;
+            
+            adCards.forEach(card => {
+                const cardStatus = card.getAttribute('data-status');
+                const cardTitle = card.getAttribute('data-title');
+                const cardCategory = card.getAttribute('data-category');
+                
+                const statusMatch = statusFilter === 'all' || cardStatus === statusFilter;
+                const searchMatch = !searchTerm || 
+                    cardTitle.includes(searchTerm) || 
+                    cardCategory.includes(searchTerm);
+                
+                if (statusMatch && searchMatch) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                    card.style.animation = 'fadeInUp 0.4s ease';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            const noResultsMessage = document.getElementById('no-results-message');
+            if (visibleCount === 0 && adCards.length > 0) {
+                if (!noResultsMessage) {
+                    const message = document.createElement('div');
+                    message.id = 'no-results-message';
+                    message.className = 'no-ads';
+                    message.innerHTML = `
+                        <div class="no-ads-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Nenhum anúncio encontrado</h3>
+                        <p>Tente ajustar os filtros ou termos de busca.</p>
+                        <button class="create-ad-btn" onclick="clearFilters()" style="background: var(--light-gray); color: var(--dark-gray); border-color: var(--medium-gray);">
+                            <i class="fas fa-times"></i> Limpar Filtros
+                        </button>
+                    `;
+                    anunciosGrid.appendChild(message);
+                }
+            } else if (noResultsMessage) {
+                noResultsMessage.remove();
+            }
+        }
+    });
+    
+    function clearFilters() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-filter') === 'all') {
+                btn.classList.add('active');
+            }
+        });
+        
+        document.getElementById('searchAnuncios').value = '';
+        filterAnuncios('all', '');
+    }
+    
+    function showDeleteModal(adId, adTitle) {
+        document.getElementById('deleteAdId').value = adId;
+        document.getElementById('deleteAdTitle').textContent = adTitle;
+        document.getElementById('deleteModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function hideDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideDeleteModal();
+        }
+    });
+    
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideDeleteModal();
+        }
+    });
+    
+    function animateStats() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(stat => {
+            const finalValue = parseInt(stat.textContent);
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    stat.textContent = finalValue;
+                    clearInterval(timer);
+                } else {
+                    stat.textContent = Math.floor(currentValue);
+                }
+            }, 30);
+        });
+    }
+    
+    window.addEventListener('load', animateStats);
+</script>
+{% endblock %}

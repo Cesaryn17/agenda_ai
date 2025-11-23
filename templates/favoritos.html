@@ -1,0 +1,956 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agenda AI - Meus Favoritos{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 20px;
+        --border-radius-sm: 12px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    
+    * {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+    
+    html {
+        font-size: 14px;
+        overflow-x: hidden;
+    }
+    
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .favorites-container {
+        width: 100%;
+        max-width: 100vw;
+        margin: 0 auto;
+        padding: 1rem;
+        overflow-x: hidden;
+    }
+    
+    .page-header {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--light-gray);
+        width: 100%;
+    }
+    
+    .page-title {
+        font-size: clamp(1.8rem, 6vw, 2.8rem);
+        font-weight: 800;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+    
+    .page-title i {
+        color: var(--primary-cyan);
+        background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: clamp(1.5rem, 5vw, 2.2rem);
+    }
+    
+    .header-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .total-favorites {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+        color: white;
+        padding: clamp(0.8rem, 3vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+        border-radius: 50px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        font-size: clamp(0.9rem, 3vw, 1.2rem);
+        justify-content: center;
+        text-align: center;
+        min-width: 0;
+    }
+    
+    .back-btn {
+        background: var(--white);
+        color: var(--primary-blue);
+        padding: clamp(0.8rem, 3vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+        border-radius: var(--border-radius-sm);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: var(--transition);
+        border: 2px solid var(--medium-gray);
+        font-weight: 600;
+        font-size: clamp(0.9rem, 3vw, 1rem);
+        justify-content: center;
+        min-width: 0;
+    }
+    
+    .back-btn:hover {
+        background: var(--primary-blue);
+        color: var(--white);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+    }
+    
+    .filters-container {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        border: 2px solid var(--light-gray);
+        width: 100%;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .filter-label {
+        font-weight: 700;
+        color: var(--black);
+        font-size: clamp(1rem, 3vw, 1.2rem);
+    }
+    
+    .filter-options {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .filter-option {
+        padding: clamp(0.8rem, 2.5vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+        background: var(--light-gray);
+        border-radius: 50px;
+        border: 2px solid var(--medium-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        font-weight: 600;
+        color: var(--dark-gray);
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        white-space: nowrap;
+    }
+    
+    .filter-option:hover,
+    .filter-option.active {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+    }
+    
+    .search-filter {
+        position: relative;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .search-filter input {
+        width: 100%;
+        padding: clamp(1rem, 2.5vw, 1.2rem) clamp(1rem, 2.5vw, 1.2rem) clamp(1rem, 2.5vw, 1.2rem) clamp(2.5rem, 5vw, 3.5rem);
+        border: 2px solid var(--medium-gray);
+        border-radius: 15px;
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        transition: var(--transition);
+        background: var(--light-gray);
+        font-weight: 500;
+        min-width: 0;
+    }
+    
+    .search-filter input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        background: var(--white);
+    }
+    
+    .search-filter i {
+        position: absolute;
+        left: clamp(1rem, 2.5vw, 1.5rem);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-gray);
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+    }
+    
+    .ads-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        width: 100%;
+    }
+    
+    .ad-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        border: 2px solid var(--light-gray);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+    
+    .ad-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(1rem, 2.5vw, 1.5rem);
+        border-radius: 50px;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+        font-weight: 700;
+        z-index: 2;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .ad-premium {
+        background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+    }
+    
+    .ad-image {
+        height: clamp(200px, 50vw, 280px);
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+    
+    .ad-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+    }
+    
+    .ad-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .ad-card:hover .ad-image img {
+        transform: scale(1.05);
+    }
+    
+    .ad-details {
+        padding: clamp(1.5rem, 3vw, 2.5rem);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-price {
+        font-size: clamp(1.5rem, 4vw, 2.2rem);
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+    
+    .ad-price::before {
+        content: 'R$';
+        font-size: clamp(1rem, 3vw, 1.5rem);
+        margin-right: 0.25rem;
+        color: var(--dark-gray);
+        font-weight: 600;
+    }
+    
+    .ad-title {
+        font-size: clamp(1.1rem, 3vw, 1.4rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        color: var(--black);
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: auto;
+        word-wrap: break-word;
+    }
+    
+    .ad-description {
+        color: var(--dark-gray);
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+        word-wrap: break-word;
+    }
+    
+    .ad-location {
+        display: flex;
+        align-items: center;
+        color: var(--dark-gray);
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+    
+    .ad-location i {
+        margin-right: 0.5rem;
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        color: var(--primary-blue);
+        flex-shrink: 0;
+    }
+    
+    .ad-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--light-gray);
+        margin-top: auto;
+        width: 100%;
+    }
+    
+    .ad-seller {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .seller-avatar {
+        width: clamp(40px, 8vw, 50px);
+        height: clamp(40px, 8vw, 50px);
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.75rem;
+        color: var(--white);
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        font-weight: 700;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .seller-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .seller-avatar .avatar-initials {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .seller-name {
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        font-weight: 600;
+        color: var(--black);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .ad-actions {
+        display: flex;
+        gap: 0.75rem;
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .action-btn {
+        width: clamp(40px, 8vw, 50px);
+        height: clamp(40px, 8vw, 50px);
+        border-radius: 50%;
+        background: var(--light-gray);
+        border: 2px solid var(--medium-gray);
+        color: var(--dark-gray);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        flex-shrink: 0;
+    }
+    
+    .action-btn:hover {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: transparent;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 4vw, 3rem);
+        background: linear-gradient(135deg, var(--light-gray) 0%, #f1f5f9 100%);
+        border-radius: 20px;
+        border: 2px dashed var(--medium-gray);
+        color: var(--dark-gray);
+        width: 100%;
+    }
+    
+    .empty-state i {
+        font-size: clamp(3rem, 10vw, 5rem);
+        color: var(--medium-gray);
+        margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+        display: block;
+    }
+    
+    .empty-state h3 {
+        font-size: clamp(1.5rem, 5vw, 2.2rem);
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+    
+    .empty-state p {
+        margin: 0;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        font-weight: 500;
+        margin-bottom: clamp(2rem, 5vw, 3rem);
+        line-height: 1.5;
+    }
+    
+    .explore-btn {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        padding: clamp(1rem, 3vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.4s ease;
+        font-weight: 600;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        justify-content: center;
+        min-width: 0;
+    }
+    
+    .explore-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        left: 1rem;
+        background: var(--success);
+        color: var(--white);
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: var(--shadow-lg);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: slideInRight 0.4s ease;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .toast-notification.error {
+        background: var(--error);
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .pagination a, .pagination span {
+        width: clamp(40px, 8vw, 55px);
+        height: clamp(40px, 8vw, 55px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--medium-gray);
+        background: var(--white);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-weight: 600;
+        font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        flex-shrink: 0;
+    }
+    
+    .pagination span {
+        border: 2px solid var(--primary-blue);
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+    }
+    
+    .pagination a:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+    }
+    
+    /* Melhorias para telas muito pequenas */
+    @media (max-width: 320px) {
+        .favorites-container {
+            padding: 0.75rem;
+        }
+        
+        .filters-container {
+            padding: 1.25rem;
+        }
+        
+        .filter-options {
+            gap: 0.5rem;
+        }
+        
+        .filter-option {
+            padding: 0.7rem 1.25rem;
+            font-size: 0.8rem;
+        }
+        
+        .ad-details {
+            padding: 1.25rem;
+        }
+        
+        .ad-footer {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .ad-actions {
+            justify-content: center;
+        }
+    }
+
+    @media (min-width: 375px) {
+        .header-actions {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        
+        .total-favorites, .back-btn {
+            flex: 1;
+            max-width: 200px;
+        }
+        
+        .ad-footer {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ad-actions {
+            width: auto;
+        }
+    }
+
+    @media (min-width: 480px) {
+        .favorites-container {
+            padding: 1.5rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .filters-container {
+            flex-direction: row;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-filter {
+            flex: 2;
+            min-width: 250px;
+        }
+        
+        .filter-options {
+            flex-wrap: nowrap;
+        }
+        
+        .filter-option {
+            flex: 0 1 auto;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .favorites-container {
+            padding: 2rem;
+            max-width: 1200px;
+        }
+        
+        .page-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-actions {
+            flex-direction: row;
+            width: auto;
+            gap: 1.5rem;
+        }
+        
+        .total-favorites, .back-btn {
+            flex: 0 1 auto;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+        
+        .filters-container {
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        }
+    }
+
+    /* Prevenir overflow horizontal */
+    .favorites-container * {
+        max-width: 100%;
+    }
+    
+    /* Garantir que imagens não causem overflow */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Melhorar scroll no iOS */
+    .filter-options {
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+
+<div class="favorites-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-heart"></i>
+            Meus Favoritos
+        </h1>
+        <div class="header-actions">
+            <div class="total-favorites">
+                <i class="fas fa-bookmark"></i>
+                {{ total_favoritos }} itens salvos
+            </div>
+            <a href="{% url 'home' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Voltar para Home
+            </a>
+        </div>
+    </div>
+    
+    {% if favoritos_processados %}
+    <div class="filters-container">
+        <div class="filter-group">
+            <div class="filter-label">Ordenar por</div>
+            <div class="filter-options">
+                <div class="filter-option active" data-sort="recent">Mais recentes</div>
+                <div class="filter-option" data-sort="oldest">Mais antigos</div>
+                <div class="filter-option" data-sort="price-high">Maior preço</div>
+                <div class="filter-option" data-sort="price-low">Menor preço</div>
+            </div>
+        </div>
+        
+        <div class="search-filter">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchFavorites" placeholder="Buscar nos meus favoritos...">
+        </div>
+    </div>
+    
+    <div class="ads-grid" id="favoritesGrid">
+        {% for fav_data in favoritos_processados %}
+        {% with favorito=fav_data.favorito item=fav_data.item %}
+        <a href="{% url 'anuncio-detail' anuncio_id=item.id %}" class="ad-card">
+            {% if item.destaque %}
+            <span class="ad-badge ad-premium">Premium</span>
+            {% endif %}
+            
+            <div class="ad-image">
+                {% if item.first_image %}
+                <img src="{{ item.first_image.imagem.url }}" alt="{{ item.titulo }}">
+                {% else %}
+                <img src="{% static 'images/default-ad.jpg' %}" alt="Sem imagem">
+                {% endif %}
+            </div>
+            
+            <div class="ad-details">
+                <div class="ad-price">
+                    {% if item.valor %}
+                        {{ item.valor|floatformat:2 }}
+                    {% else %}
+                        A combinar
+                    {% endif %}
+                </div>
+                
+                <h3 class="ad-title">{{ item.titulo }}</h3>
+                
+                <p class="ad-description">{{ item.descricao|truncatewords:25 }}</p>
+                
+                <div class="ad-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ item.localizacao_str }}</span>
+                </div>
+                
+                <div class="ad-footer">
+                    <div class="ad-seller">
+                        <div class="seller-avatar">
+                            {% if item.usuario.foto_perfil %}
+                                <img src="{{ item.usuario.foto_perfil.url }}" alt="{{ item.usuario.nome|default:item.usuario.username }}">
+                                <div class="avatar-initials" style="display: none;">
+                                    {{ item.usuario.nome|default:item.usuario.username|first|upper }}
+                                </div>
+                            {% else %}
+                                <div class="avatar-initials">
+                                    {{ item.usuario.nome|default:item.usuario.username|first|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <span class="seller-name">
+                            {{ item.usuario.nome|default:item.usuario.username|truncatechars:20 }}
+                        </span>
+                    </div>
+                    
+                    <div class="ad-actions">
+                        <button class="action-btn share-btn" data-ad-id="{{ item.id }}">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span>{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-heart"></i>
+        <h3>Nenhum favorito ainda</h3>
+        <p>Você ainda não adicionou nenhum anúncio aos seus favoritos. Explore nossa plataforma e salve os anúncios que mais gostar para encontrá-los facilmente depois.</p>
+        <a href="{% url 'home' %}" class="explore-btn">
+            <i class="fas fa-compass"></i> Explorar Anúncios
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchFavorites');
+        const sortOptions = document.querySelectorAll('.filter-option[data-sort]');
+        const favoriteCards = document.querySelectorAll('.ad-card');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            favoriteCards.forEach(card => {
+                const title = card.querySelector('.ad-title').textContent.toLowerCase();
+                const description = card.querySelector('.ad-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        sortOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const sort = this.getAttribute('data-sort');
+                
+                sortOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                const cardsArray = Array.from(favoriteCards);
+                const grid = document.getElementById('favoritesGrid');
+                
+                cardsArray.sort((a, b) => {
+                    const priceA = parseFloat(a.querySelector('.ad-price').textContent.replace('R$', '').replace('A combinar', '0').trim()) || 0;
+                    const priceB = parseFloat(b.querySelector('.ad-price').textContent.replace('R$', '').replace('A combinar', '0').trim()) || 0;
+                    
+                    if (sort === 'recent') {
+                        return 0;
+                    } else if (sort === 'oldest') {
+                        return 0;
+                    } else if (sort === 'price-high') {
+                        return priceB - priceA;
+                    } else if (sort === 'price-low') {
+                        return priceA - priceB;
+                    }
+                    return 0;
+                });
+                
+                while (grid.firstChild) {
+                    grid.removeChild(grid.firstChild);
+                }
+                
+                cardsArray.forEach(card => {
+                    grid.appendChild(card);
+                });
+            });
+        });
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

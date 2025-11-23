@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ pagina.nome_pagina }} - Agenda AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Cabeçalho da Página -->
+    <div class="bg-primary text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        {% if pagina.usuario.foto_perfil %}
+                            <img src="{{ pagina.usuario.foto_perfil.url }}" 
+                                 class="rounded-circle me-4" 
+                                 width="100" height="100" 
+                                 alt="{{ pagina.usuario.nome }}">
+                        {% else %}
+                            <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center me-4"
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x text-white"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div>
+                            <h1 class="h2 mb-2">{{ pagina.nome_pagina }}</h1>
+                            <p class="mb-2 opacity-75">{{ pagina.usuario.nome }}</p>
+                            {% if pagina.bio %}
+                                <p class="mb-0 opacity-75">{{ pagina.bio }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 text-md-end">
+                    {% if user.is_authenticated and not is_owner %}
+                        {% if segue_pagina %}
+                            <form method="post" action="{% url 'deixar-seguir-pagina' pagina.slug %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light btn-lg">
+                                    <i class="fas fa-user-minus me-2"></i>Deixar de Seguir
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{% url 'seguir-pagina' pagina.slug %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light btn-lg">
+                                    <i class="fas fa-user-plus me-2"></i>Seguir
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% elif is_owner %}
+                        <a href="{% url 'gerenciar-pagina' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-cog me-2"></i>Gerenciar Página
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Foto de Capa -->
+    {% if pagina.foto_capa %}
+    <div class="container-fluid px-0">
+        <img src="{{ pagina.foto_capa.url }}" 
+             class="w-100" 
+             style="height: 300px; object-fit: cover;" 
+             alt="Capa de {{ pagina.nome_pagina }}">
+    </div>
+    {% endif %}
+
+    <!-- Conteúdo Principal -->
+    <div class="container py-4">
+        <div class="row">
+            <!-- Sidebar de Estatísticas -->
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0 text-center">Estatísticas</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <h4 class="text-primary mb-1">{{ total_postagens }}</h4>
+                                <small class="text-muted">Postagens</small>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <h4 class="text-success mb-1">{{ total_seguidores }}</h4>
+                                <small class="text-muted">Seguidores</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Postagens -->
+            <div class="col-lg-9">
+                {% if postagens %}
+                    <div class="row">
+                        {% for postagem in postagens %}
+                        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm border-0">
+                                <!-- Imagem -->
+                                {% if postagem.midias.first %}
+                                    <img src="{{ postagem.midias.first.arquivo.url }}" 
+                                         class="card-img-top" 
+                                         alt="{{ postagem.titulo }}"
+                                         style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                                         style="height: 200px;">
+                                        <i class="fas fa-image fa-2x text-muted"></i>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Corpo -->
+                                <div class="card-body d-flex flex-column">
+                                    {% if postagem.titulo %}
+                                        <h6 class="card-title">{{ postagem.titulo }}</h6>
+                                    {% endif %}
+                                    
+                                    {% if postagem.descricao %}
+                                        <p class="card-text small text-muted flex-grow-1">
+                                            {{ postagem.descricao|truncatewords:15 }}
+                                        </p>
+                                    {% endif %}
+
+                                    <!-- Informações -->
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                {{ postagem.data_publicacao|date:"d/m/Y" }}
+                                            </small>
+                                            <div>
+                                                <small class="text-muted me-2">
+                                                    <i class="fas fa-eye me-1"></i>{{ postagem.visualizacoes }}
+                                                </small>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-heart me-1"></i>{{ postagem.curtidas_count }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-camera fa-4x text-muted mb-3"></i>
+                        </div>
+                        <h4 class="text-muted mb-3">
+                            {% if is_owner %}
+                                Nenhuma postagem ainda
+                            {% else %}
+                                Esta página ainda não tem postagens
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-4">
+                            {% if is_owner %}
+                                Comece a compartilhar seus produtos com o mundo!
+                            {% else %}
+                                Volte mais tarde para ver as novidades!
+                            {% endif %}
+                        </p>
+                        {% if is_owner %}
+                            <a href="{% url 'criar-postagem' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Criar Primeira Postagem
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

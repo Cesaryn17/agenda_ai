@@ -1,0 +1,91 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+<div class="auth-header">
+    <h1>Entrar na conta</h1>
+    <p>Digite suas credenciais para acessar sua conta</p>
+</div>
+
+{% if form.errors %}
+<div class="messages">
+    <div class="alert alert-error">
+        <strong>Erro:</strong> E-mail ou senha incorretos. Tente novamente.
+    </div>
+</div>
+{% endif %}
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form class="auth-form" method="POST" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="id_login">E-mail</label>
+        <div class="input-with-icon">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="id_login" name="login" placeholder="seu@email.com" required autofocus>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_password">Senha</label>
+        <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="id_password" name="password" placeholder="Sua senha" required>
+            <span class="password-toggle">
+                <i class="fas fa-eye"></i>
+            </span>
+        </div>
+    </div>
+    
+    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div style="display: flex; align-items: center;">
+            <input type="checkbox" id="id_remember" name="remember" style="margin-right: 8px;">
+            <label for="id_remember" style="margin-bottom: 0; color: #718096;">Lembrar-me</label>
+        </div>
+        <a href="{% url 'account_reset_password' %}" class="forgot-password" style="color: #0077B6; text-decoration: none; font-weight: 500;">
+            Esqueceu a senha?
+        </a>
+    </div>
+
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    
+    <button type="submit" class="auth-button">
+        <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+        Entrar na conta
+    </button>
+</form>
+
+<div class="divider">
+    <span>Ou entre com</span>
+</div>
+
+<div class="social-login">
+    <a href="{% provider_login_url 'google' %}" class="social-btn google">
+        <i class="fab fa-google"></i>
+        Google
+    </a>
+    
+    <a href="{% provider_login_url 'facebook' %}" class="social-btn facebook">
+        <i class="fab fa-facebook-f"></i>
+        Facebook
+    </a>
+</div>
+
+<div class="auth-footer">
+    Não tem uma conta? <a href="{% url 'account_signup' %}">Cadastre-se agora</a>
+</div>
+{% endblock %}

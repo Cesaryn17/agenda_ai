@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda.Aí — Simulação de Motorista</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --panel: #f8f9fa;
+            --panel-2: #e9ecef;
+            --text: #212529;
+            --muted: #6c757d;
+            --primary: #4f8cff;
+            --primary-light: #e8f0ff;
+            --success: #2ecc71;
+            --success-light: #e8f8ef;
+            --warning: #f1c40f;
+            --danger: #ff6b6b;
+            --accent: #7a5cff;
+            --border: #dee2e6;
+            --shadow: 0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body { 
+            height: 100%; 
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .simulation-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .layout { 
+            display: grid; 
+            grid-template-columns: 1fr 400px; 
+            gap: 20px; 
+            padding: 20px;
+            height: 100%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .card { 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-lg); 
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card .head { 
+            padding: 18px 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-bottom: 1px solid var(--border); 
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .card .body { 
+            padding: 20px 24px; 
+        }
+        
+        .section-title { 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            color: var(--muted); 
+            letter-spacing: .12em; 
+            font-weight: 700; 
+        }
+
+        .map-wrap { 
+            position: relative; 
+            height: 100%; 
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        #map { 
+            width: 100%; 
+            height: 100%; 
+        }
+        
+        .leaflet-container { 
+            background: #f5f7fa !important; 
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .map-overlay { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            display: flex; 
+            gap: 10px; 
+            z-index: 400; 
+        }
+        
+        .pill { 
+            padding: 12px 18px; 
+            border-radius: 50px; 
+            background: rgba(255,255,255,0.95); 
+            border: 1px solid var(--border); 
+            backdrop-filter: blur(10px); 
+            font-size: 14px; 
+            font-weight: 600; 
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pill .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        .map-legend { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 20px; 
+            display: grid; 
+            gap: 10px; 
+            background: rgba(255,255,255,0.95); 
+            border: 1px solid var(--border); 
+            padding: 16px; 
+            border-radius: 16px; 
+            z-index: 400; 
+            box-shadow: var(--shadow); 
+            backdrop-filter: blur(10px);
+        }
+        
+        .legend-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--muted); 
+            font-size: 13px; 
+        }
+
+        .right { 
+            display: grid; 
+            grid-template-rows: auto auto 1fr; 
+            gap: 20px; 
+        }
+        
+        .grid { 
+            display: grid; 
+            gap: 16px; 
+        }
+        
+        .row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        
+        .input, select { 
+            width: 100%; 
+            background: var(--bg); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            padding: 14px 16px; 
+            color: var(--text); 
+            outline: none; 
+            font-size: 14px; 
+            transition: all 0.3s ease;
+        }
+        
+        .input:focus, select:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(79,140,255,.15); 
+        }
+        
+        .tiny { 
+            font-size: 12px; 
+            color: var(--muted); 
+        }
+
+        .timeline { 
+            display: grid; 
+            gap: 14px; 
+        }
+        
+        .tl-item { 
+            display: grid; 
+            grid-template-columns: 20px 1fr; 
+            gap: 12px; 
+            align-items: start; 
+            padding: 8px 0;
+        }
+        
+        .dot { 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            background: var(--border); 
+            margin-top: 4px; 
+            position: relative;
+        }
+        
+        .dot.active { 
+            background: var(--success); 
+            box-shadow: 0 0 0 4px rgba(46,204,113,.15); 
+        }
+
+        .kbd { 
+            font-family: ui-monospace, monospace; 
+            background: var(--panel-2); 
+            border: 1px solid var(--border); 
+            padding: 2px 6px; 
+            border-radius: 6px; 
+            color: var(--muted); 
+            font-size: 11px;
+        }
+
+        .driver-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            padding: 16px; 
+            background: var(--gradient-success);
+            border-radius: 16px; 
+            margin-bottom: 16px; 
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .driver-avatar { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            background: rgba(255, 255, 255, 0.2);
+            display: grid; 
+            place-items: center; 
+            font-weight: 800; 
+            color: white; 
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .driver-details { 
+            flex: 1; 
+        }
+        
+        .driver-name { 
+            font-weight: 700; 
+            font-size: 16px;
+        }
+        
+        .driver-rating { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-size: 13px; 
+            margin-top: 4px;
+            opacity: 0.9;
+        }
+        
+        .driver-car { 
+            font-size: 13px; 
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+
+        .ride-status { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 12px 16px; 
+            border-radius: 50px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            margin-bottom: 16px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-idle { 
+            background: var(--panel-2); 
+            color: var(--muted); 
+        }
+        
+        .status-searching { 
+            background: #fff3cd; 
+            color: #856404; 
+        }
+        
+        .status-assigned { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+        }
+        
+        .status-arriving { 
+            background: #d4edda; 
+            color: #155724; 
+        }
+        
+        .status-riding { 
+            background: #cce5ff; 
+            color: #004085; 
+        }
+        
+        .status-completed { 
+            background: #d1e7dd; 
+            color: #0f5132; 
+        }
+        
+        .status-canceled { 
+            background: #f8d7da; 
+            color: #721c24; 
+        }
+
+        .progress-container {
+            margin: 16px 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        
+        .progress-bar { 
+            width: 100%; 
+            height: 8px; 
+            background: var(--border); 
+            border-radius: 10px; 
+            overflow: hidden; 
+        }
+        
+        .progress-fill { 
+            height: 100%; 
+            background: var(--gradient-primary);
+            width: 0%; 
+            transition: width 0.5s ease; 
+            border-radius: 10px;
+        }
+
+        .btn { 
+            border: 1px solid var(--border); 
+            background: var(--panel); 
+            color: var(--text); 
+            padding: 12px 18px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn:hover { 
+            transform: translateY(-2px); 
+            background: var(--panel-2); 
+            box-shadow: var(--shadow); 
+        }
+        
+        .btn.primary { 
+            background: var(--gradient-primary); 
+            border-color: transparent; 
+            color: white; 
+            box-shadow: 0 10px 20px rgba(79,140,255,.25); 
+        }
+        
+        .btn.success {
+            background: var(--gradient-success);
+            border-color: transparent;
+            color: white;
+        }
+        
+        .btn.danger {
+            background: var(--gradient-secondary);
+            border-color: transparent;
+            color: white;
+        }
+
+        .summary-card {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 1024px) {
+            .layout { 
+                grid-template-columns: 1fr; 
+                gap: 16px;
+                padding: 16px;
+            }
+            
+            .right { 
+                grid-template-rows: auto auto auto;
+            }
+            
+            .map-wrap { 
+                height: 50vh; 
+            }
+        }
+        
+        .driver-marker { 
+            background: var(--success); 
+            border-radius: 50%; 
+            width: 16px; 
+            height: 16px; 
+            border: 3px solid white; 
+            box-shadow: 0 2px 8px rgba(0,0,0,.3); 
+        }
+        
+        .pickup-marker, .destination-marker { 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50% 50% 50% 0; 
+            transform: rotate(-45deg); 
+            border: 3px solid white; 
+        }
+        
+        .pickup-marker { 
+            background: var(--primary); 
+        }
+        
+        .destination-marker { 
+            background: var(--danger); 
+        }
+    </style>
+</head>
+<body>
+    <div class="simulation-container">
+        <div class="layout">
+            <section class="card map-wrap">
+                <div class="head">
+                    <span class="section-title">Simulação de Corrida • Agenda.Aí</span>
+                    <div class="tiny" id="statusText">Status: <span class="kbd">AGUARDANDO</span></div>
+                </div>
+                <div id="map"></div>
+                <div class="map-overlay">
+                    <div class="pill">
+                        <div class="icon">⏱</div>
+                        Velocidade: <span id="spdVal">1x</span>
+                    </div>
+                    <div class="pill">
+                        <div class="icon">🕒</div>
+                        ETA: <span id="etaVal">--</span>
+                    </div>
+                    <div class="pill">
+                        <div class="icon">📏</div>
+                        Distância: <span id="distVal">--</span>
+                    </div>
+                </div>
+                <div class="map-legend">
+                    <div class="legend-row"><span class="dot active" style="background: var(--primary);"></span> Ponto de Partida</div>
+                    <div class="legend-row"><span class="dot" style="background: var(--danger);"></span> Destino</div>
+                    <div class="legend-row"><span class="dot" style="background: var(--success);"></span> Veículo</div>
+                </div>
+            </section>
+
+            <aside class="right">
+                <section class="card">
+                    <div class="head"><span class="section-title">Solicitar Viagem</span></div>
+                    <div class="body grid">
+                        <div id="driverInfo" class="driver-info" style="display: none;">
+                            <div class="driver-avatar" id="driverAvatar">CA</div>
+                            <div class="driver-details">
+                                <div class="driver-name" id="driverName">Carla Andrade</div>
+                                <div class="driver-rating">
+                                    <span>★★★★★</span>
+                                    <span id="driverRating">4.92</span>
+                                </div>
+                                <div class="driver-car" id="driverCar">HB20 Branco • ABC2D34</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ride-status status-idle" id="rideStatus">Aguardando solicitação</div>
+                        
+                        <label>
+                            <div class="tiny">Origem</div>
+                            <input class="input" id="inputOrigem" placeholder="Ex.: Avenida Central, 100"/>
+                        </label>
+                        <label>
+                            <div class="tiny">Destino</div>
+                            <input class="input" id="inputDestino" placeholder="Ex.: Shopping Boulevard"/>
+                        </label>
+                        <div class="row">
+                            <label>
+                                <div class="tiny">Categoria</div>
+                                <select id="rideType">
+                                    <option value="economy">Econômico</option>
+                                    <option value="comfort">Conforto</option>
+                                    <option value="delivery">Entrega</option>
+                                </select>
+                            </label>
+                            <label>
+                                <div class="tiny">Pagamento</div>
+                                <select id="payType">
+                                    <option value="cash">Dinheiro</option>
+                                    <option value="card">Cartão</option>
+                                    <option value="pix">PIX</option>
+                                </select>
+                            </label>
+                        </div>
+                        
+                        <div class="control-panel">
+                            <button class="btn primary" id="btnEstimate">
+                                <span>💰</span> Estimar Preço
+                            </button>
+                            <button class="btn success" id="btnRequest">
+                                <span>🚗</span> Solicitar
+                            </button>
+                            <button class="btn" id="btnStart">
+                                <span>▶️</span> Iniciar
+                            </button>
+                            <button class="btn" id="btnPause">
+                                <span>⏸️</span> Pausar
+                            </button>
+                            <button class="btn" id="btnDetour">
+                                <span>🔄</span> Desvio
+                            </button>
+                            <button class="btn" id="btnTraffic">
+                                <span>🚦</span> Trânsito
+                            </button>
+                            <button class="btn danger" id="btnCancel">
+                                <span>❌</span> Cancelar
+                            </button>
+                            <button class="btn success" id="btnComplete">
+                                <span>✅</span> Concluir
+                            </button>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>Progresso da Viagem</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+                        
+                        <label>
+                            <div class="tiny">Velocidade da Simulação</div>
+                            <input type="range" min="0.2" max="3" step="0.1" value="1" id="speedRange" />
+                        </label>
+                        <div class="tiny">Dica: use <span class="kbd">ESPACO</span> para Play/Pause • <span class="kbd">D</span> desvio • <span class="kbd">T</span> trânsito</div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="head"><span class="section-title">Resumo & Preço</span></div>
+                    <div class="body">
+                        <div class="summary-card">
+                            <div class="summary-item">
+                                <span>Distância:</span>
+                                <strong id="sumDistance">-- km</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Tempo estimado:</span>
+                                <strong id="sumTime">-- min</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Categoria:</span>
+                                <strong id="sumType">—</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Pagamento:</span>
+                                <strong id="sumPay">—</strong>
+                            </div>
+                            <div class="summary-total">
+                                <span>Total estimado:</span>
+                                <strong id="sumFare">R$ —</strong>
+                            </div>
+                        </div>
+                        <div class="tiny" style="margin-top: 12px;">Modelo de preço: base + (km × tarifa) + (min × tempo) × multiplicador</div>
+                    </div>
+                </section>
+
+                <section class="card" style="overflow:auto;">
+                    <div class="head"><span class="section-title">Linha do Tempo</span></div>
+                    <div class="body timeline" id="timeline">
+                        <div class="tl-item">
+                            <div class="dot active"></div>
+                            <div>Sistema inicializado - Aguardando solicitação</div>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tl = document.getElementById('timeline');
+            
+            function logTL(text) {
+                const row = document.createElement('div'); 
+                row.className = 'tl-item';
+                const dot = document.createElement('div'); 
+                dot.className = 'dot active';
+                const txt = document.createElement('div'); 
+                txt.textContent = new Date().toLocaleTimeString() + ' — ' + text;
+                row.append(dot, txt); 
+                tl.prepend(row);
+                
+                if (tl.children.length > 10) {
+                    tl.removeChild(tl.lastChild);
+                }
+            }
+
+            let map, pickupMarker, destinationMarker, driverMarker, routeLine;
+            const RideState = {
+                IDLE: 'IDLE', 
+                SEARCHING: 'SEARCHING', 
+                DRIVER_ASSIGNED: 'DRIVER_ASSIGNED', 
+                ARRIVING: 'ARRIVING', 
+                RIDING: 'RIDING', 
+                COMPLETED: 'COMPLETED', 
+                CANCELED: 'CANCELED'
+            };
+            
+            const state = {
+                status: RideState.IDLE,
+                speed: 1.0,
+                trafficFactor: 1.0,
+                playing: false,
+                currentPosition: 0,
+                routeCoordinates: [],
+                driver: { 
+                    name: 'Carla Andrade', 
+                    rating: 4.92, 
+                    car: 'HB20 Branco', 
+                    plate: 'ABC2D34' 
+                }
+            };
+
+            function initMap() {
+                map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView([-23.5505, -46.6333], 13);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19
+                }).addTo(map);
+
+                L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+                const defaultPickup = [-23.5505, -46.6333];
+                const defaultDestination = [-23.5636, -46.6544];
+
+                pickupMarker = L.marker(defaultPickup, {
+                    icon: L.divIcon({
+                        className: 'pickup-marker',
+                        iconSize: [24, 24]
+                    })
+                }).addTo(map).bindPopup('📍 Ponto de Partida');
+
+                destinationMarker = L.marker(defaultDestination, {
+                    icon: L.divIcon({
+                        className: 'destination-marker',
+                        iconSize: [24, 24]
+                    })
+                }).addTo(map).bindPopup('🎯 Destino');
+
+                driverMarker = L.marker([-23.5580, -46.6400], {
+                    icon: L.divIcon({
+                        className: 'driver-marker',
+                        iconSize: [16, 16]
+                    })
+                }).addTo(map).bindPopup('🚗 Motorista: Carla - HB20 Branco');
+
+                calculateRoute(defaultPickup, defaultDestination);
+                
+                logTL('Mapa inicializado com sucesso');
+            }
+
+            function calculateRoute(start, end) {
+                if (routeLine) {
+                    map.removeLayer(routeLine);
+                }
+
+                const route = [
+                    start,
+                    [-23.5520, -46.6380],
+                    [-23.5560, -46.6450],
+                    [-23.5600, -46.6500],
+                    end
+                ];
+
+                routeLine = L.polyline(route, {
+                    color: '#4f8cff',
+                    weight: 6,
+                    opacity: 0.8,
+                    lineJoin: 'round'
+                }).addTo(map);
+
+                state.routeCoordinates = route;
+                map.fitBounds(routeLine.getBounds(), { padding: [20, 20] });
+                updateRouteInfo();
+            }
+
+            function updateRouteInfo() {
+                if (state.routeCoordinates.length < 2) return;
+
+                const distance = calculateRouteDistance(state.routeCoordinates);
+                const time = Math.round(distance / 40 * 60);
+                
+                document.getElementById('sumDistance').textContent = distance.toFixed(1) + ' km';
+                document.getElementById('sumTime').textContent = time + ' min';
+                document.getElementById('distVal').textContent = distance.toFixed(1) + ' km';
+                document.getElementById('etaVal').textContent = time + ' min';
+            }
+
+            function calculateRouteDistance(coords) {
+                let total = 0;
+                for (let i = 1; i < coords.length; i++) {
+                    total += map.distance(coords[i-1], coords[i]);
+                }
+                return total / 1000;
+            }
+
+            function simulateRide() {
+                if (!state.playing || state.status !== RideState.RIDING) return;
+
+                const progressIncrement = 0.002 * state.speed * (1/state.trafficFactor);
+                state.currentPosition = Math.min(1, state.currentPosition + progressIncrement);
+
+                const progressPercent = Math.round(state.currentPosition * 100);
+                document.getElementById('progressFill').style.width = progressPercent + '%';
+                document.getElementById('progressPercent').textContent = progressPercent + '%';
+
+                const routePoints = state.routeCoordinates;
+                const totalPoints = routePoints.length;
+                const currentIndex = Math.floor(state.currentPosition * (totalPoints - 1));
+                
+                if (currentIndex < totalPoints - 1) {
+                    const nextIndex = currentIndex + 1;
+                    const segmentProgress = (state.currentPosition * (totalPoints - 1)) - currentIndex;
+                    
+                    const currentLat = routePoints[currentIndex][0] + (routePoints[nextIndex][0] - routePoints[currentIndex][0]) * segmentProgress;
+                    const currentLng = routePoints[currentIndex][1] + (routePoints[nextIndex][1] - routePoints[currentIndex][1]) * segmentProgress;
+                    
+                    driverMarker.setLatLng([currentLat, currentLng]);
+                    
+                    const remainingDistance = calculateRouteDistance(routePoints.slice(currentIndex));
+                    const remainingTime = Math.round((remainingDistance / 40) * 60 * state.trafficFactor);
+                    
+                    document.getElementById('etaVal').textContent = remainingTime + ' min';
+                    document.getElementById('distVal').textContent = remainingDistance.toFixed(1) + ' km';
+                } else {
+                    changeStatus(RideState.COMPLETED);
+                    logTL('Viagem concluída com sucesso! ✅');
+                }
+            }
+
+            const inputO = document.getElementById('inputOrigem');
+            const inputD = document.getElementById('inputDestino');
+            const rideType = document.getElementById('rideType');
+            const payType = document.getElementById('payType');
+
+            document.getElementById('btnEstimate').onclick = () => { ensureRouteFromInputs(); estimateFare(); };
+            document.getElementById('btnRequest').onclick = () => { ensureRouteFromInputs(); requestRide(); };
+            document.getElementById('btnStart').onclick   = () => { startRide(); };
+            document.getElementById('btnPause').onclick   = () => { togglePlay(); };
+            document.getElementById('btnDetour').onclick  = () => { addDetour(); };
+            document.getElementById('btnTraffic').onclick = () => { toggleTraffic(); };
+            document.getElementById('btnCancel').onclick  = () => { cancelRide(); };
+            document.getElementById('btnComplete').onclick= () => { finishRide(); };
+
+            document.getElementById('speedRange').oninput = (e)=>{ 
+                state.speed = parseFloat(e.target.value); 
+                document.getElementById('spdVal').textContent = state.speed.toFixed(1)+'x'; 
+            };
+
+            document.addEventListener('keydown', (e)=>{
+                if(e.code==='Space'){ e.preventDefault(); togglePlay(); }
+                if(e.key==='d' || e.key==='D'){ addDetour(); }
+                if(e.key==='t' || e.key==='T'){ toggleTraffic(); }
+            });
+
+            function ensureRouteFromInputs() {
+                const locations = {
+                    'avenida central': [-23.5505, -46.6333],
+                    'shopping boulevard': [-23.5636, -46.6544],
+                    'praça da matriz': [-23.5450, -46.6340],
+                    'estação norte': [-23.5100, -46.6250],
+                    'parque das flores': [-23.5700, -46.6450]
+                };
+                
+                function getCoords(input, defaultCoord) {
+                    if (!input.value) return defaultCoord;
+                    const key = input.value.toLowerCase().trim();
+                    return locations[key] || defaultCoord;
+                }
+                
+                const pickup = getCoords(inputO, [-23.5505, -46.6333]);
+                const destination = getCoords(inputD, [-23.5636, -46.6544]);
+                
+                pickupMarker.setLatLng(pickup);
+                destinationMarker.setLatLng(destination);
+                calculateRoute(pickup, destination);
+                
+                changeStatus(RideState.SEARCHING);
+                logTL('Buscando motoristas próximos…');
+                setTimeout(() => assignDriver(), 1500);
+            }
+
+            function requestRide() {
+                if(state.status === RideState.IDLE) ensureRouteFromInputs();
+                logTL('Solicitação de viagem enviada 📡');
+            }
+
+            function assignDriver() {
+                if(state.status !== RideState.SEARCHING) return;
+                changeStatus(RideState.DRIVER_ASSIGNED);
+                
+                document.getElementById('driverInfo').style.display = 'flex';
+                document.getElementById('driverAvatar').textContent = state.driver.name.split(' ').map(n => n[0]).join('');
+                document.getElementById('driverName').textContent = state.driver.name;
+                document.getElementById('driverRating').textContent = state.driver.rating;
+                document.getElementById('driverCar').textContent = `${state.driver.car} • ${state.driver.plate}`;
+                
+                logTL(`Motorista atribuído: ${state.driver.name} (${state.driver.car})`);
+                setTimeout(() => { 
+                    changeStatus(RideState.ARRIVING); 
+                    logTL('Motorista a caminho do ponto de embarque…'); 
+                    setTimeout(() => { startRide(); }, 2000); 
+                }, 1500);
+            }
+
+            function startRide() {
+                changeStatus(RideState.RIDING);
+                state.playing = true;
+                state.currentPosition = 0;
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressPercent').textContent = '0%';
+                logTL('Corrida iniciada! ▶️');
+            }
+
+            function togglePlay() {
+                if(state.status !== RideState.RIDING) return;
+                state.playing = !state.playing;
+                logTL(state.playing ? 'Simulação retomada ⏵' : 'Simulação pausada ⏸');
+            }
+
+            function addDetour() {
+                if(state.status !== RideState.RIDING) return;
+                
+                const currentPos = driverMarker.getLatLng();
+                const detourPoint = [
+                    currentPos.lat + (Math.random() * 0.01 - 0.005),
+                    currentPos.lng + (Math.random() * 0.01 - 0.005)
+                ];
+                
+                const newRoute = [
+                    [currentPos.lat, currentPos.lng],
+                    detourPoint,
+                    state.routeCoordinates[state.routeCoordinates.length - 1]
+                ];
+                
+                state.routeCoordinates = newRoute;
+                if (routeLine) map.removeLayer(routeLine);
+                routeLine = L.polyline(newRoute, {
+                    color: '#ff6b6b',
+                    weight: 6,
+                    opacity: 0.8,
+                    lineJoin: 'round',
+                    dashArray: '10, 10'
+                }).addTo(map);
+                
+                logTL('Desvio aplicado na rota ↪️');
+                updateRouteInfo();
+            }
+
+            function toggleTraffic() {
+                if(state.trafficFactor === 1){ 
+                    state.trafficFactor = 1.6; 
+                    logTL('Trânsito intenso detectado: ETA aumentado 🚦'); 
+                } else { 
+                    state.trafficFactor = 1.0; 
+                    logTL('Trânsito normalizado ✅'); 
+                }
+                updateRouteInfo();
+            }
+
+            function cancelRide() {
+                if([RideState.RIDING, RideState.SEARCHING, RideState.DRIVER_ASSIGNED, RideState.ARRIVING].includes(state.status)){
+                    changeStatus(RideState.CANCELED); 
+                    state.playing = false; 
+                    document.getElementById('driverInfo').style.display = 'none';
+                    logTL('Viagem cancelada ❌');
+                }
+            }
+
+            function finishRide() { 
+                if(state.status === RideState.RIDING){ 
+                    state.currentPosition = 1;
+                    document.getElementById('progressFill').style.width = '100%';
+                    document.getElementById('progressPercent').textContent = '100%';
+                    changeStatus(RideState.COMPLETED); 
+                    logTL('Viagem concluída manualmente ✅'); 
+                } 
+            }
+
+            function estimateFare() {
+                const distance = calculateRouteDistance(state.routeCoordinates);
+                const time = Math.max(5, Math.round((distance / 40) * 60 * state.trafficFactor));
+                const pricing = {
+                    economy: { base: 4.9, perKm: 1.7, perMin: 0.25, surge: 1.0 },
+                    comfort: { base: 7.5, perKm: 2.4, perMin: 0.35, surge: 1.1 },
+                    delivery:{ base: 5.2, perKm: 2.0, perMin: 0.20, surge: 1.0 }
+                }[rideType.value];
+                
+                const total = (pricing.base + distance * pricing.perKm + time * pricing.perMin) * pricing.surge;
+                
+                document.getElementById('sumDistance').textContent = distance.toFixed(1) + ' km';
+                document.getElementById('sumTime').textContent = time + ' min';
+                document.getElementById('sumType').textContent = rideType.options[rideType.selectedIndex].text;
+                document.getElementById('sumPay').textContent = payType.options[payType.selectedIndex].text;
+                document.getElementById('sumFare').textContent = 'R$ ' + total.toFixed(2);
+                
+                logTL(`Preço estimado: R$ ${total.toFixed(2)}`);
+                
+                return { distance, time, total };
+            }
+
+            function changeStatus(s){ 
+                state.status = s; 
+                document.getElementById('statusText').innerHTML = 'Status: <span class="kbd">'+s+'</span>'; 
+                
+                const statusElement = document.getElementById('rideStatus');
+                statusElement.className = 'ride-status status-' + s.toLowerCase();
+                
+                switch(s) {
+                    case RideState.IDLE:
+                        statusElement.textContent = 'Aguardando solicitação';
+                        break;
+                    case RideState.SEARCHING:
+                        statusElement.textContent = 'Buscando motoristas...';
+                        break;
+                    case RideState.DRIVER_ASSIGNED:
+                        statusElement.textContent = 'Motorista atribuído';
+                        break;
+                    case RideState.ARRIVING:
+                        statusElement.textContent = 'Motorista a caminho';
+                        break;
+                    case RideState.RIDING:
+                        statusElement.textContent = 'Em andamento';
+                        break;
+                    case RideState.COMPLETED:
+                        statusElement.textContent = 'Viagem concluída';
+                        break;
+                    case RideState.CANCELED:
+                        statusElement.textContent = 'Viagem cancelada';
+                        break;
+                }
+            }
+
+            initMap();
+            
+            const gameLoop = setInterval(() => {
+                simulateRide();
+            }, 50);
+        });
+    </script>
+</body>
+</html>

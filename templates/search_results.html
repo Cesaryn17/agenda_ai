@@ -1,0 +1,870 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agenda AI - Resultados da Pesquisa{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 25px rgba(0,0,0,0.12);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+        color: var(--white);
+        padding: 4rem 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/hero-pattern.svg" %}') center/cover;
+        opacity: 0.1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        line-height: 1.2;
+    }
+    
+    .search-results-count {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        font-weight: 400;
+    }
+    
+    .search-term {
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .filters-panel {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 2px solid var(--light-gray);
+    }
+    
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-title {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--dark-gray);
+        font-size: 0.95rem;
+    }
+    
+    .filter-select, .filter-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--white);
+    }
+    
+    .filter-select:focus, .filter-input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+    
+    .price-range-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+    
+    .filter-btn {
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .btn-primary {
+        background: var(--primary-blue);
+        color: var(--white);
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-dark-blue);
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--medium-gray);
+        color: var(--dark-gray);
+    }
+    
+    .btn-outline:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .results-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--black);
+    }
+    
+    .sort-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        background: var(--white);
+        font-size: 0.95rem;
+    }
+    
+    .ads-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .ad-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        border: 2px solid var(--light-gray);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+    
+    .ad-badge {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        z-index: 2;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .ad-premium {
+        background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+    }
+    
+    .ad-image {
+        height: 240px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .ad-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+    }
+    
+    .ad-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .ad-card:hover .ad-image img {
+        transform: scale(1.08);
+    }
+    
+    .ad-details {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .ad-price {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .ad-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+        color: var(--black);
+        overflow: hidden;
+        min-height: 3rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+    }
+    
+    .ad-description {
+        font-size: 0.95rem;
+        color: var(--dark-gray);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-clamp: 2;
+    }
+    
+    .ad-location {
+        display: flex;
+        align-items: center;
+        color: var(--dark-gray);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+    
+    .ad-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 2px solid var(--light-gray);
+        margin-top: auto;
+    }
+    
+    .ad-seller {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+    
+    .seller-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.5rem;
+        color: var(--white);
+        font-size: 0.9rem;
+        font-weight: 700;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .seller-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .seller-avatar .avatar-initials {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .seller-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--black);
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .ad-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--light-gray);
+        border: 2px solid var(--medium-gray);
+        color: var(--dark-gray);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+    
+    .action-btn:hover {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: transparent;
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+    
+    .no-results-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, var(--light-gray) 0%, #f1f5f9 100%);
+        border-radius: 20px;
+        border: 2px dashed var(--medium-gray);
+        color: var(--dark-gray);
+    }
+    
+    .suggestions-list {
+        text-align: left;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .suggestions-list li {
+        margin-bottom: 0.5rem;
+        color: var(--dark-gray);
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 3rem 0;
+    }
+    
+    .pagination-item {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        color: var(--dark-gray);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    .pagination-item:hover, .pagination-item.active {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+    }
+    
+    .pagination-item.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .spinner {
+        border: 4px solid var(--light-gray);
+        border-left: 4px solid var(--primary-blue);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 1024px) {
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 3rem 1.5rem;
+        }
+        
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .price-range-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-actions {
+            flex-direction: column;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .results-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero-section {
+            padding: 2.5rem 1rem;
+            border-radius: 12px;
+        }
+        
+        .hero-title {
+            font-size: 1.7rem;
+        }
+        
+        .filters-panel {
+            padding: 1.5rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .ad-image {
+            height: 200px;
+        }
+    }
+</style>
+
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Resultados da Pesquisa</h1>
+        <div class="search-results-count">
+            {% if query %}
+            <p>Encontramos <strong>{{ anuncios.count }}</strong> resultado(s) para: <span class="search-term">{{ query }}</span></p>
+            {% else %}
+            <p>Mostrando <strong>{{ anuncios.count }}</strong> anúncio(s) disponíveis</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="filters-panel">
+    <div class="filter-header">
+        <h3 class="filter-title">Filtros Avançados</h3>
+    </div>
+    
+    <form method="GET" action="{% url 'search' %}" id="filterForm">
+        <input type="hidden" name="q" value="{{ query }}">
+        
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label class="filter-label">Categoria</label>
+                <select name="categoria" class="filter-select">
+                    <option value="">Todas as categorias</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.slug }}" {% if request.GET.categoria == categoria.slug %}selected{% endif %}>
+                        {{ categoria.titulo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Localização</label>
+                <select name="localizacao" class="filter-select">
+                    <option value="">Todas as localizações</option>
+                    {% for local in localizacoes %}
+                    <option value="{{ local.id }}" {% if request.GET.localizacao == local.id|stringformat:"s" %}selected{% endif %}>
+                        {{ local.cidade }}, {{ local.estado }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Ordenar por</label>
+                <select name="ordenar" class="filter-select">
+                    <option value="recentes" {% if request.GET.ordenar == "recentes" or not request.GET.ordenar %}selected{% endif %}>Mais recentes</option>
+                    <option value="antigos" {% if request.GET.ordenar == "antigos" %}selected{% endif %}>Mais antigos</option>
+                    <option value="menor-preco" {% if request.GET.ordenar == "menor-preco" %}selected{% endif %}>Menor preço</option>
+                    <option value="maior-preco" {% if request.GET.ordenar == "maior-preco" %}selected{% endif %}>Maior preço</option>
+                    <option value="mais-vistos" {% if request.GET.ordenar == "mais-vistos" %}selected{% endif %}>Mais visualizados</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Faixa de preço</label>
+                <div class="price-range-group">
+                    <input type="number" name="preco_min" class="filter-input" placeholder="Mínimo" 
+                           value="{{ request.GET.preco_min }}">
+                    <input type="number" name="preco_max" class="filter-input" placeholder="Máximo" 
+                           value="{{ request.GET.preco_max }}">
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="button" class="filter-btn btn-outline" id="resetFiltersBtn">Limpar filtros</button>
+            <button type="submit" class="filter-btn btn-primary">Aplicar filtros</button>
+        </div>
+    </form>
+</div>
+
+<section>
+    <div class="results-header">
+        <h2 class="results-title">Anúncios encontrados</h2>
+        
+        <select class="sort-select" id="sortSelect">
+            <option value="recentes" {% if request.GET.ordenar == "recentes" or not request.GET.ordenar %}selected{% endif %}>Mais recentes</option>
+            <option value="antigos" {% if request.GET.ordenar == "antigos" %}selected{% endif %}>Mais antigos</option>
+            <option value="menor-preco" {% if request.GET.ordenar == "menor-preco" %}selected{% endif %}>Menor preço</option>
+            <option value="maior-preco" {% if request.GET.ordenar == "maior-preco" %}selected{% endif %}>Maior preço</option>
+            <option value="mais-vistos" {% if request.GET.ordenar == "mais-vistos" %}selected{% endif %}>Mais visualizados</option>
+        </select>
+    </div>
+
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p>Carregando anúncios...</p>
+    </div>
+
+    <div class="ads-grid" id="adsGrid">
+        {% for anuncio in anuncios %}
+        <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card">
+            {% if anuncio.destaque %}
+            <span class="ad-badge ad-premium">Premium</span>
+            {% endif %}
+            <div class="ad-image">
+                {% if anuncio.imagens.first %}
+                <img src="{{ anuncio.imagens.first.imagem.url }}" alt="{{ anuncio.titulo }}" loading="lazy">
+                {% else %}
+                <img src="{% static 'images/default-ad.jpg' %}" alt="Sem imagem" loading="lazy">
+                {% endif %}
+            </div>
+            <div class="ad-details">
+                <div class="ad-price">
+                    {% if anuncio.valor %}
+                        {{ anuncio.valor|floatformat:2 }}
+                    {% else %}
+                        A combinar
+                    {% endif %}
+                </div>
+                <h3 class="ad-title">{{ anuncio.titulo }}</h3>
+                <p class="ad-description">{{ anuncio.descricao|truncatewords:20 }}</p>
+                <div class="ad-location">
+                    <span>
+                        {% if anuncio.localizacao %}
+                            {{ anuncio.localizacao.cidade }} - {{ anuncio.localizacao.estado }}
+                        {% else %}
+                            Local não informado
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="ad-footer">
+                    <div class="ad-seller">
+                        <div class="seller-avatar">
+                            {% if anuncio.usuario.foto_perfil %}
+                                <img src="{{ anuncio.usuario.foto_perfil.url }}" alt="{{ anuncio.usuario.nome|default:anuncio.usuario.username }}">
+                            {% else %}
+                                <div class="avatar-initials">
+                                    {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <span class="seller-name">
+                            {{ anuncio.usuario.nome|default:anuncio.usuario.username|truncatechars:15 }}
+                        </span>
+                    </div>
+                    <div class="ad-actions">
+                        <button type="button" class="action-btn favorite-btn" data-ad-id="{{ anuncio.id }}">
+                            ♡
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="no-results-message">
+            <h3>Nenhum anúncio encontrado</h3>
+            <p>Não encontramos resultados para sua pesquisa. Tente:</p>
+            <ul class="suggestions-list">
+                <li>• Verificar a ortografia das palavras</li>
+                <li>• Utilizar termos mais genéricos</li>
+                <li>• Explorar outras categorias</li>
+                <li>• Ajustar os filtros de pesquisa</li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if anuncios.has_other_pages %}
+    <div class="pagination">
+        {% if anuncios.has_previous %}
+        <a href="?q={{ query }}&page={{ anuncios.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'q' and key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-item">‹</a>
+        {% else %}
+        <span class="pagination-item disabled">‹</span>
+        {% endif %}
+        
+        {% for i in anuncios.paginator.page_range %}
+            {% if anuncios.number == i %}
+            <span class="pagination-item active">{{ i }}</span>
+            {% else %}
+            <a href="?q={{ query }}&page={{ i }}{% for key, value in request.GET.items %}{% if key != 'q' and key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-item">{{ i }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if anuncios.has_next %}
+        <a href="?q={{ query }}&page={{ anuncios.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'q' and key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-item">›</a>
+        {% else %}
+        <span class="pagination-item disabled">›</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
+<script>
+(function() {
+    'use strict';
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function resetFilters() {
+        const query = "{{ query }}";
+        window.location.href = '/search/?q=' + encodeURIComponent(query);
+    }
+
+    function showLoading() {
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const adsGrid = document.getElementById('adsGrid');
+        if (loadingSpinner) loadingSpinner.style.display = 'block';
+        if (adsGrid) adsGrid.style.opacity = '0.5';
+    }
+
+    function hideLoading() {
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const adsGrid = document.getElementById('adsGrid');
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        if (adsGrid) adsGrid.style.opacity = '1';
+    }
+
+    function handleSortChange() {
+        showLoading();
+        const url = new URL(window.location);
+        url.searchParams.set('ordenar', this.value);
+        window.location.href = url.toString();
+    }
+
+    function handleFilterChange() {
+        showLoading();
+        const form = document.getElementById('filterForm');
+        if (form) form.submit();
+    }
+
+    async function handleFavoriteClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const adId = this.getAttribute('data-ad-id');
+        const isLoggedIn = {{ user.is_authenticated|yesno:"true,false" }};
+        
+        if (!isLoggedIn) {
+            alert('Você precisa estar logado para favoritar anúncios.');
+            return;
+        }
+        
+        try {
+            const url = '/toggle-favorito/' + adId + '/';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                if (data.action === 'added') {
+                    this.innerHTML = '♥';
+                    this.style.background = '#ef4444';
+                    this.style.borderColor = '#ef4444';
+                } else {
+                    this.innerHTML = '♡';
+                    this.style.background = '';
+                    this.style.borderColor = '';
+                }
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao favoritar anúncio. Tente novamente.');
+        }
+    }
+
+    function handleImageError() {
+        this.src = "{% static 'images/default-ad.jpg' %}";
+    }
+
+    function initializeEventListeners() {
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', handleSortChange);
+        }
+        
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', resetFilters);
+        }
+        
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            const filterSelects = filterForm.querySelectorAll('select');
+            filterSelects.forEach(function(select) {
+                select.addEventListener('change', handleFilterChange);
+            });
+        }
+        
+        const favoriteButtons = document.querySelectorAll('.favorite-btn');
+        favoriteButtons.forEach(function(btn) {
+            btn.addEventListener('click', handleFavoriteClick);
+        });
+
+        const adImages = document.querySelectorAll('.ad-image img');
+        adImages.forEach(function(img) {
+            img.addEventListener('error', handleImageError);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeEventListeners();
+        hideLoading();
+    });
+
+    window.addEventListener('load', hideLoading);
+
+})();
+</script>
+{% endblock %}

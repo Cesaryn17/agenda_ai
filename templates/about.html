@@ -1,0 +1,1226 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sobre Nós - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 20px;
+        --border-radius-sm: 12px;
+        --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        --shadow-sm: 0 6px 16px rgba(0,0,0,0.08);
+        --shadow-md: 0 10px 30px rgba(0,0,0,0.15);
+        --shadow-lg: 0 20px 40px rgba(0,0,0,0.2);
+        --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        --gradient-secondary: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+    }
+    
+    * {
+        box-sizing: border-box;
+    }
+    
+    .about-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        overflow: hidden;
+    }
+    
+    /* Hero Section */
+    .about-hero {
+        background: var(--gradient-primary);
+        color: var(--white);
+        padding: 8rem 2rem;
+        border-radius: var(--border-radius);
+        margin: 2rem 0 6rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            url('{% static "images/hero-pattern.svg" %}') center/cover;
+        opacity: 0.15;
+    }
+    
+    .floating-shapes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 20s infinite linear;
+    }
+    
+    .shape-1 {
+        width: 80px;
+        height: 80px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .shape-2 {
+        width: 120px;
+        height: 120px;
+        top: 60%;
+        left: 80%;
+        animation-delay: -5s;
+    }
+    
+    .shape-3 {
+        width: 60px;
+        height: 60px;
+        top: 80%;
+        left: 20%;
+        animation-delay: -10s;
+    }
+    
+    .shape-4 {
+        width: 100px;
+        height: 100px;
+        top: 20%;
+        left: 70%;
+        animation-delay: -15s;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+        }
+        33% {
+            transform: translateY(-30px) rotate(120deg);
+            opacity: 0.7;
+        }
+        66% {
+            transform: translateY(20px) rotate(240deg);
+            opacity: 0.9;
+        }
+        100% {
+            transform: translateY(0) rotate(360deg);
+            opacity: 1;
+        }
+    }
+    
+    .about-hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .about-hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        line-height: 1.1;
+        background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: titleGlow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes titleGlow {
+        0% {
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        100% {
+            text-shadow: 0 6px 20px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.2);
+        }
+    }
+    
+    .about-hero-subtitle {
+        font-size: 1.4rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+        font-weight: 300;
+        line-height: 1.6;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .hero-cta {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 3rem;
+    }
+    
+    /* Section Styles */
+    .about-section {
+        margin-bottom: 8rem;
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 1s ease, transform 1s ease;
+    }
+    
+    .about-section.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 5rem;
+        position: relative;
+    }
+    
+    .section-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        color: var(--black);
+        position: relative;
+        display: inline-block;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 5px;
+        background: var(--gradient-primary);
+        border-radius: 3px;
+    }
+    
+    .section-subtitle {
+        font-size: 1.3rem;
+        color: var(--dark-gray);
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.7;
+    }
+    
+    /* Mission Section */
+    .mission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .mission-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem 2.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .mission-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: -1;
+    }
+    
+    .mission-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.7s ease;
+        z-index: 2;
+    }
+    
+    .mission-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-blue);
+        color: var(--white);
+    }
+    
+    .mission-card:hover::before {
+        opacity: 1;
+    }
+    
+    .mission-card:hover::after {
+        left: 100%;
+    }
+    
+    .mission-card:hover .mission-icon {
+        background: var(--white);
+        color: var(--primary-blue);
+        transform: scale(1.15) rotate(5deg);
+    }
+    
+    .mission-card:hover .mission-title,
+    .mission-card:hover .mission-text {
+        color: var(--white);
+    }
+    
+    .mission-icon {
+        width: 100px;
+        height: 100px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        color: var(--white);
+        font-size: 2.5rem;
+        transition: var(--transition);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        z-index: 3;
+    }
+    
+    .mission-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        color: var(--black);
+        transition: var(--transition);
+        position: relative;
+        z-index: 3;
+    }
+    
+    .mission-text {
+        color: var(--dark-gray);
+        line-height: 1.7;
+        transition: var(--transition);
+        position: relative;
+        z-index: 3;
+    }
+    
+    /* Features Section */
+    .features-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .feature-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 2px solid var(--light-gray);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background: var(--gradient-primary);
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.5s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-blue);
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleY(1);
+    }
+    
+    .feature-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--gradient-primary);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.8rem;
+        transition: var(--transition);
+        flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: var(--gradient-secondary);
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .feature-text {
+        color: var(--dark-gray);
+        line-height: 1.7;
+        flex-grow: 1;
+    }
+    
+    .feature-benefits {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--light-gray);
+    }
+    
+    .benefit-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: var(--dark-gray);
+        font-size: 0.95rem;
+    }
+    
+    .benefit-item i {
+        color: var(--success);
+        font-size: 0.9rem;
+    }
+    
+    /* Values Section */
+    .values-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 2.5rem;
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 2px solid var(--light-gray);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .value-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: 1;
+    }
+    
+    .value-item:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-blue);
+    }
+    
+    .value-item:hover::before {
+        opacity: 0.05;
+    }
+    
+    .value-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--gradient-primary);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.8rem;
+        transition: var(--transition);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .value-item:hover .value-icon {
+        transform: scale(1.1);
+        background: var(--gradient-secondary);
+    }
+    
+    .value-content {
+        flex: 1;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .value-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--black);
+    }
+    
+    .value-text {
+        color: var(--dark-gray);
+        line-height: 1.7;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background: var(--gradient-primary);
+        color: var(--white);
+        padding: 6rem 3rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        margin-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        opacity: 0.5;
+    }
+    
+    .cta-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .cta-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cta-text {
+        font-size: 1.3rem;
+        margin-bottom: 3rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.2rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.1);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+        z-index: -1;
+    }
+    
+    .btn:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .btn-primary {
+        background: var(--white);
+        color: var(--primary-blue);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: var(--white);
+        border: 3px solid var(--white);
+    }
+    
+    .btn-outline:hover {
+        background: var(--white);
+        color: var(--primary-blue);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 1024px) {
+        .about-hero-title {
+            font-size: 3.2rem;
+        }
+        
+        .section-title {
+            font-size: 2.4rem;
+        }
+        
+        .mission-grid,
+        .features-container,
+        .values-container {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .about-hero {
+            padding: 6rem 1.5rem;
+            min-height: 70vh;
+        }
+        
+        .about-hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .about-hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .mission-card,
+        .feature-card,
+        .value-item {
+            padding: 2rem;
+        }
+        
+        .cta-section {
+            padding: 4rem 2rem;
+        }
+        
+        .cta-title {
+            font-size: 2.2rem;
+        }
+        
+        .cta-text {
+            font-size: 1.1rem;
+        }
+        
+        .hero-cta,
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .feature-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .about-container {
+            padding: 0 1rem;
+        }
+        
+        .about-hero-title {
+            font-size: 2rem;
+        }
+        
+        .about-hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1rem;
+        }
+        
+        .mission-card,
+        .feature-card,
+        .value-item {
+            padding: 1.5rem;
+        }
+        
+        .cta-title {
+            font-size: 1.8rem;
+        }
+        
+        .cta-text {
+            font-size: 1rem;
+        }
+        
+        .mission-icon,
+        .feature-icon,
+        .value-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="about-container">
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+        <div class="about-hero-content">
+            <h1 class="about-hero-title">Revolucionando a Forma de Conectar Pessoas e Serviços</h1>
+            <p class="about-hero-subtitle">
+                O Agenda AI é a plataforma completa que transforma a maneira como você encontra, contrata e oferece serviços. Conectamos necessidades a soluções com tecnologia, segurança e eficiência.
+            </p>
+            <div class="hero-cta">
+                <a href="{% url 'create-ad' %}" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Começar Agora
+                </a>
+                <a href="#features" class="btn btn-outline">
+                    <i class="fas fa-play-circle"></i> Conhecer Serviços
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="about-section" id="mission">
+        <div class="section-header">
+            <h2 class="section-title">Nossa Essência</h2>
+            <p class="section-subtitle">
+                Mais do que uma plataforma, somos um ecossistema dedicado a simplificar sua vida e impulsionar negócios através de conexões significativas
+            </p>
+        </div>
+        
+        <div class="mission-grid">
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3 class="mission-title">Missão</h3>
+                <p class="mission-text">
+                    Democratizar o acesso a serviços essenciais através de uma plataforma intuitiva e segura, conectando pessoas a soluções que transformam seu dia a dia e impulsionam negócios locais.
+                </p>
+            </div>
+            
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3 class="mission-title">Visão</h3>
+                <p class="mission-text">
+                    Ser a principal referência em conexão de serviços no Brasil, reconhecida pela inovação constante, qualidade excepcional e impacto positivo na vida de milhões de pessoas.
+                </p>
+            </div>
+            
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <h3 class="mission-title">Valores</h3>
+                <p class="mission-text">
+                    Transparência absoluta, confiança como fundamento, inovação contínua, acessibilidade universal e compromisso genuíno com a satisfação de cada usuário e parceiro.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="about-section" id="features">
+        <div class="section-header">
+            <h2 class="section-title">Serviços Exclusivos</h2>
+            <p class="section-subtitle">
+                Uma plataforma completa com soluções inteligentes para todas as suas necessidades diárias e profissionais
+            </p>
+        </div>
+        
+        <div class="features-container">
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div>
+                        <h3 class="feature-title">Anúncios Inteligentes</h3>
+                        <p class="feature-text">
+                            Crie anúncios impactantes com nosso sistema inteligente que conecta seu produto ou serviço ao público certo.
+                        </p>
+                    </div>
+                </div>
+                <div class="feature-benefits">
+                    <ul class="benefit-list">
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Alcance segmentado e personalizado</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Ferramentas de promoção avançadas</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Análises de desempenho em tempo real</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div>
+                        <h3 class="feature-title">Delivery de Comida</h3>
+                        <p class="feature-text">
+                            Descubra os melhores restaurantes da sua região e faça pedidos com entrega rápida e segura.
+                        </p>
+                    </div>
+                </div>
+                <div class="feature-benefits">
+                    <ul class="benefit-list">
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Ampla variedade de restaurantes</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Avaliações e recomendações personalizadas</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Rastreamento de entrega em tempo real</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-taxi"></i>
+                    </div>
+                    <div>
+                        <h3 class="feature-title">Transporte Sob Medida</h3>
+                        <p class="feature-text">
+                            Solicite viagens com motoristas verificados e escolha a melhor opção para seu trajeto.
+                        </p>
+                    </div>
+                </div>
+                <div class="feature-benefits">
+                    <ul class="benefit-list">
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Motoristas qualificados e verificados</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Comparação de preços transparente</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Viagens agendadas ou sob demanda</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <div>
+                        <h3 class="feature-title">Logística Completa</h3>
+                        <p class="feature-text">
+                            Serviços de entrega e frete com rastreamento detalhado e garantia de segurança.
+                        </p>
+                    </div>
+                </div>
+                <div class="feature-benefits">
+                    <ul class="benefit-list">
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Cobertura em múltiplas cidades</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Opções de entrega expressa e econômica</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Seguro para encomendas de valor</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div>
+                        <h3 class="feature-title">Serviços Especializados</h3>
+                        <p class="feature-text">
+                            Encontre profissionais qualificados para serviços domésticos, consultorias e muito mais.
+                        </p>
+                    </div>
+                </div>
+                <div class="feature-benefits">
+                    <ul class="benefit-list">
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Diversas categorias de serviços</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Profissionais avaliados e certificados</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Orçamentos personalizados e transparentes</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div>
+                        <h3 class="feature-title">Presença Digital</h3>
+                        <p class="feature-text">
+                            Crie sua página personalizada para mostrar produtos e serviços com máxima visibilidade.
+                        </p>
+                    </div>
+                </div>
+                <div class="feature-benefits">
+                    <ul class="benefit-list">
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Design profissional e responsivo</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Ferramentas de gestão integradas</span>
+                        </li>
+                        <li class="benefit-item">
+                            <i class="fas fa-check"></i>
+                            <span>Integração com redes sociais</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="about-section" id="values">
+        <div class="section-header">
+            <h2 class="section-title">Diferenciais que Nos Movem</h2>
+            <p class="section-subtitle">
+                Características exclusivas que fazem do Agenda AI a melhor escolha para conectar pessoas e serviços
+            </p>
+        </div>
+        
+        <div class="values-container">
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="value-content">
+                    <h3 class="value-title">Segurança em Primeiro Lugar</h3>
+                    <p class="value-text">
+                        Implementamos verificação rigorosa de usuários e serviços, sistemas de pagamento seguros e proteção de dados para garantir transações confiáveis.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="value-content">
+                    <h3 class="value-title">Tecnologia Avançada</h3>
+                    <p class="value-text">
+                        Utilizamos algoritmos inteligentes para conectar você aos melhores serviços em tempo recorde, com processos otimizados e interface intuitiva.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="value-content">
+                    <h3 class="value-title">Transparência Total</h3>
+                    <p class="value-text">
+                        Preços claros sem taxas ocultas, avaliações genuínas de usuários e informações completas sobre cada serviço antes da contratação.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="value-content">
+                    <h3 class="value-title">Suporte Humanizado</h3>
+                    <p class="value-text">
+                        Equipe especializada disponível para resolver dúvidas e problemas de forma ágil, com atendimento personalizado e eficiente.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="value-content">
+                    <h3 class="value-title">Experiência Mobile-First</h3>
+                    <p class="value-text">
+                        Plataforma otimizada para dispositivos móveis, permitindo acesso rápido e fácil de qualquer lugar, a qualquer momento.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="value-content">
+                    <h3 class="value-title">Inovação Contínua</h3>
+                    <p class="value-text">
+                        Estamos sempre evoluindo com novas funcionalidades, melhorias na experiência do usuário e expansão de serviços disponíveis.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Pronto para Transformar sua Experiência?</h2>
+            <p class="cta-text">
+                Junte-se à nossa comunidade e descubra como o Agenda AI pode simplificar sua vida e impulsionar seus negócios de forma segura e eficiente.
+            </p>
+            <div class="cta-buttons">
+                <a href="{% url 'create-ad' %}" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Começar Agora
+                </a>
+                <a href="/" class="btn btn-outline">
+                    <i class="fas fa-search"></i> Explorar Serviços
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animações de scroll aprimoradas
+        const aboutSections = document.querySelectorAll('.about-section');
+        
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // Animação em cascata para os cards dentro da seção
+                    const cards = entry.target.querySelectorAll('.mission-card, .feature-card, .value-item');
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, index * 150);
+                    });
+                }
+            });
+        }, observerOptions);
+        
+        aboutSections.forEach(section => {
+            // Pré-configurar os cards para animação
+            const cards = section.querySelectorAll('.mission-card, .feature-card, .value-item');
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+            
+            observer.observe(section);
+        });
+        
+        // Smooth scroll para âncoras
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Efeito de digitação no título hero (opcional)
+        const heroTitle = document.querySelector('.about-hero-title');
+        if (heroTitle) {
+            const text = heroTitle.textContent;
+            heroTitle.textContent = '';
+            let i = 0;
+            
+            function typeWriter() {
+                if (i < text.length) {
+                    heroTitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 50);
+                }
+            }
+            
+            // Iniciar efeito de digitação quando a seção hero estiver visível
+            const heroObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    typeWriter();
+                    heroObserver.unobserve(entries[0].target);
+                }
+            }, { threshold: 0.5 });
+            
+            heroObserver.observe(document.querySelector('.about-hero'));
+        }
+        
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.about-hero');
+            if (hero) {
+                const rate = scrolled * -0.5;
+                hero.style.transform = `translateY(${rate}px)`;
+            }
+        });
+        
+        // Adicionar classe de carregamento para transições suaves
+        document.body.classList.add('loaded');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+# Crie o arquivo .gitignore
+echo "# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Database
+*.sqlite3
+*.db
+
+# Django
+staticfiles/
+media/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db" > .gitignore

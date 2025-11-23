@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar Anúncio - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --light-blue: #dbeafe;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 12px;
+        --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .edit-ad-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    
+    .page-subtitle {
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+    }
+    
+    .edit-ad-form {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--medium-gray);
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        background: var(--light-gray);
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        background: var(--white);
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: var(--dark-gray);
+        margin-top: 0.25rem;
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--medium-gray);
+        border-radius: 6px;
+        font-size: 1rem;
+        background-color: var(--white);
+        cursor: pointer;
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .btn-primary {
+        background: var(--primary-blue);
+        color: var(--white);
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-dark-blue);
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: var(--medium-gray);
+        color: var(--black);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--dark-gray);
+        color: var(--white);
+    }
+    
+    .btn-danger {
+        background: var(--error);
+        color: var(--white);
+    }
+    
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+    
+    .image-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .image-preview-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .image-preview-item img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+    }
+    
+    .image-preview-remove {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        background: rgba(220, 38, 38, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+    }
+    
+    .image-preview-remove:hover {
+        background: var(--error);
+        transform: scale(1.1);
+    }
+    
+    .current-images {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--light-gray);
+        border-radius: 8px;
+        border: 1px solid var(--medium-gray);
+    }
+    
+    .current-images-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        border: 1px solid;
+    }
+    
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border-color: #a7f3d0;
+    }
+    
+    .alert-error {
+        background: #fee2e2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+    
+    .alert-warning {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fde68a;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-ad-container {
+            padding: 1rem;
+        }
+        
+        .edit-ad-form {
+            padding: 1.5rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .image-preview {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .edit-ad-form {
+            padding: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+        }
+        
+        .form-control, .form-select {
+            padding: 0.6rem;
+        }
+        
+        .image-preview {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+</style>
+
+<div class="edit-ad-container">
+    <div class="page-header">
+        <h1 class="page-title">Editar Anúncio</h1>
+        <p class="page-subtitle">Atualize as informações do seu anúncio</p>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" class="edit-ad-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="titulo" class="form-label">Título do Anúncio *</label>
+            <input type="text" id="titulo" name="titulo" class="form-control" 
+                   value="{{ anuncio.titulo }}" required maxlength="200">
+            <div class="form-text">Título claro e descritivo do seu produto/serviço</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="descricao" class="form-label">Descrição *</label>
+            <textarea id="descricao" name="descricao" class="form-control" 
+                      rows="5" required maxlength="2000">{{ anuncio.descricao }}</textarea>
+            <div class="form-text">Descreva detalhadamente seu produto/serviço</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="categoria" class="form-label">Categoria *</label>
+            <select id="categoria" name="categoria" class="form-select" required>
+                <option value="">Selecione uma categoria</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" 
+                            {% if categoria.id == anuncio.categoria.id %}selected{% endif %}>
+                        {{ categoria.titulo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="valor" class="form-label">Valor (R$)</label>
+            <input type="text" id="valor" name="valor" class="form-control" 
+                   value="{% if anuncio.valor %}{{ anuncio.valor }}{% endif %}" 
+                   placeholder="Ex: 100.00 ou deixe vazio para 'A combinar'">
+            <div class="form-text">Deixe vazio para "A combinar"</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="localizacao" class="form-label">Localização *</label>
+            <select id="localizacao" name="localizacao" class="form-select" required>
+                <option value="">Selecione uma localização</option>
+                {% for localizacao in localizacoes %}
+                    <option value="{{ localizacao.id }}" 
+                            {% if anuncio.localizacao and localizacao.id == anuncio.localizacao.id %}selected{% endif %}>
+                        {{ localizacao.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="whatsapp" class="form-label">WhatsApp *</label>
+            <input type="text" id="whatsapp" name="whatsapp" class="form-control" 
+                   value="{{ anuncio.whatsapp }}" required 
+                   placeholder="Ex: 11999999999">
+            <div class="form-text">Apenas números, com DDD</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="estado_produto" class="form-label">Estado do Produto</label>
+            <select id="estado_produto" name="estado_produto" class="form-select">
+                <option value="novo" {% if anuncio.estado_produto == 'novo' %}selected{% endif %}>Novo</option>
+                <option value="usado" {% if anuncio.estado_produto == 'usado' %}selected{% endif %}>Usado</option>
+                <option value="seminovo" {% if anuncio.estado_produto == 'seminovo' %}selected{% endif %}>Seminovo</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="status" class="form-label">Status</label>
+            <select id="status" name="status" class="form-select">
+                <option value="ativo" {% if anuncio.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                <option value="inativo" {% if anuncio.status == 'inativo' %}selected{% endif %}>Inativo</option>
+                <option value="pendente" {% if anuncio.status == 'pendente' %}selected{% endif %}>Pendente</option>
+            </select>
+        </div>
+        
+        <div class="form-check">
+            <input type="checkbox" id="destaque" name="destaque" 
+                   class="form-check-input" {% if anuncio.destaque %}checked{% endif %}>
+            <label for="destaque" class="form-label">Destacar este anúncio</label>
+        </div>
+        
+        {% if anuncio.imagens.exists %}
+        <div class="current-images">
+            <div class="current-images-title">Imagens Atuais:</div>
+            <div class="image-preview">
+                {% for imagem in anuncio.imagens.all %}
+                <div class="image-preview-item">
+                    <img src="{{ imagem.imagem.url }}" alt="Imagem {{ forloop.counter }}">
+                    <button type="button" class="image-preview-remove" 
+                            onclick="removerImagem({{ imagem.id }})">
+                        ×
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="form-group">
+            <label for="imagens" class="form-label">Adicionar Novas Imagens</label>
+            <input type="file" id="imagens" name="imagens" class="form-control" 
+                   multiple accept="image/*">
+            <div class="form-text">Selecione novas imagens para adicionar (máx. 10)</div>
+        </div>
+        
+        <div id="imagePreview" class="image-preview" style="display: none;"></div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Atualizar Anúncio
+            </button>
+            <a href="{% url 'my-ads' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+            <button type="button" class="btn btn-danger" onclick="confirmarExclusao()">
+                <i class="fas fa-trash"></i> Excluir Anúncio
+            </button>
+        </div>
+    </form>
+</div>
+
+<form id="deleteForm" method="post" action="{% url 'delete-anuncio' anuncio.id %}" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<script>
+    document.getElementById('imagens').addEventListener('change', function(e) {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        
+        const files = e.target.files;
+        if (files.length > 0) {
+            preview.style.display = 'grid';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.match('image.*')) continue;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${i+1}">
+                        <button type="button" class="image-preview-remove" onclick="removerPreview(this)">
+                            ×
+                        </button>
+                    `;
+                    preview.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+    
+    function removerPreview(button) {
+        button.parentElement.remove();
+        const preview = document.getElementById('imagePreview');
+        if (preview.children.length === 0) {
+            preview.style.display = 'none';
+        }
+    }
+    
+    function removerImagem(imagemId) {
+        if (confirm('Tem certeza que deseja remover esta imagem?')) {
+            fetch(`/api/core/remover-imagem/${imagemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erro ao remover imagem: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Erro ao remover imagem: ' + error);
+            });
+        }
+    }
+    
+    function confirmarExclusao() {
+        if (confirm('Tem certeza que deseja excluir este anúncio? Esta ação não pode ser desfeita.')) {
+            document.getElementById('deleteForm').submit();
+        }
+    }
+    
+    document.getElementById('valor').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value) {
+            value = (parseInt(value) / 100).toFixed(2);
+            value = value.replace('.', ',');
+            e.target.value = value;
+        }
+    });
+    
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+</script>
+{% endblock %}

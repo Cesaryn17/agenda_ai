@@ -1,0 +1,1067 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notificações - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 25px rgba(0,0,0,0.12);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+        --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+    }
+
+    .notifications-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding: 2rem;
+        background: var(--primary-gradient);
+        border-radius: var(--border-radius);
+        color: white;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .notifications-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .notifications-title i {
+        font-size: 2.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 50%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .notifications-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-notification-action {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+        backdrop-filter: blur(20px);
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .btn-notification-action:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    .notifications-content {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2.5rem;
+    }
+    
+    .notifications-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .notifications-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .section-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2.2rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 2px solid var(--light-gray);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .section-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--medium-blue);
+    }
+    
+    .section-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--primary-gradient);
+        opacity: 0;
+        transition: var(--transition);
+    }
+    
+    .section-card:hover::before {
+        opacity: 1;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .section-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-title i {
+        color: var(--primary-blue);
+        font-size: 1.8rem;
+        background: var(--light-blue);
+        padding: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .filter-options {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-option {
+        padding: 0.8rem 1.5rem;
+        background: var(--light-gray);
+        border-radius: 50px;
+        border: 2px solid var(--medium-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--dark-gray);
+    }
+    
+    .filter-option:hover,
+    .filter-option.active {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    
+    .notifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1.8rem;
+        border-radius: var(--border-radius);
+        background: var(--white);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        border: 2px solid var(--light-gray);
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .notification-item:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary-blue);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .notification-item.unread {
+        background: rgba(37, 99, 235, 0.03);
+        border-left: 4px solid var(--primary-blue);
+    }
+    
+    .notification-item.read {
+        opacity: 0.85;
+    }
+    
+    .notification-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+        font-size: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+    }
+    
+    .notification-item:hover .notification-icon {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .notification-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--black);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    .notification-title .unread-badge {
+        background: var(--primary-blue);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .notification-message {
+        color: var(--dark-gray);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        font-size: 1.05rem;
+    }
+    
+    .notification-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .notification-time {
+        font-size: 0.9rem;
+        color: var(--dark-gray);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .notification-time i {
+        color: var(--primary-blue);
+    }
+    
+    .notification-category {
+        font-size: 0.9rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        background: var(--light-gray);
+        color: var(--dark-gray);
+        font-weight: 500;
+    }
+    
+    .notification-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .notification-action-btn {
+        padding: 0.6rem 1.2rem;
+        background: var(--light-gray);
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .notification-action-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    
+    .notification-action-btn.primary {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+    }
+    
+    .notification-action-btn.primary:hover {
+        background: var(--primary-dark-blue);
+        border-color: var(--primary-dark-blue);
+    }
+    
+    .notification-type-message .notification-icon {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+    }
+    
+    .notification-type-alert .notification-icon {
+        background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    }
+    
+    .notification-type-success .notification-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    
+    .notification-type-announcement .notification-icon {
+        background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    }
+    
+    .notification-type-view .notification-icon {
+        background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, var(--light-gray) 0%, #f1f5f9 100%);
+        border-radius: var(--border-radius);
+        border: 2px dashed var(--medium-gray);
+        color: var(--dark-gray);
+    }
+    
+    .empty-state i {
+        font-size: 4.5rem;
+        color: var(--medium-gray);
+        margin-bottom: 1.5rem;
+        display: block;
+        opacity: 0.7;
+    }
+    
+    .empty-state h3 {
+        margin-bottom: 1rem;
+        color: var(--black);
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .empty-state p {
+        margin-bottom: 2.5rem;
+        font-size: 1.2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.2rem;
+    }
+    
+    .stats-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 1.8rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        border: 2px solid var(--light-gray);
+        transition: var(--transition);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--medium-blue);
+    }
+    
+    .stats-value {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+    
+    .stats-label {
+        color: var(--dark-gray);
+        font-weight: 600;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--light-gray);
+    }
+    
+    .pagination-btn {
+        padding: 0.75rem 1.25rem;
+        background: var(--white);
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 600;
+        color: var(--dark-gray);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .pagination-btn:hover:not(.disabled) {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+    }
+    
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .pagination-info {
+        color: var(--dark-gray);
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0 1rem;
+    }
+    
+    .sidebar-section {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 1.8rem;
+        box-shadow: var(--shadow-sm);
+        border: 2px solid var(--light-gray);
+    }
+    
+    .sidebar-section h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .sidebar-section h3 i {
+        color: var(--primary-blue);
+        background: var(--light-blue);
+        padding: 0.5rem;
+        border-radius: 10px;
+    }
+    
+    .type-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .type-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem;
+        border-radius: var(--border-radius-sm);
+        background: var(--light-gray);
+        transition: var(--transition);
+    }
+    
+    .type-item:hover {
+        background: var(--medium-blue);
+        color: var(--primary-dark-blue);
+    }
+    
+    .type-name {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .type-badge {
+        background: var(--primary-blue);
+        color: white;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+    
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .quick-action-btn {
+        padding: 1rem;
+        background: var(--light-gray);
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        text-align: center;
+        font-weight: 600;
+        color: var(--dark-gray);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .quick-action-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    
+    @media (max-width: 1024px) {
+        .notifications-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .notifications-sidebar {
+            order: -1;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .notifications-container {
+            padding: 0 1rem;
+        }
+        
+        .notifications-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .notifications-title {
+            font-size: 1.8rem;
+        }
+        
+        .notifications-actions {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .filter-options {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .notification-item {
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+        }
+        
+        .notification-meta {
+            justify-content: center;
+        }
+        
+        .notification-actions {
+            justify-content: center;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-card {
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .notifications-title {
+            font-size: 1.6rem;
+        }
+        
+        .btn-notification-action {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+        }
+        
+        .notification-item {
+            padding: 1.2rem;
+        }
+        
+        .notification-title {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+
+<div class="notifications-container">
+    <div class="notifications-header">
+        <h1 class="notifications-title">
+            <i class="fas fa-bell"></i>
+            Notificações
+        </h1>
+        
+        <div class="notifications-actions">
+            <button class="btn-notification-action" id="markAllReadBtn">
+                <i class="fas fa-check-double"></i> Marcar todas como lidas
+            </button>
+            <button class="btn-notification-action" id="clearAllBtn">
+                <i class="fas fa-trash"></i> Limpar todas
+            </button>
+        </div>
+    </div>
+    
+    <div class="notifications-content">
+        <div class="notifications-main">
+            <div class="section-card">
+                <div class="filter-options">
+                    <div class="filter-option active" data-filter="all">Todas</div>
+                    <div class="filter-option" data-filter="unread">Não lidas</div>
+                    <div class="filter-option" data-filter="message">Mensagens</div>
+                    <div class="filter-option" data-filter="alert">Alertas</div>
+                    <div class="filter-option" data-filter="success">Sucesso</div>
+                    <div class="filter-option" data-filter="announcement">Anúncios</div>
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-list"></i>
+                        <span>Suas Notificações</span>
+                    </h2>
+                    <span class="pagination-info">
+                        {{ notificacoes.start_index }} - {{ notificacoes.end_index }} de {{ notificacoes.paginator.count }}
+                    </span>
+                </div>
+                
+                {% if notificacoes %}
+                <div class="notifications-list">
+                    {% for notificacao in notificacoes %}
+                    <div class="notification-item {% if not notificacao.lida %}unread{% else %}read{% endif %} notification-type-{{ notificacao.tipo|default:'alert' }}"
+                         data-notification-id="{{ notificacao.id }}">
+                        <div class="notification-icon">
+                            {% if notificacao.tipo == 'message' %}
+                                <i class="fas fa-envelope"></i>
+                            {% elif notificacao.tipo == 'announcement' %}
+                                <i class="fas fa-bullhorn"></i>
+                            {% elif notificacao.tipo == 'view' %}
+                                <i class="fas fa-eye"></i>
+                            {% elif notificacao.tipo == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% else %}
+                                <i class="fas fa-bell"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="notification-content">
+                            <h3 class="notification-title">
+                                {{ notificacao.titulo }}
+                                {% if not notificacao.lida %}
+                                <span class="unread-badge">Nova</span>
+                                {% endif %}
+                            </h3>
+                            
+                            <p class="notification-message">{{ notificacao.mensagem }}</p>
+                            
+                            <div class="notification-meta">
+                                <div class="notification-time">
+                                    <i class="fas fa-clock"></i>
+                                    {{ notificacao.data_criacao|timesince }} atrás
+                                </div>
+                                
+                                <div class="notification-category">
+                                    {{ notificacao.tipo|default:"Geral" }}
+                                </div>
+                            </div>
+                            
+                            {% if notificacao.url %}
+                            <div class="notification-actions">
+                                <a href="{{ notificacao.url }}" class="notification-action-btn primary">
+                                    <i class="fas fa-external-link-alt"></i> Ver detalhes
+                                </a>
+                                {% if notificacao.tipo == 'success' or notificacao.tipo == 'alert' %}
+                                <a href="{% url 'my-ads' %}" class="notification-action-btn">
+                                    <i class="fas fa-list"></i> Meus Anúncios
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="pagination">
+                    {% if notificacoes.has_previous %}
+                    <a href="?page={{ notificacoes.previous_page_number }}" class="pagination-btn">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                    {% else %}
+                    <span class="pagination-btn disabled">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </span>
+                    {% endif %}
+                    
+                    <span class="pagination-info">
+                        Página {{ notificacoes.number }} de {{ notificacoes.paginator.num_pages }}
+                    </span>
+                    
+                    {% if notificacoes.has_next %}
+                    <a href="?page={{ notificacoes.next_page_number }}" class="pagination-btn">
+                        Próxima <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% else %}
+                    <span class="pagination-btn disabled">
+                        Próxima <i class="fas fa-chevron-right"></i>
+                    </span>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>Nenhuma notificação</h3>
+                    <p>Você está em dia com todas as atualizações. Novas notificações aparecerão aqui.</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'create-ad' %}" class="notification-action-btn primary">
+                        <i class="fas fa-plus"></i> Criar Primeiro Anúncio
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="notifications-sidebar">
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Estatísticas</span>
+                </h2>
+                
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="stats-value">{{ unread_notifications }}</div>
+                        <div class="stats-label">Não lidas</div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="stats-value">{{ notificacoes.paginator.count }}</div>
+                        <div class="stats-label">Total</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3><i class="fas fa-tag"></i> Tipos de Notificação</h3>
+                
+                <div class="type-list">
+                    <div class="type-item">
+                        <div class="type-name">
+                            <i class="fas fa-envelope" style="color: #2563eb;"></i>
+                            <span>Mensagens</span>
+                        </div>
+                        <span class="type-badge">{{ message_count|default:0 }}</span>
+                    </div>
+                    
+                    <div class="type-item">
+                        <div class="type-name">
+                            <i class="fas fa-bell" style="color: #f59e0b;"></i>
+                            <span>Alertas</span>
+                        </div>
+                        <span class="type-badge">{{ alert_count|default:0 }}</span>
+                    </div>
+                    
+                    <div class="type-item">
+                        <div class="type-name">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                            <span>Sucesso</span>
+                        </div>
+                        <span class="type-badge">{{ success_count|default:0 }}</span>
+                    </div>
+                    
+                    <div class="type-item">
+                        <div class="type-name">
+                            <i class="fas fa-bullhorn" style="color: #8b5cf6;"></i>
+                            <span>Anúncios</span>
+                        </div>
+                        <span class="type-badge">{{ announcement_count|default:0 }}</span>
+                    </div>
+                    
+                    <div class="type-item">
+                        <div class="type-name">
+                            <i class="fas fa-eye" style="color: #f97316;"></i>
+                            <span>Visualizações</span>
+                        </div>
+                        <span class="type-badge">{{ view_count|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3><i class="fas fa-bolt"></i> Ações Rápidas</h3>
+                
+                <div class="quick-actions">
+                    <a href="{% url 'create-ad' %}" class="quick-action-btn">
+                        <i class="fas fa-plus-circle"></i> Criar Novo Anúncio
+                    </a>
+                    
+                    <a href="{% url 'my-ads' %}" class="quick-action-btn">
+                        <i class="fas fa-list-alt"></i> Gerenciar Anúncios
+                    </a>
+                    
+                    <a href="{% url 'favorites' %}" class="quick-action-btn">
+                        <i class="fas fa-heart"></i> Ver Favoritos
+                    </a>
+                    
+                    <a href="{% url 'settings' %}" class="quick-action-btn">
+                        <i class="fas fa-cog"></i> Configurações
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.filter-option').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.filter-option').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filterType = this.getAttribute('data-filter');
+                filterNotifications(filterType);
+            });
+        });
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const notificationId = this.getAttribute('data-notification-id');
+                markAsRead(notificationId, this);
+            });
+        });
+        
+        document.getElementById('markAllReadBtn').addEventListener('click', function() {
+            if (confirm('Deseja marcar todas as notificações como lidas?')) {
+                markAllAsRead();
+            }
+        });
+        
+        document.getElementById('clearAllBtn').addEventListener('click', function() {
+            if (confirm('Deseja limpar todas as notificações? Esta ação não pode ser desfeita.')) {
+                clearAllNotifications();
+            }
+        });
+        
+        function filterNotifications(filterType) {
+            document.querySelectorAll('.notification-item').forEach(item => {
+                const isUnread = item.classList.contains('unread');
+                const notificationType = item.classList.contains('notification-type-message') ? 'message' :
+                                       item.classList.contains('notification-type-alert') ? 'alert' :
+                                       item.classList.contains('notification-type-success') ? 'success' :
+                                       item.classList.contains('notification-type-announcement') ? 'announcement' :
+                                       item.classList.contains('notification-type-view') ? 'view' : 'alert';
+                
+                let shouldShow = true;
+                
+                if (filterType === 'unread' && !isUnread) {
+                    shouldShow = false;
+                } else if (filterType === 'message' && notificationType !== 'message') {
+                    shouldShow = false;
+                } else if (filterType === 'alert' && notificationType !== 'alert') {
+                    shouldShow = false;
+                } else if (filterType === 'success' && notificationType !== 'success') {
+                    shouldShow = false;
+                } else if (filterType === 'announcement' && notificationType !== 'announcement') {
+                    shouldShow = false;
+                }
+                
+                item.style.display = shouldShow ? 'flex' : 'none';
+            });
+        }
+        
+        function markAsRead(notificationId, element) {
+            element.classList.remove('unread');
+            element.classList.add('read');
+            
+            const badge = element.querySelector('.unread-badge');
+            if (badge) {
+                badge.remove();
+            }
+            
+            updateUnreadCount(-1);
+            
+            fetch(`/api/core/notificacoes/${notificationId}/marcar-lida/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            }).catch(error => console.error('Erro:', error));
+        }
+        
+        function markAllAsRead() {
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                item.classList.add('read');
+                
+                const badge = item.querySelector('.unread-badge');
+                if (badge) {
+                    badge.remove();
+                }
+            });
+            
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            updateUnreadCount(-unreadCount);
+            
+            fetch('/api/core/notificacoes/marcar-todas-lidas/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            }).catch(error => console.error('Erro:', error));
+        }
+        
+        function clearAllNotifications() {
+            if (confirm('Tem certeza que deseja limpar todas as notificações?')) {
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.remove();
+                });
+                
+                const notificationsList = document.querySelector('.notifications-list');
+                notificationsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>Nenhuma notificação</h3>
+                        <p>Você está em dia com todas as atualizações. Novas notificações aparecerão aqui.</p>
+                    </div>
+                `;
+                
+                document.querySelector('.pagination').style.display = 'none';
+                
+                updateUnreadCount(0);
+                document.querySelector('.stats-value:first-child').textContent = '0';
+                document.querySelector('.stats-value:last-child').textContent = '0';
+                
+                fetch('/api/core/notificacoes/limpar-todas/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                }).catch(error => console.error('Erro:', error));
+            }
+        }
+        
+        function updateUnreadCount(change) {
+            const unreadElement = document.querySelector('.stats-value:first-child');
+            let currentCount = parseInt(unreadElement.textContent);
+            currentCount += change;
+            if (currentCount < 0) currentCount = 0;
+            unreadElement.textContent = currentCount;
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function updateNavbarNotificationCount() {
+            fetch('/api/core/notificacoes/nao-lidas/')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        badge.textContent = data.count;
+                        badge.style.display = data.count > 0 ? 'flex' : 'none';
+                    }
+                })
+                .catch(error => console.error('Erro ao atualizar contador:', error));
+        }
+
+        setInterval(updateNavbarNotificationCount, 30000);
+    });
+</script>
+{% endblock %}

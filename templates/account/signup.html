@@ -1,0 +1,282 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+<div class="auth-header">
+    <h1>Criar sua conta</h1>
+    <p>Preencha os dados abaixo para se registrar</p>
+</div>
+
+{% if form.errors %}
+<div class="messages">
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                {{ error }}<br>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<form class="auth-form" method="POST" id="registerForm" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="id_nome">Nome completo *</label>
+        <div class="input-with-icon">
+            <i class="fas fa-user"></i>
+            <input type="text" id="id_nome" name="nome" class="form-input" placeholder="Seu nome completo" required autofocus value="{{ form.nome.value|default:'' }}">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_email">E-mail *</label>
+            <div class="input-with-icon">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="id_email" name="email" class="form-input" placeholder="seu@email.com" required value="{{ form.email.value|default:'' }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="id_phone">Telefone</label>
+            <div class="input-with-icon">
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="id_phone" name="phone" class="form-input" placeholder="(11) 99999-9999" value="{{ form.phone.value|default:'' }}">
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_password1">Senha *</label>
+        <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="id_password1" name="password1" class="form-input" placeholder="Crie uma senha segura" required minlength="6">
+            <span class="password-toggle" id="togglePassword">
+                <i class="fas fa-eye"></i>
+            </span>
+        </div>
+        <div class="password-strength">
+            <div class="password-strength-bar" id="password-strength-bar"></div>
+        </div>
+        <div class="password-hints">
+            <p>Sua senha deve conter:</p>
+            <ul>
+                <li id="length-hint" class="hint-invalid">Pelo menos 6 caracteres</li>
+                <li id="number-hint" class="hint-invalid">Pelo menos 1 número</li>
+                <li id="letter-hint" class="hint-invalid">Pelo menos 1 letra</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_password2">Confirmar senha *</label>
+        <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="id_password2" name="password2" class="form-input" placeholder="Digite novamente sua senha" required>
+            <span class="password-toggle" id="toggleConfirmPassword">
+                <i class="fas fa-eye"></i>
+            </span>
+        </div>
+        <div class="field-error" id="password-error" style="display: none;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>As senhas não coincidem</span>
+        </div>
+    </div>
+    
+    <div class="terms-group">
+        <input type="checkbox" id="id_terms" name="terms" required>
+        <label for="id_terms" class="terms-label">
+            Concordo com os <a href="{% url 'termos_condicoes' %}">Termos de Uso</a> e 
+            <a href="#">Política de Privacidade</a> da Agenda AI *
+        </label>
+    </div>
+    <div class="field-error" id="terms-error" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Você deve aceitar os termos de uso</span>
+    </div>
+
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    
+    <button type="submit" class="auth-button" id="submitButton">
+        <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
+        Criar conta
+    </button>
+</form>
+
+<div class="divider">
+    <span>Ou cadastre-se com</span>
+</div>
+
+<div class="social-login">
+    <a href="{% provider_login_url 'google' %}" class="social-btn google">
+        <i class="fab fa-google"></i>
+        Google
+    </a>
+    
+    <a href="{% provider_login_url 'facebook' %}" class="social-btn facebook">
+        <i class="fab fa-facebook-f"></i>
+        Facebook
+    </a>
+</div>
+
+<div class="auth-footer">
+    <p>Já tem uma conta? <a href="{% url 'account_login' %}">Faça login</a></p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registerForm');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const passwordInput = document.getElementById('id_password1');
+        const confirmPasswordInput = document.getElementById('id_password2');
+        const passwordError = document.getElementById('password-error');
+        const termsError = document.getElementById('terms-error');
+        const submitButton = document.getElementById('submitButton');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const lengthHint = document.getElementById('length-hint');
+        const numberHint = document.getElementById('number-hint');
+        const letterHint = document.getElementById('letter-hint');
+        const termsCheckbox = document.getElementById('id_terms');
+        
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            const eyeIcon = this.querySelector('i');
+            if (type === 'password') {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            } else {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+        });
+        
+        toggleConfirmPassword.addEventListener('click', function() {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            const eyeIcon = this.querySelector('i');
+            if (type === 'password') {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            } else {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+        });
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) {
+                strength += 1;
+                lengthHint.classList.remove('hint-invalid');
+                lengthHint.classList.add('hint-valid');
+            } else {
+                lengthHint.classList.remove('hint-valid');
+                lengthHint.classList.add('hint-invalid');
+            }
+            
+            if (/\d/.test(password)) {
+                strength += 1;
+                numberHint.classList.remove('hint-invalid');
+                numberHint.classList.add('hint-valid');
+            } else {
+                numberHint.classList.remove('hint-valid');
+                numberHint.classList.add('hint-invalid');
+            }
+            
+            if (/[a-zA-Z]/.test(password)) {
+                strength += 1;
+                letterHint.classList.remove('hint-invalid');
+                letterHint.classList.add('hint-valid');
+            } else {
+                letterHint.classList.remove('hint-valid');
+                letterHint.classList.add('hint-invalid');
+            }
+            
+            passwordStrengthBar.className = 'password-strength-bar';
+            if (strength === 1) {
+                passwordStrengthBar.classList.add('password-strength-weak');
+            } else if (strength === 2) {
+                passwordStrengthBar.classList.add('password-strength-medium');
+            } else if (strength === 3) {
+                passwordStrengthBar.classList.add('password-strength-strong');
+            }
+            
+            validatePasswords();
+        });
+        
+        confirmPasswordInput.addEventListener('input', validatePasswords);
+        
+        function validatePasswords() {
+            if (passwordInput.value !== confirmPasswordInput.value && confirmPasswordInput.value !== '') {
+                passwordError.style.display = 'flex';
+                submitButton.disabled = true;
+            } else {
+                passwordError.style.display = 'none';
+                submitButton.disabled = false;
+            }
+        }
+        
+        termsCheckbox.addEventListener('change', function() {
+            if (!this.checked) {
+                termsError.style.display = 'flex';
+            } else {
+                termsError.style.display = 'none';
+            }
+        });
+        
+        const phoneInput = document.getElementById('id_phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 11) {
+                    value = value.slice(0, 11);
+                }
+                
+                if (value.length <= 10) {
+                    value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+                } else {
+                    value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+                }
+                
+                e.target.value = value;
+            });
+        }
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                passwordError.style.display = 'flex';
+                isValid = false;
+            }
+            
+            if (!termsCheckbox.checked) {
+                termsError.style.display = 'flex';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                const firstError = document.querySelector('.field-error[style="display: flex;"]');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        document.getElementById('id_nome').focus();
+    });
+</script>
+{% endblock %}

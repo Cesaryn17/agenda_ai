@@ -1,0 +1,932 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ajuda & Suporte - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00D1FF 0%, #0077B6 100%);
+        --primary-cyan: #00D1FF;
+        --primary-dark: #0077B6;
+        --primary-light: #90E0EF;
+        --accent-orange: #FF6B35;
+        --accent-green: #2EC4B6;
+        --white: #FFFFFF;
+        --light-gray: #F8F9FA;
+        --medium-gray: #E9ECEF;
+        --dark-gray: #6C757D;
+        --black: #212529;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        --border-radius: 16px;
+        --border-radius-sm: 8px;
+    }
+
+    .help-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .help-hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--primary-gradient);
+        color: var(--white);
+        border-radius: var(--border-radius);
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .help-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/pattern.svg" %}');
+        opacity: 0.1;
+    }
+
+    .help-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .help-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .help-hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .help-search {
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .help-search input {
+        width: 100%;
+        padding: 1rem 1.5rem 1rem 3rem;
+        border-radius: 50px;
+        border: none;
+        font-size: 1rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .help-search i {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-gray);
+    }
+
+    .help-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .help-sidebar {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+
+    .help-nav {
+        list-style: none;
+    }
+
+    .help-nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .help-nav-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: var(--black);
+        text-decoration: none;
+        border-radius: var(--border-radius-sm);
+        transition: var(--transition);
+        font-weight: 500;
+    }
+
+    .help-nav-link:hover,
+    .help-nav-link.active {
+        background: var(--primary-gradient);
+        color: var(--white);
+    }
+
+    .help-nav-link i {
+        margin-right: 0.75rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .help-content {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .help-section {
+        margin-bottom: 3rem;
+        display: none;
+    }
+
+    .help-section.active {
+        display: block;
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .help-section h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-dark);
+        border-bottom: 3px solid var(--primary-cyan);
+        padding-bottom: 0.5rem;
+    }
+
+    .help-section h3 {
+        font-size: 1.5rem;
+        margin: 2rem 0 1rem 0;
+        color: var(--black);
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .feature-card {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary-cyan);
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .feature-card h4 {
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .feature-card h4 i {
+        color: var(--accent-orange);
+    }
+
+    .step-list {
+        list-style: none;
+        counter-reset: step-counter;
+    }
+
+    .step-item {
+        counter-increment: step-counter;
+        margin-bottom: 2rem;
+        padding-left: 3rem;
+        position: relative;
+    }
+
+    .step-item::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 2rem;
+        height: 2rem;
+        background: var(--primary-gradient);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .faq-list {
+        margin-top: 2rem;
+    }
+
+    .faq-item {
+        border-bottom: 1px solid var(--medium-gray);
+        padding: 1.5rem 0;
+    }
+
+    .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .faq-answer {
+        margin-top: 1rem;
+        color: var(--dark-gray);
+        line-height: 1.6;
+        display: none;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    .contact-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .contact-card {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        transition: var(--transition);
+    }
+
+    .contact-card:hover {
+        background: var(--primary-light);
+        transform: translateY(-3px);
+    }
+
+    .contact-card i {
+        font-size: 2.5rem;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+
+    .contact-card h4 {
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .quick-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem;
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        color: var(--black);
+        transition: var(--transition);
+        text-align: center;
+    }
+
+    .quick-action:hover {
+        background: var(--primary-gradient);
+        color: var(--white);
+        transform: translateY(-3px);
+    }
+
+    .quick-action i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .platform-feature {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin: 2rem 0;
+        border-left: 4px solid var(--accent-green);
+    }
+
+    .platform-feature h4 {
+        color: var(--accent-green);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .help-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .help-sidebar {
+            position: static;
+        }
+
+        .help-hero h1 {
+            font-size: 2rem;
+        }
+
+        .help-content {
+            padding: 1.5rem;
+        }
+
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-options {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="help-container">
+    <section class="help-hero">
+        <div class="help-hero-content">
+            <h1>Central de Ajuda Agenda AI</h1>
+            <p>Encontre respostas para suas dúvidas e aprenda a usar todas as funcionalidades da plataforma</p>
+            <div class="help-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="helpSearch" placeholder="Buscar na ajuda...">
+            </div>
+        </div>
+    </section>
+
+    <div class="help-grid">
+        <aside class="help-sidebar">
+            <nav>
+                <ul class="help-nav">
+                    <li class="help-nav-item">
+                        <a href="#getting-started" class="help-nav-link active" data-section="getting-started">
+                            <i class="fas fa-rocket"></i>
+                            Começando
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#platform-features" class="help-nav-link" data-section="platform-features">
+                            <i class="fas fa-star"></i>
+                            Funcionalidades
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#create-page" class="help-nav-link" data-section="create-page">
+                            <i class="fas fa-store"></i>
+                            Criar Página
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#restaurant" class="help-nav-link" data-section="restaurant">
+                            <i class="fas fa-utensils"></i>
+                            Seu Restaurante
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#ads" class="help-nav-link" data-section="ads">
+                            <i class="fas fa-bullhorn"></i>
+                            Anúncios
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#services" class="help-nav-link" data-section="services">
+                            <i class="fas fa-concierge-bell"></i>
+                            Serviços
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#travel" class="help-nav-link" data-section="travel">
+                            <i class="fas fa-car"></i>
+                            Transporte
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#delivery" class="help-nav-link" data-section="delivery">
+                            <i class="fas fa-shipping-fast"></i>
+                            Entregas
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#faq" class="help-nav-link" data-section="faq">
+                            <i class="fas fa-question-circle"></i>
+                            FAQ
+                        </a>
+                    </li>
+                    <li class="help-nav-item">
+                        <a href="#contact" class="help-nav-link" data-section="contact">
+                            <i class="fas fa-headset"></i>
+                            Contato
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="help-content">
+            <section id="getting-started" class="help-section active">
+                <h2>Começando no Agenda AI</h2>
+                <p>Bem-vindo à plataforma mais completa para conectar pessoas e serviços! Aqui está tudo que você precisa saber para começar.</p>
+
+                <div class="quick-actions">
+                    <a href="{% url 'registro' %}" class="quick-action">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Criar Conta</span>
+                    </a>
+                    <a href="{% url 'create-ad' %}" class="quick-action">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Primeiro Anúncio</span>
+                    </a>
+                    <a href="{% url 'perfil' %}" class="quick-action">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Completar Perfil</span>
+                    </a>
+                    <a href="#create-page" class="quick-action">
+                        <i class="fas fa-store"></i>
+                        <span>Criar Página</span>
+                    </a>
+                </div>
+
+                <h3>Primeiros Passos</h3>
+                <ol class="step-list">
+                    <li class="step-item">
+                        <strong>Crie sua conta</strong> - Registre-se em segundos com email ou redes sociais
+                    </li>
+                    <li class="step-item">
+                        <strong>Complete seu perfil</strong> - Adicione foto, descrição e informações de contato
+                    </li>
+                    <li class="step-item">
+                        <strong>Explore as categorias</strong> - Descubra serviços disponíveis na sua região
+                    </li>
+                    <li class="step-item">
+                        <strong>Crie seu primeiro anúncio</strong> - Ofereça seus produtos ou serviços
+                    </li>
+                    <li class="step-item">
+                        <strong>Monte sua página personalizada</strong> - Crie um espaço único para seu negócio
+                    </li>
+                </ol>
+            </section>
+
+            <section id="platform-features" class="help-section">
+                <h2>Funcionalidades da Plataforma</h2>
+                <p>O Agenda AI oferece uma suite completa de ferramentas para atender todas as suas necessidades.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-store"></i> Página Personalizada</h4>
+                        <p>Crie uma página exclusiva para seu negócio com design profissional, galeria de produtos, avaliações e muito mais.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-utensils"></i> Sistema de Restaurante</h4>
+                        <p>Monte seu cardápio digital, aceite pedidos online e gerencie entregas de forma integrada.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-bullhorn"></i> Anúncios Inteligentes</h4>
+                        <p>Alcance seu público-alvo com anúncios segmentados e ferramentas de promoção avançadas.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-car"></i> Serviço de Transporte</h4>
+                        <p>Solicite viagens ou ofereça serviços de transporte com motoristas verificados.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-shipping-fast"></i> Entregas e Fretes</h4>
+                        <p>Contrate ou ofereça serviços de entrega com rastreamento em tempo real.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-concierge-bell"></i> Serviços Diversos</h4>
+                        <p>Encontre profissionais para serviços domésticos, consultorias, aulas e muito mais.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="create-page" class="help-section">
+                <h2>Crie sua Página na Plataforma</h2>
+                <p>Transforme seu negócio com uma página personalizada e profissional dentro do Agenda AI.</p>
+
+                <div class="platform-feature">
+                    <h4><i class="fas fa-crown"></i> Destaque-se no Mercado</h4>
+                    <p>Sua página personalizada é seu cartão de visitas digital. Mostre seus produtos, serviços, avaliações e construa confiança com seus clientes.</p>
+                </div>
+
+                <h3>Como Criar sua Página</h3>
+                <ol class="step-list">
+                    <li class="step-item">
+                        Acesse <strong>"Minha Página"</strong> no menu principal
+                    </li>
+                    <li class="step-item">
+                        Escolha um <strong>template</strong> que combine com seu negócio
+                    </li>
+                    <li class="step-item">
+                        Adicione <strong>logo, cores e imagens</strong> personalizadas
+                    </li>
+                    <li class="step-item">
+                        Configure <strong>categorias de produtos/serviços</strong>
+                    </li>
+                    <li class="step-item">
+                        Adicione <strong>formas de pagamento</strong> e condições
+                    </li>
+                    <li class="step-item">
+                        Publique e <strong>compartilhe seu link único</strong>
+                    </li>
+                </ol>
+
+                <h3>Recursos da Página Personalizada</h3>
+                <ul>
+                    <li>✅ Design responsivo para todos os dispositivos</li>
+                    <li>✅ Galeria de produtos/serviços ilimitada</li>
+                    <li>✅ Sistema de avaliações e comentários</li>
+                    <li>✅ Integração com redes sociais</li>
+                    <li>✅ Estatísticas de visitas e engajamento</li>
+                    <li>✅ Botão de WhatsApp direto</li>
+                    <li>✅ Mapa de localização integrado</li>
+                </ul>
+            </section>
+
+            <section id="restaurant" class="help-section">
+                <h2>Monte seu Restaurante no Agenda AI</h2>
+                <p>Transforme seu estabelecimento em um restaurante digital completo.</p>
+
+                <div class="platform-feature">
+                    <h4><i class="fas fa-utensils"></i> Sistema Completo de Restaurante</h4>
+                    <p>Desde o cardápio digital até a entrega, temos tudo que você precisa para operar seu restaurante online.</p>
+                </div>
+
+                <h3>Configuração do Restaurante</h3>
+                <ol class="step-list">
+                    <li class="step-item">
+                        Ative o <strong>modo restaurante</strong> nas configurações
+                    </li>
+                    <li class="step-item">
+                        Crie seu <strong>cardápio digital</strong> com categorias
+                    </li>
+                    <li class="step-item">
+                        Adicione <strong>fotos profissionais</strong> dos pratos
+                    </li>
+                    <li class="step-item">
+                        Configure <strong>horários de funcionamento</strong>
+                    </li>
+                    <li class="step-item">
+                        Defina <strong>áreas de entrega</strong> e taxas
+                    </li>
+                    <li class="step-item">
+                        Integre com <strong>sistema de pagamento</strong>
+                    </li>
+                </ol>
+
+                <h3>Funcionalidades Exclusivas</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-mobile-alt"></i> Pedidos Online</h4>
+                        <p>Clientes fazem pedidos diretamente pelo app ou site.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-clock"></i> Agendamento</h4>
+                        <p>Reservas de mesas e agendamento de pedidos.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-truck"></i> Entregas</h4>
+                        <p>Gestão completa de entregas próprias ou por parceiros.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-chart-bar"></i> Relatórios</h4>
+                        <p>Análise de vendas, pedidos populares e desempenho.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ads" class="help-section">
+                <h2>Sistema de Anúncios</h2>
+                <p>Aprenda a criar anúncios eficientes que geram resultados.</p>
+
+                <h3>Criando um Anúncio de Sucesso</h3>
+                <ol class="step-list">
+                    <li class="step-item">
+                        Clique em <strong>"📢 Anunciar"</strong> no menu superior
+                    </li>
+                    <li class="step-item">
+                        Escolha a <strong>categoria</strong> mais adequada
+                    </li>
+                    <li class="step-item">
+                        Adicione <strong>fotos de qualidade</strong> (mínimo 3)
+                    </li>
+                    <li class="step-item">
+                        Escreva um <strong>título atrativo</strong> e descrição detalhada
+                    </li>
+                    <li class="step-item">
+                        Defina <strong>preço competitivo</strong> e condições
+                    </li>
+                    <li class="step-item">
+                        Selecione <strong>palavras-chave</strong> relevantes
+                    </li>
+                    <li class="step-item">
+                        Publique e <strong>compartilhe</strong> seu anúncio
+                    </li>
+                </ol>
+
+                <h3>Tipos de Anúncio</h3>
+                <ul>
+                    <li>🟢 <strong>Básico</strong> - Visibilidade padrão na plataforma</li>
+                    <li>🟡 <strong>Premium</strong> - Destaque em posições privilegiadas</li>
+                    <li>🔴 <strong>Urgente</strong> - Máxima visibilidade por tempo limitado</li>
+                    <li>🔵 <strong>Patrocinado</strong> - Aparece para público segmentado</li>
+                </ul>
+            </section>
+
+            <section id="services" class="help-section">
+                <h2>Serviços Diversificados</h2>
+                <p>Ofereça ou contrate os mais variados serviços na plataforma.</p>
+
+                <h3>Categorias de Serviços Disponíveis</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-home"></i> Domésticos</h4>
+                        <p>Limpeza, reformas, encanamento, elétrica</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-graduation-cap"></i> Aulas</h4>
+                        <p>Particulares, cursos, treinamentos</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-heart"></i> Beleza</h4>
+                        <p>Cabeleireiro, estética, massagem</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-laptop"></i> Tecnologia</h4>
+                        <p>Assistência técnica, desenvolvimento</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-briefcase"></i> Profissionais</h4>
+                        <p>Consultorias, assessorias, freelancers</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-paw"></i> Pets</h4>
+                        <p>Petshop, veterinário, adestramento</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="travel" class="help-section">
+                <h2>Serviço de Transporte</h2>
+                <p>Solicite viagens ou ofereça serviços de transporte na sua região.</p>
+
+                <h3>Como Funciona</h3>
+                <ol class="step-list">
+                    <li class="step-item">
+                        Acesse <strong>"Solicitar Viagem"</strong> no menu
+                    </li>
+                    <li class="step-item">
+                        Informe <strong>origem e destino</strong>
+                    </li>
+                    <li class="step-item">
+                        Escolha o <strong>tipo de veículo</strong>
+                    </li>
+                    <li class="step-item">
+                        Veja <strong>preços e motoristas</strong> disponíveis
+                    </li>
+                    <li class="step-item">
+                        Confirme e <strong>aguarde o motorista</strong>
+                    </li>
+                    <li class="step-item">
+                        <strong>Avalie o serviço</strong> após a viagem
+                    </li>
+                </ol>
+
+                <h3>Para Motoristas/Transportadores</h3>
+                <ul>
+                    <li>✅ Cadastro verificado e seguro</li>
+                    <li>✅ Definição de áreas de atuação</li>
+                    <li>✅ Gestão de horários e disponibilidade</li>
+                    <li>✅ Controle de ganhos e corridas</li>
+                    <li>✅ Sistema de avaliações transparente</li>
+                </ul>
+            </section>
+
+            <section id="delivery" class="help-section">
+                <h2>Serviços de Entrega</h2>
+                <p>Contrate entregadores ou ofereça serviços de delivery.</p>
+
+                <h3>Tipos de Entrega</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-bicycle"></i> Expressa</h4>
+                        <p>Entregas rápidas na mesma cidade</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-truck"></i> Encomendas</h4>
+                        <p>Pacotes e produtos de diversos tamanhos</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-warehouse"></i> Fretes</h4>
+                        <p>Transporte de móveis e cargas maiores</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-prescription-bottle"></i> Especializadas</h4>
+                        <p>Medicamentos, documentos, alimentos</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="faq" class="help-section">
+                <h2>Perguntas Frequentes</h2>
+                
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Como crio minha página personalizada?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Acesse "Minha Página" no menu lateral, escolha um template, personalize com suas cores e logo, adicione seus produtos/serviços e publique. É grátis!
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Posso ter um restaurante na plataforma?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Sim! Ative o modo restaurante nas configurações da sua página, crie seu cardápio digital e comece a receber pedidos online.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Quanto custa para anunciar?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Anúncios básicos são gratuitos. Temos opções premium com destaque a partir de R$ 9,90 por semana.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Como funcionam os serviços de transporte?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Solicite viagens informando origem e destino, escolha entre motoristas disponíveis e pague diretamente pelo app.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Posso oferecer serviços de entrega?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Sim! Cadastre-se como entregador, defina suas áreas de atuação e comece a aceitar entregas.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Como recebo pagamentos?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Oferecemos múltiplas formas: PIX, cartão, dinheiro. Os valores são creditados em sua conta Agenda AI.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="help-section">
+                <h2>Fale Conosco</h2>
+                <p>Estamos aqui para ajudar você! Escolha a melhor forma de contato.</p>
+
+                <div class="contact-options">
+                    <div class="contact-card">
+                        <i class="fas fa-comments"></i>
+                        <h4>Chat Online</h4>
+                        <p>Atendimento instantâneo</p>
+                        <small>24/7</small>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h4>Email</h4>
+                        <p>suporte@agendaai.com</p>
+                        <small>Resposta em 24h</small>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h4>Telefone</h4>
+                        <p>(11) 4004-2004</p>
+                        <small>Seg-Sex: 8h-18h</small>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-question-circle"></i>
+                        <h4>Base de Conhecimento</h4>
+                        <p>Tutoriais e guias</p>
+                        <small>Auto-atendimento</small>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const navLinks = document.querySelectorAll('.help-nav-link');
+        const sections = document.querySelectorAll('.help-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+  
+                this.classList.add('active');
+                
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+                
+                window.location.hash = sectionId;
+            });
+        });
+
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', function() {
+                const faqItem = this.parentElement;
+                faqItem.classList.toggle('active');
+            });
+        });
+
+        const searchInput = document.getElementById('helpSearch');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            if (searchTerm.length > 2) {
+               
+                sections.forEach(section => {
+                    const text = section.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            } else {
+                sections.forEach(section => {
+                    section.style.display = section.classList.contains('active') ? 'block' : 'none';
+                });
+            }
+        });
+
+        if (window.location.hash) {
+            const hash = window.location.hash.substring(1);
+            const targetLink = document.querySelector(`[data-section="${hash}"]`);
+            if (targetLink) {
+                targetLink.click();
+            }
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

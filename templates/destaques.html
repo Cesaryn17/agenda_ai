@@ -1,0 +1,1200 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agenda AI - Anúncios em Destaque{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --border-radius: 8px;
+        --border-radius-sm: 6px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+        --shadow-md: 0 2px 8px rgba(0,0,0,0.12);
+        --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    html {
+        font-size: 14px;
+    }
+    
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .destaques-container {
+        width: 100%;
+        max-width: 100vw;
+        margin: 0 auto;
+        padding: 0 0.5rem;
+        overflow-x: hidden;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: var(--white);
+        padding: 1.5rem 0.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/hero-pattern.svg" %}') center/cover;
+        opacity: 0.1;
+    }
+    
+    .page-content {
+        position: relative;
+        z-index: 2;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 0.25rem;
+    }
+    
+    .page-title {
+        font-size: clamp(1.4rem, 5vw, 2.2rem);
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        line-height: 1.2;
+        word-wrap: break-word;
+        hyphens: auto;
+        padding: 0 0.25rem;
+    }
+    
+    .page-subtitle {
+        font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+        margin-bottom: 1.25rem;
+        opacity: 0.95;
+        font-weight: 300;
+        line-height: 1.4;
+        word-wrap: break-word;
+        padding: 0 0.5rem;
+    }
+    
+    .premium-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: var(--white);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 0.875rem 0.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--light-gray);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: #f59e0b;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #f59e0b;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        color: var(--dark-gray);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .benefits-section {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1px solid #fcd34d;
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .benefits-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #92400e;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: #92400e;
+        font-weight: 500;
+    }
+    
+    .benefit-item i {
+        color: #f59e0b;
+        font-size: 0.9rem;
+    }
+    
+    .filters-section {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--light-gray);
+        width: 100%;
+    }
+    
+    .filter-group {
+        margin-bottom: 0.875rem;
+        width: 100%;
+    }
+    
+    .filter-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--black);
+        font-size: 0.85rem;
+    }
+    
+    .filter-title i {
+        color: #f59e0b;
+        font-size: 0.85rem;
+    }
+    
+    .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        width: 100%;
+    }
+    
+    .filter-option {
+        padding: 0.375rem 0.625rem;
+        background: var(--light-gray);
+        border-radius: 50px;
+        border: 1px solid var(--medium-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--dark-gray);
+        flex-shrink: 0;
+    }
+    
+    .filter-option:hover,
+    .filter-option.active {
+        background: #f59e0b;
+        color: var(--white);
+        border-color: #f59e0b;
+    }
+    
+    .ads-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+    
+    .ad-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        border: 1px solid var(--light-gray);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: #f59e0b;
+    }
+    
+    .ad-badge {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        z-index: 2;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .ad-premium {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+    
+    .ad-featured {
+        background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+    }
+    
+    .ad-image {
+        height: 140px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        flex-shrink: 0;
+    }
+    
+    .ad-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+    }
+    
+    .ad-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .ad-card:hover .ad-image img {
+        transform: scale(1.03);
+    }
+    
+    .ad-details {
+        padding: 0.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .ad-price {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #f59e0b;
+        margin-bottom: 0.375rem;
+        display: flex;
+        align-items: center;
+        word-wrap: break-word;
+        line-height: 1.2;
+    }
+    
+    .ad-price::before {
+        content: 'R$';
+        font-size: 0.75rem;
+        margin-right: 0.125rem;
+        color: var(--dark-gray);
+        font-weight: 600;
+    }
+    
+    .ad-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 0.375rem;
+        line-height: 1.3;
+        color: var(--black);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.2rem;
+        word-wrap: break-word;
+    }
+    
+    .ad-location {
+        display: flex;
+        align-items: center;
+        color: var(--dark-gray);
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+    
+    .ad-location i {
+        margin-right: 0.375rem;
+        font-size: 0.7rem;
+        color: #f59e0b;
+        flex-shrink: 0;
+    }
+    
+    .ad-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .ad-feature {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.65rem;
+        color: var(--dark-gray);
+        background: var(--light-gray);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .ad-feature i {
+        color: #f59e0b;
+        font-size: 0.6rem;
+    }
+    
+    .ad-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--light-gray);
+        margin-top: auto;
+        width: 100%;
+    }
+    
+    .ad-seller {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        width: 100%;
+    }
+    
+    .seller-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.375rem;
+        color: var(--white);
+        font-size: 0.65rem;
+        font-weight: 700;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .seller-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .seller-avatar .avatar-initials {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .seller-name {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--black);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .ad-actions {
+        display: flex;
+        gap: 0.375rem;
+        width: 100%;
+    }
+    
+    .action-btn {
+        flex: 1;
+        height: 30px;
+        border-radius: 6px;
+        background: var(--light-gray);
+        border: 1px solid var(--medium-gray);
+        color: var(--dark-gray);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        font-size: 0.75rem;
+        min-width: 0;
+    }
+    
+    .action-btn:hover {
+        background: #f59e0b;
+        color: var(--white);
+        border-color: transparent;
+    }
+    
+    .action-btn.favorited {
+        background: var(--error);
+        color: var(--white);
+        border-color: var(--error);
+    }
+    
+    .action-btn.favorited:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+    }
+    
+    .no-ads-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 1.5rem 0.75rem;
+        background: linear-gradient(135deg, var(--light-gray) 0%, #f1f5f9 100%);
+        border-radius: var(--border-radius);
+        border: 1px dashed var(--medium-gray);
+        color: var(--dark-gray);
+        width: 100%;
+    }
+    
+    .no-ads-message i {
+        font-size: 1.5rem;
+        color: var(--medium-gray);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .no-ads-message p {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .pagination-btn {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--medium-gray);
+        background: var(--white);
+        color: var(--dark-gray);
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.8rem;
+        font-weight: 600;
+        min-width: 40px;
+        text-align: center;
+    }
+    
+    .pagination-btn:hover:not(.disabled) {
+        background: #f59e0b;
+        color: var(--white);
+        border-color: #f59e0b;
+    }
+    
+    .pagination-btn.active {
+        background: #f59e0b;
+        color: var(--white);
+        border-color: #f59e0b;
+    }
+    
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    /* Melhorias específicas para telas muito pequenas */
+    @media (max-width: 320px) {
+        html {
+            font-size: 13px;
+        }
+        
+        .destaques-container {
+            padding: 0 0.375rem;
+        }
+        
+        .ads-grid {
+            gap: 0.5rem;
+        }
+        
+        .ad-image {
+            height: 120px;
+        }
+        
+        .stats-section {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.375rem;
+        }
+        
+        .stat-card {
+            padding: 0.75rem 0.375rem;
+        }
+        
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (min-width: 375px) {
+        .destaques-container {
+            padding: 0 0.75rem;
+        }
+        
+        .page-header {
+            padding: 1.75rem 1rem;
+        }
+        
+        .ads-grid {
+            gap: 0.875rem;
+        }
+    }
+    
+    @media (min-width: 480px) {
+        .destaques-container {
+            padding: 0 1rem;
+        }
+        
+        .page-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stats-section {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .ad-footer {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ad-actions {
+            width: auto;
+            justify-content: flex-end;
+        }
+        
+        .action-btn {
+            width: 32px;
+            border-radius: 50%;
+        }
+    }
+    
+    @media (min-width: 768px) {
+        html {
+            font-size: 16px;
+        }
+        
+        .destaques-container {
+            padding: 0 1.5rem;
+            max-width: 1200px;
+        }
+        
+        .page-header {
+            padding: 3rem 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        
+        .ad-details {
+            padding: 1.25rem;
+        }
+        
+        .ad-price {
+            font-size: 1.3rem;
+        }
+        
+        .ad-title {
+            font-size: 1rem;
+        }
+        
+        .filters-section {
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-section {
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            padding: 1.25rem 0.875rem;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+        }
+        
+        .benefits-section {
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .destaques-container {
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            padding: 3.5rem 2rem;
+        }
+        
+        .ads-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    /* Prevenir overflow horizontal */
+    .destaques-container * {
+        max-width: 100%;
+    }
+    
+    /* Garantir que imagens não causem overflow */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+<div class="destaques-container">
+    <section class="page-header">
+        <div class="page-content">
+            <div class="premium-badge">
+                <i class="fas fa-crown"></i> ANÚNCIOS PREMIUM
+            </div>
+            <h1 class="page-title">Destaques Exclusivos</h1>
+            <p class="page-subtitle">Os melhores anúncios selecionados para você</p>
+        </div>
+    </section>
+
+    <div class="stats-section">
+        <div class="stat-card">
+            <span class="stat-number" id="totalDestaques">{{ total_destaques|default:"0" }}</span>
+            <span class="stat-label">Em Destaque</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number" id="visualizacoes">{{ total_visualizacoes|default:"0" }}</span>
+            <span class="stat-label">Visualizações</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number" id="vendedoresPremium">{{ vendedores_premium|default:"0" }}</span>
+            <span class="stat-label">Vendedores</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number" id="categorias">{{ categorias_destaque|default:"0" }}</span>
+            <span class="stat-label">Categorias</span>
+        </div>
+    </div>
+
+    <section class="benefits-section">
+        <h3 class="benefits-title">
+            <i class="fas fa-star"></i>
+            Por que escolher anúncios em destaque?
+        </h3>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <i class="fas fa-eye"></i>
+                <span>Maior visibilidade</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Qualidade verificada</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-bolt"></i>
+                <span>Resposta rápida</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Vendedores confiáveis</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="filters-section">
+        <div class="filter-group">
+            <h3 class="filter-title"><i class="fas fa-filter"></i> Ordenar por</h3>
+            <div class="filter-options">
+                <div class="filter-option active" data-sort="relevancia">Mais Relevantes</div>
+                <div class="filter-option" data-sort="visualizacoes">Mais Visualizados</div>
+                <div class="filter-option" data-sort="recentes">Mais Recentes</div>
+                <div class="filter-option" data-sort="preco">Melhor Preço</div>
+            </div>
+        </div>
+        
+        <div class="filter-group">
+            <h3 class="filter-title"><i class="fas fa-tag"></i> Categoria</h3>
+            <div class="filter-options" id="categoryFilters">
+                <div class="filter-option active" data-category="all">Todas</div>
+                {% for categoria in categorias|slice:":6" %}
+                <div class="filter-option" data-category="{{ categoria.slug }}">{{ categoria.titulo }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <div class="ads-grid" id="featuredAdsGrid">
+        {% for anuncio in anuncios_destaque %}
+        <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card" 
+           data-category="{{ anuncio.categoria.slug }}" 
+           data-price="{{ anuncio.valor|default:0 }}"
+           data-views="{{ anuncio.visualizacoes }}"
+           data-date="{{ anuncio.data_criacao|date:'U' }}">
+            <span class="ad-badge ad-premium">
+                <i class="fas fa-crown"></i> Destaque
+            </span>
+            
+            <div class="ad-image">
+                {% if anuncio.first_image %}
+                <img src="{{ anuncio.first_image.imagem.url }}" alt="{{ anuncio.titulo }}" loading="lazy">
+                {% else %}
+                <img src="{% static 'images/default-ad.jpg' %}" alt="Sem imagem" loading="lazy">
+                {% endif %}
+            </div>
+            <div class="ad-details">
+                <div class="ad-price">
+                    {% if anuncio.valor %}
+                        {{ anuncio.valor|floatformat:2 }}
+                    {% else %}
+                        A combinar
+                    {% endif %}
+                </div>
+                <h3 class="ad-title">{{ anuncio.titulo }}</h3>
+                <div class="ad-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>
+                        {% if anuncio.localizacao %}
+                            {{ anuncio.localizacao.cidade }}
+                        {% else %}
+                            Local não informado
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="ad-features">
+                    <div class="ad-feature">
+                        <i class="fas fa-eye"></i>
+                        <span>{{ anuncio.visualizacoes }} visualizações</span>
+                    </div>
+                    {% if anuncio.destaque %}
+                    <div class="ad-feature">
+                        <i class="fas fa-crown"></i>
+                        <span>Premium</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="ad-footer">
+                    <div class="ad-seller">
+                        <div class="seller-avatar">
+                            {% if anuncio.usuario.foto_perfil %}
+                                <img src="{{ anuncio.usuario.foto_perfil.url }}" alt="{{ anuncio.usuario.nome|default:anuncio.usuario.username }}" loading="lazy">
+                                <div class="avatar-initials" style="display: none;">
+                                    {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                </div>
+                            {% else %}
+                                <div class="avatar-initials">
+                                    {{ anuncio.usuario.nome|default:anuncio.usuario.username|first|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <span class="seller-name">
+                            {{ anuncio.usuario.nome|default:anuncio.usuario.username|truncatechars:15 }}
+                        </span>
+                    </div>
+                    <div class="ad-actions">
+                        <button class="action-btn favorite-btn {% if anuncio.favoritado %}favorited{% endif %}" 
+                                data-ad-id="{{ anuncio.id }}"
+                                data-favoritado="{{ anuncio.favoritado|yesno:'true,false' }}">
+                            <i class="{% if anuncio.favoritado %}fas{% else %}far{% endif %} fa-heart"></i>
+                        </button>
+                        <button class="action-btn share-btn" data-ad-id="{{ anuncio.id }}">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="no-ads-message">
+            <i class="fas fa-crown"></i>
+            <p>Nenhum anúncio em destaque no momento</p>
+            <p class="small-text">Os melhores anúncios aparecerão aqui em breve!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if anuncios_destaque.has_other_pages %}
+    <div class="pagination">
+        {% if anuncios_destaque.has_previous %}
+            <a href="?page=1" class="pagination-btn">&laquo; Primeira</a>
+            <a href="?page={{ anuncios_destaque.previous_page_number }}" class="pagination-btn">Anterior</a>
+        {% else %}
+            <span class="pagination-btn disabled">&laquo; Primeira</span>
+            <span class="pagination-btn disabled">Anterior</span>
+        {% endif %}
+
+        <span class="pagination-btn active">{{ anuncios_destaque.number }}</span>
+
+        {% if anuncios_destaque.has_next %}
+            <a href="?page={{ anuncios_destaque.next_page_number }}" class="pagination-btn">Próxima</a>
+            <a href="?page={{ anuncios_destaque.paginator.num_pages }}" class="pagination-btn">Última &raquo;</a>
+        {% else %}
+            <span class="pagination-btn disabled">Próxima</span>
+            <span class="pagination-btn disabled">Última &raquo;</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    const APP_CONFIG = {
+        isLoggedIn: {{ user.is_authenticated|yesno:"true,false" }},
+        urls: {
+            toggleFavorito: "{% url 'toggle-favorito' 0 %}",
+            anuncioDetail: "{% url 'anuncio-detail' anuncio_id=0 %}"
+        },
+        staticUrls: {
+            defaultAdImage: "{% static 'images/default-ad.jpg' %}"
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initFilters();
+        initFavoriteButtons();
+        initShareButtons();
+        initImageLoading();
+        animateStats();
+    });
+
+    function initFilters() {
+        const sortOptions = document.querySelectorAll('[data-sort]');
+        const categoryOptions = document.querySelectorAll('[data-category]');
+        const adCards = document.querySelectorAll('.ad-card');
+
+        // Filtros de ordenação
+        sortOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                sortOptions.forEach(function(opt) {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                const sortType = this.getAttribute('data-sort');
+                sortFeaturedAds(sortType);
+            });
+        });
+
+        // Filtros de categoria
+        categoryOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                categoryOptions.forEach(function(opt) {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                const category = this.getAttribute('data-category');
+                filterByCategory(category);
+            });
+        });
+
+        function sortFeaturedAds(sortType) {
+            const adsContainer = document.getElementById('featuredAdsGrid');
+            const ads = Array.from(adCards);
+
+            ads.sort(function(a, b) {
+                switch(sortType) {
+                    case 'relevancia':
+                        // Combina visualizações e data
+                        const scoreA = parseInt(a.getAttribute('data-views')) + (new Date(parseInt(a.getAttribute('data-date')) * 1000).getTime() / 1000000);
+                        const scoreB = parseInt(b.getAttribute('data-views')) + (new Date(parseInt(b.getAttribute('data-date')) * 1000).getTime() / 1000000);
+                        return scoreB - scoreA;
+                    case 'visualizacoes':
+                        return parseInt(b.getAttribute('data-views')) - parseInt(a.getAttribute('data-views'));
+                    case 'recentes':
+                        return parseInt(b.getAttribute('data-date')) - parseInt(a.getAttribute('data-date'));
+                    case 'preco':
+                        return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
+                    default:
+                        return 0;
+                }
+            });
+
+            // Reordenar os cards
+            ads.forEach(function(ad) {
+                adsContainer.appendChild(ad);
+            });
+        }
+
+        function filterByCategory(category) {
+            adCards.forEach(function(card) {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    }
+
+    function initFavoriteButtons() {
+        document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const adId = this.getAttribute('data-ad-id');
+                const isFavorited = this.getAttribute('data-favoritado') === 'true';
+                
+                if (!APP_CONFIG.isLoggedIn) {
+                    showLoginModal();
+                    return;
+                }
+                
+                toggleFavoriteUI(this, !isFavorited);
+                
+                try {
+                    const url = APP_CONFIG.urls.toggleFavorito.replace('0', adId);
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        showToast(data.action === 'added' ? 'Favoritado! ❤️' : 'Removido');
+                    } else {
+                        toggleFavoriteUI(this, isFavorited);
+                        showToast('Erro', 'error');
+                    }
+                } catch (error) {
+                    toggleFavoriteUI(this, isFavorited);
+                    showToast('Erro de conexão', 'error');
+                }
+            });
+        });
+    }
+
+    function toggleFavoriteUI(button, isFavorited) {
+        const icon = button.querySelector('i');
+        button.setAttribute('data-favoritado', isFavorited.toString());
+        
+        if (isFavorited) {
+            button.classList.add('favorited');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+        } else {
+            button.classList.remove('favorited');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+        }
+    }
+
+    function initShareButtons() {
+        document.querySelectorAll('.share-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const adId = this.getAttribute('data-ad-id');
+                const shareUrl = APP_CONFIG.urls.anuncioDetail.replace('0', adId);
+                const fullUrl = window.location.origin + shareUrl;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Confira este anúncio premium!',
+                        text: 'Encontrei este anúncio em destaque no Agenda AI',
+                        url: fullUrl
+                    });
+                } else {
+                    navigator.clipboard.writeText(fullUrl)
+                        .then(function() {
+                            showToast('Link copiado!');
+                        });
+                }
+            });
+        });
+    }
+
+    function initImageLoading() {
+        const images = document.querySelectorAll('img[loading="lazy"]');
+        
+        images.forEach(function(img) {
+            img.addEventListener('error', function() {
+                this.src = APP_CONFIG.staticUrls.defaultAdImage;
+            });
+        });
+    }
+
+    function animateStats() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
+        statNumbers.forEach(function(stat) {
+            const finalValue = parseInt(stat.textContent);
+            let currentValue = 0;
+            const duration = 1500;
+            const increment = finalValue / (duration / 16);
+            
+            const timer = setInterval(function() {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    stat.textContent = finalValue;
+                    clearInterval(timer);
+                } else {
+                    stat.textContent = Math.floor(currentValue);
+                }
+            }, 16);
+        });
+    }
+
+    function showToast(message, type) {
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification ' + (type === 'error' ? 'error' : '');
+        toast.innerHTML = '<i class="fas ' + (type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle') + '"></i><span>' + message + '</span>';
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(function() {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 3000);
+    }
+
+    function showLoginModal() {
+        const nextUrl = encodeURIComponent(window.location.pathname);
+        const loginUrl = '/login/?next=' + nextUrl;
+        window.location.href = loginUrl;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

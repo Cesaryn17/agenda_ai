@@ -1,0 +1,1168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Perfil - {{ usuario.nome }} - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --blue-light: #3b82f6;
+        --blue-dark: #1d4ed8;
+        --white: #ffffff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --black: #000000;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
+        --transition: all 0.2s ease;
+    }
+
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        background-color: var(--gray-50);
+        min-height: 100vh;
+    }
+
+    .profile-header {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+        padding: 2.5rem;
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        position: relative;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid var(--primary-blue);
+        overflow: hidden;
+        background: var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--primary-blue);
+        box-shadow: var(--shadow-md);
+        transition: var(--transition);
+        flex-shrink: 0;
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.03);
+        border-color: var(--blue-light);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--gray-900);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .profile-bio {
+        font-size: 1.1rem;
+        color: var(--gray-600);
+        margin-bottom: 1.5rem;
+        max-width: 600px;
+        line-height: 1.5;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        background: var(--gray-100);
+        padding: 1.25rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        border: 1px solid var(--gray-200);
+        transition: var(--transition);
+    }
+
+    .stat-item:hover {
+        background: var(--gray-200);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--primary-blue);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        background: var(--primary-blue);
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .btn-action:hover {
+        background: var(--blue-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .user-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .detail-card {
+        background: var(--white);
+        border-radius: var(--border-radius-sm);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 1px solid var(--gray-200);
+    }
+
+    .detail-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+
+    .detail-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+        font-size: 1.25rem;
+    }
+
+    .detail-content {
+        flex: 1;
+    }
+
+    .detail-content h4 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--gray-800);
+        font-size: 1rem;
+    }
+
+    .detail-content p {
+        color: var(--gray-600);
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .verification-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        background: var(--gray-100);
+        color: var(--gray-700);
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid var(--gray-300);
+    }
+
+    .premium-badge {
+        background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+        color: var(--gray-900);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .profile-content {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    .profile-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .profile-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .section-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+    }
+
+    .section-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+    }
+
+    .view-all {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-sm);
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+
+    .view-all:hover {
+        background: var(--gray-100);
+        color: var(--blue-dark);
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .service-card {
+        background: var(--white);
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        transition: var(--transition);
+        border: 1px solid var(--gray-200);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+
+    .service-image {
+        height: 180px;
+        overflow: hidden;
+        position: relative;
+        background: var(--gray-100);
+    }
+
+    .service-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .service-card:hover .service-image img {
+        transform: scale(1.05);
+    }
+
+    .service-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: var(--primary-blue);
+        color: white;
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        z-index: 2;
+    }
+
+    .service-content {
+        padding: 1.5rem;
+    }
+
+    .service-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--gray-800);
+        line-height: 1.4;
+    }
+
+    .service-description {
+        color: var(--gray-600);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        font-size: 0.9rem;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .service-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+
+    .service-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .service-category {
+        background: var(--gray-100);
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        color: var(--gray-700);
+        font-weight: 500;
+    }
+
+    .service-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-700);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--gray-500);
+        background: var(--gray-50);
+        border-radius: var(--border-radius);
+        margin: 1.5rem 0;
+        border: 1px solid var(--gray-200);
+    }
+
+    .empty-state i {
+        font-size: 3.5rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.75rem;
+        color: var(--gray-600);
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .favorites-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .favorite-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius-sm);
+        transition: var(--transition);
+        background: var(--white);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .favorite-item:hover {
+        border-color: var(--primary-blue);
+        transform: translateX(5px);
+    }
+
+    .favorite-image {
+        width: 70px;
+        height: 70px;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+        background: var(--gray-100);
+    }
+
+    .favorite-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .favorite-item:hover .favorite-image img {
+        transform: scale(1.1);
+    }
+
+    .favorite-info {
+        flex: 1;
+    }
+
+    .favorite-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--gray-800);
+        font-size: 1rem;
+    }
+
+    .favorite-price {
+        color: var(--primary-blue);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .favorite-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 1rem;
+    }
+
+    .btn-remove {
+        background: var(--gray-200);
+        color: var(--gray-700);
+    }
+
+    .btn-remove:hover {
+        background: var(--gray-300);
+        transform: scale(1.05);
+    }
+
+    .btn-view {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: var(--blue-dark);
+        transform: scale(1.05);
+    }
+
+    .notifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: var(--border-radius-sm);
+        background: var(--white);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+    }
+
+    .notification-item.unread {
+        background: rgba(37, 99, 235, 0.05);
+        border-left: 3px solid var(--primary-blue);
+    }
+
+    .notification-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        margin-bottom: 0.375rem;
+        color: var(--gray-800);
+        font-size: 1rem;
+    }
+
+    .notification-message {
+        color: var(--gray-600);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+        font-size: 0.9rem;
+    }
+
+    .notification-time {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .quick-action-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: var(--border-radius-sm);
+        background: var(--white);
+        transition: var(--transition);
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid var(--gray-200);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .quick-action-item:hover {
+        transform: translateX(5px);
+        border-color: var(--primary-blue);
+        color: inherit;
+    }
+
+    .quick-action-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+        font-size: 1.25rem;
+        background: var(--primary-blue);
+    }
+
+    .quick-action-content {
+        flex: 1;
+    }
+
+    .quick-action-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--gray-800);
+        font-size: 1rem;
+    }
+
+    .quick-action-message {
+        color: var(--gray-600);
+        line-height: 1.4;
+        font-size: 0.9rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: var(--border-radius-sm);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 1px solid var(--gray-200);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
+    }
+
+    .stat-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin: 0 auto 1rem;
+        font-size: 1.25rem;
+    }
+
+    .stat-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card-label {
+        color: var(--gray-600);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 1024px) {
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .services-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .profile-avatar {
+            margin: 0 auto;
+        }
+        
+        .profile-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .profile-actions {
+            justify-content: center;
+        }
+        
+        .user-details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-name {
+            justify-content: center;
+        }
+        
+        .profile-container {
+            padding: 1rem;
+        }
+        
+        .profile-name {
+            font-size: 1.75rem;
+        }
+        
+        .profile-bio {
+            font-size: 1rem;
+        }
+        
+        .stat-item {
+            padding: 1rem;
+        }
+        
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-card {
+            padding: 1.5rem;
+        }
+        
+        .profile-actions {
+            flex-direction: column;
+        }
+        
+        .btn-action {
+            justify-content: center;
+        }
+        
+        .favorite-item {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .favorite-actions {
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .detail-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .detail-icon {
+            margin-bottom: 0.75rem;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if usuario.foto_perfil %}
+                <img src="{{ usuario.foto_perfil.url }}" alt="Foto de {{ usuario.nome }}" loading="lazy">
+            {% else %}
+                {{ usuario.nome|first|upper }}
+            {% endif %}
+        </div>
+        
+        <div class="profile-info">
+            <h1 class="profile-name">
+                {{ usuario.nome|default:"Usuário" }}
+                {% if usuario.premium %}
+                <span class="premium-badge">
+                    <i class="fas fa-crown"></i> Premium
+                </span>
+                {% endif %}
+            </h1>
+            
+            {% if usuario.bio %}
+            <p class="profile-bio">{{ usuario.bio }}</p>
+            {% else %}
+            <p class="profile-bio">Bem-vindo ao meu perfil! Estou pronto para conectar e oferecer meus serviços.</p>
+            {% endif %}
+            
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ servicos_count|default:0 }}</span>
+                    <span class="stat-label">Serviços</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ usuario.reputacao|default:5.0|floatformat:1 }}</span>
+                    <span class="stat-label">Avaliação</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ favoritos|length|default:0 }}</span>
+                    <span class="stat-label">Favoritos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ usuario.creditos|default:0 }}</span>
+                    <span class="stat-label">Créditos</span>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="{% url 'settings' %}" class="btn-action">
+                    <i class="fas fa-cog"></i> Editar Perfil
+                </a>
+                <a href="{% url 'create-ad' %}" class="btn-action">
+                    <i class="fas fa-plus"></i> Novo Serviço
+                </a>
+                <a href="{% url 'favorites' %}" class="btn-action">
+                    <i class="fas fa-heart"></i> Favoritos
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="user-details-grid">
+        <div class="detail-card">
+            <div class="detail-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="detail-content">
+                <h4>Email</h4>
+                <p>{{ usuario.email|default:"Não informado" }}</p>
+                {% if usuario.email_verificado %}
+                <span class="verification-badge">
+                    <i class="fas fa-check-circle"></i> Verificado
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="detail-card">
+            <div class="detail-icon">
+                <i class="fas fa-phone"></i>
+            </div>
+            <div class="detail-content">
+                <h4>Telefone</h4>
+                <p>{{ usuario.telefone|default:"Não informado" }}</p>
+            </div>
+        </div>
+        
+        <div class="detail-card">
+            <div class="detail-icon">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="detail-content">
+                <h4>Localização</h4>
+                <p>{{ usuario.localizacao.nome|default:"Não informada" }}</p>
+            </div>
+        </div>
+        
+        <div class="detail-card">
+            <div class="detail-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="detail-content">
+                <h4>Membro desde</h4>
+                <p>{{ usuario.data_criacao|date:"d/m/Y"|default:"Data não disponível" }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-main">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-briefcase"></i>
+                        Meus Serviços
+                    </h2>
+                    <a href="{% url 'my-ads' %}" class="view-all">
+                        Ver todos <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                {% if servicos_count > 0 %}
+                <div class="services-grid">
+                    {% for servico in servicos_usuario|slice:":6" %}
+                    <div class="service-card">
+                        <div class="service-image">
+                            {% if servico.imagens.all %}
+                                <img src="{{ servico.imagens.first.imagem.url }}" alt="{{ servico.titulo }}" loading="lazy">
+                            {% else %}
+                                <div style="background: var(--gray-100); height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="font-size: 2.5rem; color: var(--gray-300);"></i>
+                                </div>
+                            {% endif %}
+                            <span class="service-badge">{{ servico.categoria.titulo }}</span>
+                        </div>
+                        <div class="service-content">
+                            <h3 class="service-title">{{ servico.titulo }}</h3>
+                            <p class="service-description">{{ servico.descricao|truncatewords:20|default:"Sem descrição" }}</p>
+                            <div class="service-price">R$ {{ servico.valor|floatformat:2 }}</div>
+                            <div class="service-meta">
+                                <span class="service-category">{{ servico.categoria.titulo }}</span>
+                                <span class="service-rating">
+                                    <i class="fas fa-star"></i> {{ servico.media_avaliacoes|default:"5.0"|floatformat:1 }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-briefcase"></i>
+                    <h3>Nenhum serviço cadastrado</h3>
+                    <p>Comece oferecendo seus serviços na plataforma</p>
+                    <a href="{% url 'create-ad' %}" class="btn-action" style="margin-top: 1.5rem;">
+                        <i class="fas fa-plus"></i> Criar Primeiro Serviço
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="stat-card-value">{{ usuario.total_visualizacoes|default:0 }}</div>
+                    <div class="stat-card-label">Visualizações</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="stat-card-value">{{ usuario.total_contratos|default:0 }}</div>
+                    <div class="stat-card-label">Contratos</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-card-value">{{ usuario.total_clientes|default:0 }}</div>
+                    <div class="stat-card-label">Clientes</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-sidebar">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-heart"></i>
+                        Favoritos
+                    </h2>
+                    <a href="{% url 'favorites' %}" class="view-all">
+                        Ver todos <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                {% if favoritos %}
+                <div class="favorites-grid">
+                    {% for favorito in favoritos|slice:":5" %}
+                    {% if favorito.servico %}
+                    <div class="favorite-item">
+                        <div class="favorite-image">
+                            {% if favorito.servico.imagens.all %}
+                                <img src="{{ favorito.servico.imagens.first.imagem.url }}" alt="{{ favorito.servico.titulo }}" loading="lazy">
+                            {% else %}
+                                <div style="background: var(--gray-100); height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="color: var(--gray-300);"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="favorite-info">
+                            <div class="favorite-title">{{ favorito.servico.titulo|truncatewords:4 }}</div>
+                            <div class="favorite-price">R$ {{ favorito.servico.valor|floatformat:2 }}</div>
+                        </div>
+                        <div class="favorite-actions">
+                            <a href="{% url 'servico-detail' favorito.servico.id %}" class="btn-icon btn-view" title="Ver serviço">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button class="btn-icon btn-remove" title="Remover favorito" data-favorito-id="{{ favorito.id }}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: 1.5rem 1rem;">
+                    <i class="fas fa-heart"></i>
+                    <p>Nenhum favorito ainda</p>
+                    <small>Salve serviços que você gosta para encontrá-los facilmente depois</small>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-bell"></i>
+                        Notificações
+                    </h2>
+                    <a href="{% url 'notifications' %}" class="view-all">
+                        Ver todas <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                {% if notificacoes %}
+                <div class="notifications-list">
+                    {% for notificacao in notificacoes|slice:":4" %}
+                    <div class="notification-item {% if not notificacao.lida %}unread{% endif %}" data-notificacao-id="{{ notificacao.id }}">
+                        <div class="notification-icon">
+                            <i class="fas fa-{{ notificacao.icone|default:'bell' }}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4 class="notification-title">{{ notificacao.titulo }}</h4>
+                            <p class="notification-message">{{ notificacao.mensagem|truncatewords:10 }}</p>
+                            <span class="notification-time">
+                                <i class="fas fa-clock"></i> {{ notificacao.data_criacao|timesince }} atrás
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: 1.5rem 1rem;">
+                    <i class="fas fa-bell"></i>
+                    <p>Nenhuma notificação</p>
+                    <small>Você está em dia com todas as atualizações</small>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-bolt"></i>
+                        Ações Rápidas
+                    </h2>
+                </div>
+                
+                <div class="quick-actions-grid">
+                    <a href="{% url 'create-ad' %}" class="quick-action-item">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4 class="quick-action-title">Criar Novo Serviço</h4>
+                            <p class="quick-action-message">Ofereça um novo serviço na plataforma</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'settings' %}" class="quick-action-item">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4 class="quick-action-title">Configurações</h4>
+                            <p class="quick-action-message">Personalize sua conta e preferências</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'messages-view' %}" class="quick-action-item">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4 class="quick-action-title">Mensagens</h4>
+                            <p class="quick-action-message">Ver suas conversas e mensagens</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const favoritoId = this.dataset.favoritoId;
+                const favoriteItem = this.closest('.favorite-item');
+                
+                if (confirm('Tem certeza que deseja remover este favorito?')) {
+                    favoriteItem.style.opacity = '0';
+                    favoriteItem.style.transform = 'translateX(100px)';
+                    
+                    setTimeout(() => {
+                        favoriteItem.remove();
+                        const favoritosCount = document.querySelectorAll('.favorite-item').length;
+                        document.querySelectorAll('.stat-item').forEach(stat => {
+                            if (stat.querySelector('.stat-label').textContent === 'Favoritos') {
+                                stat.querySelector('.stat-value').textContent = favoritosCount;
+                            }
+                        });
+                    }, 300);
+                }
+            });
+        });
+        
+        document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.remove('unread');
+            });
+        });
+    });
+</script>
+{% endblock %}

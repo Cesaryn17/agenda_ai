@@ -1,0 +1,771 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Termos e Condições - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00D1FF 0%, #0077B6 100%);
+        --primary-cyan: #00D1FF;
+        --primary-dark: #0077B6;
+        --primary-light: #90E0EF;
+        --accent-orange: #FF6B35;
+        --accent-green: #2EC4B6;
+        --white: #FFFFFF;
+        --light-gray: #F8F9FA;
+        --medium-gray: #E9ECEF;
+        --dark-gray: #6C757D;
+        --black: #212529;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        --border-radius: 16px;
+        --border-radius-sm: 8px;
+    }
+
+    .terms-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .terms-hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--primary-gradient);
+        color: var(--white);
+        border-radius: var(--border-radius);
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .terms-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/pattern.svg" %}');
+        opacity: 0.1;
+    }
+
+    .terms-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .terms-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .terms-hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .terms-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .terms-sidebar {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+
+    .terms-nav {
+        list-style: none;
+    }
+
+    .terms-nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .terms-nav-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: var(--black);
+        text-decoration: none;
+        border-radius: var(--border-radius-sm);
+        transition: var(--transition);
+        font-weight: 500;
+    }
+
+    .terms-nav-link:hover,
+    .terms-nav-link.active {
+        background: var(--primary-gradient);
+        color: var(--white);
+    }
+
+    .terms-nav-link i {
+        margin-right: 0.75rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .terms-content {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-sm);
+        line-height: 1.8;
+    }
+
+    .terms-section {
+        margin-bottom: 3rem;
+        display: none;
+    }
+
+    .terms-section.active {
+        display: block;
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .terms-section h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-dark);
+        border-bottom: 3px solid var(--primary-cyan);
+        padding-bottom: 0.5rem;
+    }
+
+    .terms-section h3 {
+        font-size: 1.5rem;
+        margin: 2rem 0 1rem 0;
+        color: var(--black);
+    }
+
+    .terms-section h4 {
+        font-size: 1.2rem;
+        margin: 1.5rem 0 0.5rem 0;
+        color: var(--primary-dark);
+    }
+
+    .clause-card {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary-cyan);
+        margin: 1.5rem 0;
+        transition: var(--transition);
+    }
+
+    .clause-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .clause-card h4 {
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .clause-card h4 i {
+        color: var(--accent-orange);
+    }
+
+    .important-note {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid #fdcb6e;
+    }
+
+    .warning-note {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid #e74c3c;
+    }
+
+    .info-note {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-left: 4px solid var(--primary-cyan);
+    }
+
+    .terms-list {
+        list-style: none;
+        margin: 1rem 0;
+    }
+
+    .terms-list li {
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .terms-list li::before {
+        content: '•';
+        color: var(--primary-cyan);
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+    }
+
+    .step-list {
+        list-style: none;
+        counter-reset: step-counter;
+    }
+
+    .step-item {
+        counter-increment: step-counter;
+        margin-bottom: 1.5rem;
+        padding-left: 3rem;
+        position: relative;
+    }
+
+    .step-item::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 2rem;
+        height: 2rem;
+        background: var(--primary-gradient);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .contact-info {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .last-update {
+        text-align: center;
+        color: var(--dark-gray);
+        font-style: italic;
+        margin: 2rem 0;
+        padding: 1rem;
+        border-top: 1px solid var(--medium-gray);
+    }
+
+    @media (max-width: 768px) {
+        .terms-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .terms-sidebar {
+            position: static;
+        }
+
+        .terms-hero h1 {
+            font-size: 2rem;
+        }
+
+        .terms-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="terms-container">
+    <section class="terms-hero">
+        <div class="terms-hero-content">
+            <h1>Termos e Condições de Uso</h1>
+            <p>Leia atentamente os termos que regem o uso da plataforma Agenda AI</p>
+            <div class="last-update">
+                <strong>Última atualização:</strong> 16 de Novembro de 2025
+            </div>
+        </div>
+    </section>
+
+    <div class="terms-grid">
+        <aside class="terms-sidebar">
+            <nav>
+                <ul class="terms-nav">
+                    <li class="terms-nav-item">
+                        <a href="#acceptance" class="terms-nav-link active" data-section="acceptance">
+                            <i class="fas fa-check-circle"></i>
+                            Aceitação dos Termos
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#definitions" class="terms-nav-link" data-section="definitions">
+                            <i class="fas fa-book"></i>
+                            Definições
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#registration" class="terms-nav-link" data-section="registration">
+                            <i class="fas fa-user-plus"></i>
+                            Cadastro e Conta
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#services" class="terms-nav-link" data-section="services">
+                            <i class="fas fa-concierge-bell"></i>
+                            Serviços da Plataforma
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#responsibilities" class="terms-nav-link" data-section="responsibilities">
+                            <i class="fas fa-balance-scale"></i>
+                            Responsabilidades
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#payments" class="terms-nav-link" data-section="payments">
+                            <i class="fas fa-credit-card"></i>
+                            Pagamentos e Taxas
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#intellectual" class="terms-nav-link" data-section="intellectual">
+                            <i class="fas fa-copyright"></i>
+                            Propriedade Intelectual
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#privacy" class="terms-nav-link" data-section="privacy">
+                            <i class="fas fa-shield-alt"></i>
+                            Privacidade e Dados
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#prohibited" class="terms-nav-link" data-section="prohibited">
+                            <i class="fas fa-ban"></i>
+                            Condutas Proibidas
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#termination" class="terms-nav-link" data-section="termination">
+                            <i class="fas fa-times-circle"></i>
+                            Rescisão e Suspensão
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#disclaimer" class="terms-nav-link" data-section="disclaimer">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Limitações e Garantias
+                        </a>
+                    </li>
+                    <li class="terms-nav-item">
+                        <a href="#jurisdiction" class="terms-nav-link" data-section="jurisdiction">
+                            <i class="fas fa-gavel"></i>
+                            Disposições Gerais
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="terms-content">
+            <section id="acceptance" class="terms-section active">
+                <h2>1. Aceitação dos Termos</h2>
+                
+                <div class="clause-card">
+                    <h4><i class="fas fa-info-circle"></i> Importante</h4>
+                    <p>Ao acessar ou utilizar a plataforma Agenda AI, você concorda em ficar vinculado a estes Termos e Condições. Se você não concordar com qualquer parte destes termos, não poderá acessar nosso serviço.</p>
+                </div>
+
+                <p>Estes Termos e Condições regulam o uso da plataforma Agenda AI, disponível através de nosso site e aplicativos móveis. Ao criar uma conta ou utilizar nossos serviços, você declara que:</p>
+                
+                <ul class="terms-list">
+                    <li>Leu, compreendeu e concorda com estes termos</li>
+                    <li>É maior de 18 anos ou possui autorização legal</li>
+                    <li>Fornecerá informações verdadeiras e atualizadas</li>
+                    <li>Responsabiliza-se por todas as atividades em sua conta</li>
+                </ul>
+
+                <div class="important-note">
+                    <h4><i class="fas fa-exclamation-circle"></i> Aviso Importante</h4>
+                    <p>Podemos modificar estes Termos a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação. O uso continuado da plataforma após alterações constitui aceitação dos novos termos.</p>
+                </div>
+            </section>
+
+            <section id="definitions" class="terms-section">
+                <h2>2. Definições</h2>
+                
+                <p>Para fins destes Termos, as seguintes definições se aplicam:</p>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-users"></i> Usuário</h4>
+                    <p>Qualquer pessoa que acessa ou utiliza a plataforma Agenda AI, incluindo prestadores de serviços e clientes.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-store"></i> Prestador de Serviços</h4>
+                    <p>Usuário que oferece serviços, produtos ou anúncios através da plataforma.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-shopping-cart"></i> Cliente</h4>
+                    <p>Usuário que contrata serviços ou adquire produtos através da plataforma.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-bullhorn"></i> Anúncio</h4>
+                    <p>Conteúdo publicado por Prestadores de Serviços para oferecer produtos ou serviços.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-money-bill-wave"></i> Transação</h4>
+                    <p>Qualquer acordo comercial realizado entre Usuários através da plataforma.</p>
+                </div>
+            </section>
+
+            <section id="registration" class="terms-section">
+                <h2>3. Cadastro e Conta de Usuário</h2>
+
+                <h3>3.1 Requisitos para Cadastro</h3>
+                <ul class="terms-list">
+                    <li>Idade mínima de 18 anos</li>
+                    <li>Informações verdadeiras e completas</li>
+                    <li>E-mail válido e número de telefone ativo</li>
+                    <li>Aceitação integral destes Termos</li>
+                </ul>
+
+                <h3>3.2 Verificação de Conta</h3>
+                <p>Podemos solicitar documentos para verificar sua identidade, incluindo:</p>
+                <ul class="terms-list">
+                    <li>Documento de identificação oficial com foto</li>
+                    <li>Comprovante de residência</li>
+                    <li>Documentos específicos para certos serviços</li>
+                </ul>
+
+                <div class="warning-note">
+                    <h4><i class="fas fa-shield-alt"></i> Segurança da Conta</h4>
+                    <p>Você é responsável por manter a confidencialidade de sua senha e por todas as atividades que ocorrem em sua conta. Notifique-nos imediatamente sobre qualquer uso não autorizado.</p>
+                </div>
+
+                <h3>3.3 Contas de Empresa</h3>
+                <p>Para cadastro de pessoa jurídica, são necessários:</p>
+                <ul class="terms-list">
+                    <li>CNPJ ativo e regular</li>
+                    <li>Documentos societários atualizados</li>
+                    <li>Autorização do representante legal</li>
+                </ul>
+            </section>
+
+            <section id="services" class="terms-section">
+                <h2>4. Serviços da Plataforma</h2>
+
+                <h3>4.1 Funcionalidades Principais</h3>
+                <div class="clause-card">
+                    <h4><i class="fas fa-store"></i> Páginas Personalizadas</h4>
+                    <p>Permitimos que Prestadores de Serviços criem páginas personalizadas para seus negócios, incluindo restaurantes, lojas e serviços profissionais.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-bullhorn"></i> Sistema de Anúncios</h4>
+                    <p>Plataforma para publicação e gestão de anúncios de produtos e serviços.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-car"></i> Serviços de Transporte</h4>
+                    <p>Conectamos passageiros e motoristas para serviços de transporte urbano.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-shipping-fast"></i> Serviços de Entrega</h4>
+                    <p>Plataforma para contratação e oferta de serviços de entrega e fretes.</p>
+                </div>
+
+                <h3>4.2 Limitações do Serviço</h3>
+                <ul class="terms-list">
+                    <li>Não somos prestadores dos serviços anunciados</li>
+                    <li>Atuamos como intermediário entre Usuários</li>
+                    <li>Não garantimos a qualidade dos serviços terceirizados</li>
+                    <li>Podemos limitar o acesso a certas funcionalidades</li>
+                </ul>
+            </section>
+
+            <section id="responsibilities" class="terms-section">
+                <h2>5. Responsabilidades dos Usuários</h2>
+
+                <h3>5.1 Responsabilidades Gerais</h3>
+                <ul class="terms-list">
+                    <li>Fornecer informações verdadeiras e atualizadas</li>
+                    <li>Manter conduta ética e respeitosa</li>
+                    <li>Cumprir acordos estabelecidos com outros Usuários</li>
+                    <li>Respeitar a legislação aplicável</li>
+                </ul>
+
+                <h3>5.2 Prestadores de Serviços</h3>
+                <div class="clause-card">
+                    <h4><i class="fas fa-clipboard-check"></i> Qualidade do Serviço</h4>
+                    <p>Você é responsável pela qualidade dos serviços prestados, cumprimento de prazos e atendimento ao cliente.</p>
+                </div>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-file-invoice"></i> Aspectos Legais</h4>
+                    <p>É sua responsabilidade obter todas as licenças, autorizações e seguros necessários para o exercício de sua atividade.</p>
+                </div>
+
+                <h3>5.3 Clientes</h3>
+                <ul class="terms-list">
+                    <li>Fornecer informações corretas para prestação do serviço</li>
+                    <li>Respeitar horários e condições acordadas</li>
+                    <li>Efetuar pagamentos conforme combinado</li>
+                    <li>Avaliar serviços de forma justa e construtiva</li>
+                </ul>
+            </section>
+
+            <section id="payments" class="terms-section">
+                <h2>6. Pagamentos e Taxas</h2>
+
+                <h3>6.1 Estrutura de Taxas</h3>
+                <div class="clause-card">
+                    <h4><i class="fas fa-percentage"></i> Comissões da Plataforma</h4>
+                    <p>Cobramos comissão sobre transações realizadas através da plataforma. As taxas variam conforme o tipo de serviço e serão claramente informadas antes da confirmação.</p>
+                </div>
+
+                <h3>6.2 Métodos de Pagamento</h3>
+                <ul class="terms-list">
+                    <li>Cartão de crédito/débito</li>
+                    <li>PIX</li>
+                    <li>Boleto bancário</li>
+                    <li>Carteira digital Agenda AI</li>
+                </ul>
+
+                <h3>6.3 Pagamento a Prestadores</h3>
+                <p>Os valores devidos aos Prestadores de Serviços são liberados conforme:</p>
+                <ol class="step-list">
+                    <li>Confirmação da conclusão do serviço</li>
+                    <li>Período de carência para contestação</li>
+                    <li>Dedução das comissões da plataforma</li>
+                    <li>Disponibilização na conta do Prestador</li>
+                </ol>
+
+                <div class="info-note">
+                    <h4><i class="fas fa-clock"></i> Prazos de Liberação</h4>
+                    <p>Os pagamentos são processados em até 3 dias úteis após a confirmação do serviço, podendo variar conforme o método de saque escolhido.</p>
+                </div>
+            </section>
+
+            <section id="intellectual" class="terms-section">
+                <h2>7. Propriedade Intelectual</h2>
+
+                <h3>7.1 Direitos da Plataforma</h3>
+                <p>A Agenda AI detém todos os direitos sobre:</p>
+                <ul class="terms-list">
+                    <li>Software, código-fonte e tecnologia</li>
+                    <li>Marca, logo e identidade visual</li>
+                    <li>Conteúdo institucional e documentação</li>
+                    <li>Layout, design e interface do usuário</li>
+                </ul>
+
+                <h3>7.2 Conteúdo do Usuário</h3>
+                <div class="clause-card">
+                    <h4><i class="fas fa-camera"></i> Licença de Uso</h4>
+                    <p>Ao publicar conteúdo na plataforma, você nos concede licença não-exclusiva para usar, modificar e distribuir tal conteúdo para operação e promoção dos serviços.</p>
+                </div>
+
+                <div class="warning-note">
+                    <h4><i class="fas fa-ban"></i> Conteúdo Proibido</h4>
+                    <p>Não é permitido publicar conteúdo que infrinja direitos de terceiros, incluindo direitos autorais, marcas registradas ou direitos de imagem.</p>
+                </div>
+            </section>
+
+            <section id="privacy" class="terms-section">
+                <h2>8. Privacidade e Proteção de Dados</h2>
+
+                <h3>8.1 Coleta de Dados</h3>
+                <p>Coletamos e processamos dados pessoais conforme nossa <a href="#" style="color: var(--primary-dark);">Política de Privacidade</a>, incluindo:</p>
+                <ul class="terms-list">
+                    <li>Dados de cadastro e perfil</li>
+                    <li>Informações de transações</li>
+                    <li>Dados de localização</li>
+                    <li>Comunicações entre Usuários</li>
+                </ul>
+
+                <h3>8.2 Uso de Dados</h3>
+                <p>Utilizamos seus dados para:</p>
+                <ul class="terms-list">
+                    <li>Fornecer e melhorar nossos serviços</li>
+                    <li>Garantir a segurança da plataforma</li>
+                    <li>Cumprir obrigações legais</li>
+                    <li>Comunicações relacionadas ao serviço</li>
+                </ul>
+
+                <div class="info-note">
+                    <h4><i class="fas fa-user-shield"></i> LGPD</h4>
+                    <p>Respeitamos a Lei Geral de Proteção de Dados (Lei 13.709/2018) e garantimos seus direitos de acesso, correção e exclusão de dados.</p>
+                </div>
+            </section>
+
+            <section id="prohibited" class="terms-section">
+                <h2>9. Condutas Proibidas</h2>
+
+                <h3>9.1 Atividades Expressamente Proibidas</h3>
+                <div class="warning-note">
+                    <p>É estritamente proibido:</p>
+                </div>
+                <ul class="terms-list">
+                    <li>Oferecer serviços ilegais ou produtos proibidos</li>
+                    <li>Discriminação de qualquer tipo</li>
+                    <li>Assédio moral ou sexual</li>
+                    <li>Fraude, falsidade ideológica ou golpes</li>
+                    <li>Tentativas de burlar o sistema de pagamento</li>
+                    <li>Spam ou comunicação comercial não autorizada</li>
+                    <li>Uso de contas múltiplas para fins fraudulentos</li>
+                    <li>Violação de direitos de propriedade intelectual</li>
+                </ul>
+
+                <h3>9.2 Consequências</h3>
+                <p>A violação destas regras pode resultar em:</p>
+                <ol class="step-list">
+                    <li>Remoção de conteúdo inadequado</li>
+                    <li>Suspensão temporária da conta</li>
+                    <li>Bloqueio permanente do acesso</li>
+                    <li>Comunicação às autoridades competentes</li>
+                </ol>
+            </section>
+
+            <section id="termination" class="terms-section">
+                <h2>10. Rescisão e Suspensão</h2>
+
+                <h3>10.1 Rescisão pelo Usuário</h3>
+                <p>Você pode encerrar sua conta a qualquer momento através das configurações da plataforma. O encerramento não isenta de obrigações pendentes.</p>
+
+                <h3>10.2 Suspensão pela Plataforma</h3>
+                <p>Podemos suspender ou encerrar contas que:</p>
+                <ul class="terms-list">
+                    <li>Violarem estes Termos</li>
+                    <li>Apresentarem risco legal para a plataforma</li>
+                    <li>Estiverem envolvidas em atividades fraudulentas</li>
+                    <li>Comprometerem a segurança de outros Usuários</li>
+                </ul>
+
+                <div class="clause-card">
+                    <h4><i class="fas fa-balance-scale"></i> Recursos</h4>
+                    <p>Em caso de suspensão, você terá direito a se defender e apresentar recurso através de nosso canal de atendimento.</p>
+                </div>
+            </section>
+
+            <section id="disclaimer" class="terms-section">
+                <h2>11. Limitações de Responsabilidade e Garantias</h2>
+
+                <h3>11.1 Isenção de Garantias</h3>
+                <div class="warning-note">
+                    <p>A plataforma é fornecida "no estado em que se encontra" e "conforme a disponibilidade", sem garantias de qualquer tipo.</p>
+                </div>
+
+                <h3>11.2 Limitações de Responsabilidade</h3>
+                <p>Não nos responsabilizamos por:</p>
+                <ul class="terms-list">
+                    <li>Qualidade de serviços prestados por terceiros</li>
+                    <li>Danos resultantes de conduta de outros Usuários</li>
+                    <li>Problemas técnicos além de nosso controle</li>
+                    <li>Perdas de lucro ou oportunidades de negócio</li>
+                </ul>
+
+                <h3>11.3 Responsabilidade Máxima</h3>
+                <p>Nossa responsabilidade máxima em qualquer caso será limitada ao valor das comissões pagas por você nos últimos 6 meses.</p>
+            </section>
+
+            <section id="jurisdiction" class="terms-section">
+                <h2>12. Disposições Gerais</h2>
+
+                <h3>12.1 Lei Aplicável</h3>
+                <p>Estes Termos são regidos pelas leis da República Federativa do Brasil.</p>
+
+                <h3>12.2 Foro</h3>
+                <p>Fica eleito o foro da comarca de São Paulo/SP para dirimir quaisquer questões decorrentes destes Termos.</p>
+
+                <h3>12.3 Tolerância</h3>
+                <p>O não exercício de qualquer direito previsto nestes Termos não constituirá renúncia, nem afetará a validade destes Termos.</p>
+
+                <h3>12.4 Comunicações</h3>
+                <p>As comunicações serão enviadas para o e-mail cadastrado em sua conta e consideradas recebidas 24 horas após o envio.</p>
+
+                <div class="contact-info">
+                    <h3>Dúvidas sobre estes Termos?</h3>
+                    <p>Entre em contato conosco:</p>
+                    <p><strong>E-mail:</strong> juridico@agendaai.com</p>
+                    <p><strong>Telefone:</strong> (11) 4004-2004</p>
+                    <p><strong>Horário de atendimento:</strong> Segunda a sexta, 9h às 18h</p>
+                </div>
+
+                <div class="last-update">
+                    <p><strong>Documento revisado e aprovado pelo departamento jurídico</strong></p>
+                    <p>Agenda AI Tecnologia Ltda. - CNPJ: 12.345.678/0001-90</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.terms-nav-link');
+        const sections = document.querySelectorAll('.terms-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+  
+                this.classList.add('active');
+                
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+                
+                window.location.hash = sectionId;
+            });
+        });
+
+        if (window.location.hash) {
+            const hash = window.location.hash.substring(1);
+            const targetLink = document.querySelector(`[data-section="${hash}"]`);
+            if (targetLink) {
+                targetLink.click();
+            }
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "account/base.html" %}
+
+{% block content %}
+<div class="auth-header">
+    <h1>Sair da conta 👋</h1>
+    <p>Tem certeza que deseja sair?</p>
+</div>
+
+<form method="POST" action="{% url 'account_logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="auth-button" style="background: #666;">
+        Sim, sair da conta
+    </button>
+</form>
+
+<div class="auth-links">
+    <p><a href="{% url 'home' %}">Voltar para a página inicial</a></p>
+</div>
+{% endblock %}

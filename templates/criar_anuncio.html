@@ -1,0 +1,1660 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Criar Anúncio - Agenda AI{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --primary-light: #dbeafe;
+        --primary-ultralight: #eff6ff;
+        --secondary: #64748b;
+        --success: #10b981;
+        --success-light: #d1fae5;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --error: #ef4444;
+        --error-light: #fee2e2;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-400: #94a3b8;
+        --gray-500: #64748b;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-800: #1e293b;
+        --gray-900: #0f172a;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .create-ad-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2.5rem;
+        min-height: calc(100vh - 200px);
+    }
+
+    .form-content {
+        position: relative;
+    }
+
+    .progress-bar {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 1.5rem 0;
+        z-index: 10;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gray-200);
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+
+    .progress-step {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gray-200);
+        color: var(--gray-600);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: var(--transition);
+        border: 2px solid var(--gray-200);
+    }
+
+    .step-active .step-number {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .step-completed .step-number {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+    }
+
+    .step-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-600);
+        text-align: center;
+    }
+
+    .step-active .step-label {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .form-section {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+        transition: var(--transition);
+        border: 1px solid var(--gray-100);
+        display: none;
+    }
+
+    .form-section.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .form-section:hover {
+        box-shadow: var(--shadow-lg);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--gray-100);
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0;
+    }
+
+    .section-subtitle {
+        color: var(--gray-500);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        font-size: 0.95rem;
+    }
+
+    .form-label.required::after {
+        content: '*';
+        color: var(--error);
+        margin-left: 0.25rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 140px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 3rem;
+        cursor: pointer;
+    }
+
+    .form-hint {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .char-counter {
+        text-align: right;
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.5rem;
+    }
+
+    .char-counter.warning {
+        color: var(--warning);
+    }
+
+    .char-counter.error {
+        color: var(--error);
+        font-weight: 500;
+    }
+
+    .image-upload-area {
+        border: 2px dashed var(--gray-300);
+        border-radius: var(--radius);
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        background: var(--gray-50);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .image-upload-area:hover {
+        border-color: var(--primary);
+        background: var(--primary-ultralight);
+        transform: translateY(-2px);
+    }
+
+    .image-upload-area.dragover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+        box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--gray-400);
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .image-upload-area:hover .upload-icon {
+        color: var(--primary);
+        transform: scale(1.1);
+    }
+
+    .upload-text {
+        color: var(--gray-700);
+        margin-bottom: 1rem;
+        font-weight: 600;
+        font-size: 1.125rem;
+    }
+
+    .upload-subtext {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .upload-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .image-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .image-preview {
+        position: relative;
+        border-radius: var(--radius);
+        overflow: hidden;
+        aspect-ratio: 4/3;
+        border: 2px solid var(--gray-200);
+        transition: var(--transition);
+        box-shadow: var(--shadow);
+    }
+
+    .image-preview:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-actions {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .image-preview:hover .image-actions {
+        opacity: 1;
+    }
+
+    .image-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.875rem;
+        box-shadow: var(--shadow);
+    }
+
+    .image-btn:hover {
+        background: white;
+        transform: scale(1.1);
+        box-shadow: var(--shadow-md);
+    }
+
+    .image-btn.primary {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .image-btn.success {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+    }
+
+    .cover-badge {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        background: var(--success);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: var(--radius);
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: var(--shadow);
+    }
+
+    .price-input-container {
+        position: relative;
+    }
+
+    .price-prefix {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-600);
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    .price-input {
+        padding-left: 3rem;
+    }
+
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        transition: var(--transition);
+        border: 2px solid transparent;
+    }
+
+    .form-check:hover {
+        background: var(--gray-100);
+        border-color: var(--gray-200);
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .form-check-label {
+        font-weight: 500;
+        color: var(--gray-700);
+    }
+
+    .form-check-hint {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .tag-input {
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+    }
+
+    .tagify__dropdown__item--active {
+        background: var(--primary-light) !important;
+    }
+
+    .tagify__tag {
+        background: var(--primary-light) !important;
+        color: var(--primary) !important;
+    }
+
+    .tagify__tag__removeBtn {
+        color: var(--primary) !important;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--gray-100);
+        position: sticky;
+        bottom: 0;
+        background: white;
+        z-index: 10;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: var(--radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 2px solid var(--gray-200);
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-200);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+        background: var(--primary-ultralight);
+        transform: translateY(-2px);
+    }
+
+    .preview-sidebar {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-xl);
+        height: fit-content;
+        position: sticky;
+        top: 2rem;
+        border: 1px solid var(--gray-100);
+    }
+
+    .preview-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--gray-100);
+    }
+
+    .preview-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-subtitle {
+        color: var(--gray-500);
+        font-size: 0.95rem;
+    }
+
+    .preview-content {
+        margin-bottom: 2rem;
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 220px;
+        border-radius: var(--radius);
+        object-fit: cover;
+        margin-bottom: 1.5rem;
+        background: var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-400);
+        border: 2px dashed var(--gray-300);
+        transition: var(--transition);
+    }
+
+    .preview-image.has-image {
+        border: none;
+    }
+
+    .preview-details {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .preview-detail {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        transition: var(--transition);
+    }
+
+    .preview-detail:hover {
+        background: var(--gray-100);
+        transform: translateX(4px);
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--gray-600);
+    }
+
+    .detail-value {
+        color: var(--gray-800);
+        font-weight: 600;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+    }
+
+    .preview-description {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--gray-700);
+        border-left: 4px solid var(--primary);
+    }
+
+    .no-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: var(--gray-400);
+        padding: 2rem;
+    }
+
+    .no-image i {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .preview-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .preview-tag {
+        padding: 0.35rem 0.75rem;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .alert-container {
+        margin-bottom: 2rem;
+    }
+
+    .alert {
+        padding: 1.25rem 1.5rem;
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: slideIn 0.3s ease;
+    }
+
+    .alert-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .alert-content {
+        flex: 1;
+    }
+
+    .alert-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .alert-message {
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .alert-error {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    .step-navigation {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: space-between;
+    }
+
+    .step-btn {
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 2px solid var(--gray-200);
+        background: white;
+        color: var(--gray-700);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .step-btn:hover {
+        background: var(--gray-50);
+        transform: translateY(-1px);
+    }
+
+    .step-btn.next {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .step-btn.next:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 1200px) {
+        .create-ad-container {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .preview-sidebar {
+            order: -1;
+            position: static;
+            margin-bottom: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .create-ad-container {
+            padding: 1rem 0.5rem;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-steps {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .progress-step {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .section-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .checkbox-group {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .step-navigation {
+            flex-direction: column;
+        }
+
+        .step-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-section {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+        }
+
+        .form-control {
+            padding: 0.8rem;
+        }
+
+        .image-preview-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .preview-sidebar {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="create-ad-container">
+    <div class="form-content">
+        <div class="progress-bar">
+            <div class="progress-steps">
+                <div class="progress-step step-active" data-step="1">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Informações</span>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Detalhes</span>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Imagens</span>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <span class="step-label">Revisão</span>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}warning{% endif %}">
+                    <div class="alert-icon">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">
+                            {% if message.tags == 'error' %}Erro{% elif message.tags == 'success' %}Sucesso{% else %}Aviso{% endif %}
+                        </div>
+                        <p class="alert-message">{{ message }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="createAdForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="current_step" id="currentStep" value="1">
+            
+            <div class="form-section active" id="step-1">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Informações Básicas</h2>
+                        <p class="section-subtitle">Comece com as informações essenciais do seu anúncio</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="titulo" class="form-label required">Título do Anúncio</label>
+                        <input type="text" id="titulo" name="titulo" class="form-control" 
+                               placeholder="Ex: Pintura Residencial Profissional" required
+                               oninput="updatePreview(); updateCharCounter('titulo', 'tituloCounter', 200)"
+                               value="{{ form_data.titulo|default:'' }}">
+                        <div class="char-counter" id="tituloCounter">0/200 caracteres</div>
+                        <p class="form-hint">Seja claro e objetivo. Um bom título atrai mais clientes!</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoria" class="form-label required">Categoria</label>
+                        <select id="categoria" name="categoria" class="form-control form-select" required
+                                onchange="updatePreview()">
+                            <option value="">Selecione uma categoria</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if form_data.categoria == categoria.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categoria.titulo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <p class="form-hint">Escolha a categoria que melhor descreve seu serviço</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao" class="form-label required">Descrição Detalhada</label>
+                    <textarea id="descricao" name="descricao" class="form-control" 
+                              placeholder="Descreva seu serviço ou produto com detalhes. Inclua experiências anteriores, materiais utilizados, garantias, etc." 
+                              required oninput="updatePreview(); updateCharCounter('descricao', 'descricaoCounter', 2000)">{{ form_data.descricao|default:'' }}</textarea>
+                    <div class="char-counter" id="descricaoCounter">0/2000 caracteres</div>
+                    <p class="form-hint">Quanto mais detalhes, maiores as chances de venda. Inclua informações sobre experiência, materiais e garantias.</p>
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="step-btn next" onclick="nextStep(2)">
+                        Próximo <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section" id="step-2">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Preço e Condições</h2>
+                        <p class="section-subtitle">Defina o valor e as condições do seu serviço</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="valor" class="form-label">Preço (R$)</label>
+                        <div class="price-input-container">
+                            <span class="price-prefix">R$</span>
+                            <input type="text" id="valor" name="valor" class="form-control price-input" 
+                                   placeholder="0,00" oninput="formatCurrency(this); updatePreview()"
+                                   value="{{ form_data.valor|default:'' }}">
+                        </div>
+                        <p class="form-hint">Deixe em branco se o preço for a combinar.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Modalidade</label>
+                        <select id="modalidade" name="modalidade" class="form-control form-select" onchange="updatePreview()">
+                            <option value="">Selecione a modalidade</option>
+                            <option value="presencial" {% if form_data.modalidade == 'presencial' %}selected{% endif %}>Presencial</option>
+                            <option value="online" {% if form_data.modalidade == 'online' %}selected{% endif %}>Online</option>
+                            <option value="ambos" {% if form_data.modalidade == 'ambos' %}selected{% endif %}>Presencial e Online</option>
+                        </select>
+                        <p class="form-hint">Como você presta o serviço?</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Condições</label>
+                    <div class="checkbox-group">
+                        <label class="form-check">
+                            <input type="checkbox" name="disponivel_24h" value="true" class="form-check-input"
+                                   onchange="updatePreview()" {% if form_data.disponivel_24h == 'true' %}checked{% endif %}>
+                            <div>
+                                <div class="form-check-label">Disponível 24 horas</div>
+                                <div class="form-check-hint">Atendo emergências a qualquer hora</div>
+                            </div>
+                        </label>
+                        <label class="form-check">
+                            <input type="checkbox" name="orcamento_gratis" value="true" class="form-check-input"
+                                   onchange="updatePreview()" {% if form_data.orcamento_gratis == 'true' %}checked{% endif %}>
+                            <div>
+                                <div class="form-check-label">Orçamento gratuito</div>
+                                <div class="form-check-hint">Forneço orçamento sem custo</div>
+                            </div>
+                        </label>
+                        <label class="form-check">
+                            <input type="checkbox" name="garantia" value="true" class="form-check-input"
+                                   onchange="updatePreview()" {% if form_data.garantia == 'true' %}checked{% endif %}>
+                            <div>
+                                <div class="form-check-label">Ofereço garantia</div>
+                                <div class="form-check-hint">Serviço com garantia</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags" class="form-label">Palavras-chave</label>
+                    <input id="tags" name="tags" class="form-control tag-input" 
+                           placeholder="Digite palavras-chave e pressione Enter"
+                           value="{{ form_data.tags|default:'' }}">
+                    <p class="form-hint">Adicione tags relevantes para melhorar a busca</p>
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="step-btn" onclick="prevStep(1)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="step-btn next" onclick="nextStep(3)">
+                        Próximo <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section" id="step-3">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Imagens do Anúncio</h2>
+                        <p class="section-subtitle">Adicione fotos para mostrar seu trabalho</p>
+                    </div>
+                </div>
+
+                <div class="image-upload-area" id="dropArea" onclick="document.getElementById('imageInput').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Arraste e solte suas imagens aqui</p>
+                    <p class="upload-subtext">ou clique para selecionar</p>
+                    <button type="button" class="upload-btn">
+                        <i class="fas fa-plus"></i> Selecionar Imagens
+                    </button>
+                    <p class="form-hint">Máximo 10 imagens • 5MB cada • Formatos: JPG, PNG, WEBP</p>
+                    <input type="file" id="imageInput" name="imagens" multiple accept="image/*" style="display: none;"
+                           onchange="handleImageUpload(event)">
+                </div>
+
+                <div class="image-preview-grid" id="imagePreviewContainer">
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="step-btn" onclick="prevStep(2)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="step-btn next" onclick="nextStep(4)">
+                        Próximo <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section" id="step-4">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Localização e Contato</h2>
+                        <p class="section-subtitle">Onde você atende e como os clientes podem te contactar</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="localizacao" class="form-label required">Cidade/Estado</label>
+                        <select id="localizacao" name="localizacao" class="form-control form-select" required
+                                onchange="updatePreview()">
+                            <option value="">Selecione sua localização</option>
+                            {% for local in localizacoes %}
+                            <option value="{{ local.id }}" {% if form_data.localizacao == local.id|stringformat:"s" %}selected{% endif %}>
+                                {{ local.cidade }} - {{ local.estado }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <p class="form-hint">Onde você presta serviço?</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="whatsapp" class="form-label required">WhatsApp</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" class="form-control" 
+                               placeholder="(11) 99999-9999" required
+                               oninput="formatPhone(this); updatePreview()" 
+                               value="{{ form_data.whatsapp|default:'' }}">
+                        <p class="form-hint">Este será o contato principal para seus clientes</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">E-mail para contato</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           placeholder="seu.email@exemplo.com" oninput="updatePreview()"
+                           value="{{ form_data.email|default:'' }}">
+                    <p class="form-hint">Opcional - para clientes que preferem e-mail</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Visibilidade</label>
+                    <div class="checkbox-group">
+                        <label class="form-check">
+                            <input type="checkbox" name="destaque" value="true" class="form-check-input"
+                                   onchange="updatePreview()" {% if form_data.destaque == 'true' %}checked{% endif %}>
+                            <div>
+                                <div class="form-check-label">Destacar este anúncio</div>
+                                <div class="form-check-hint">Apareça em posição de destaque por 7 dias</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button type="button" class="step-btn" onclick="prevStep(3)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="submit" class="btn btn-primary pulse">
+                        <i class="fas fa-check-circle"></i> Publicar Anúncio
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="preview-sidebar">
+        <div class="preview-header">
+            <h3 class="preview-title">Preview do Anúncio</h3>
+            <p class="preview-subtitle">Como ficará para seus clientes</p>
+        </div>
+
+        <div class="preview-content">
+            <div class="preview-image" id="previewImage">
+                <div class="no-image">
+                    <i class="fas fa-image"></i>
+                    <p>Nenhuma imagem selecionada</p>
+                </div>
+            </div>
+
+            <div class="preview-details">
+                <div class="preview-detail">
+                    <span class="detail-label">Título:</span>
+                    <span class="detail-value" id="previewTitle">Seu título aqui</span>
+                </div>
+                <div class="preview-detail">
+                    <span class="detail-label">Categoria:</span>
+                    <span class="detail-value" id="previewCategory">-</span>
+                </div>
+                <div class="preview-detail">
+                    <span class="detail-label">Preço:</span>
+                    <span class="detail-value" id="previewPrice">A combinar</span>
+                </div>
+                <div class="preview-detail">
+                    <span class="detail-label">Localização:</span>
+                    <span class="detail-value" id="previewLocation">-</span>
+                </div>
+                <div class="preview-detail">
+                    <span class="detail-label">Contato:</span>
+                    <span class="detail-value" id="previewContact">-</span>
+                </div>
+                <div class="preview-detail">
+                    <span class="detail-label">Modalidade:</span>
+                    <span class="detail-value" id="previewModalidade">-</span>
+                </div>
+            </div>
+
+            <div class="preview-description" id="previewDescription">
+                Sua descrição aparecerá aqui...
+            </div>
+
+            <div class="preview-tags" id="previewTags">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+
+<script>
+    let currentStep = 1;
+    let selectedImages = [];
+    let coverImageIndex = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeTagInput();
+        setupDragAndDrop();
+        updatePreview();
+        updateCharCounter('titulo', 'tituloCounter', 200);
+        updateCharCounter('descricao', 'descricaoCounter', 2000);
+    });
+
+    function nextStep(step) {
+        if (validateStep(currentStep)) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${step}`).classList.add('active');
+            updateProgressBar(currentStep, step);
+            currentStep = step;
+            document.getElementById('currentStep').value = step;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    function prevStep(step) {
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        document.getElementById(`step-${step}`).classList.add('active');
+        updateProgressBar(currentStep, step);
+        currentStep = step;
+        document.getElementById('currentStep').value = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgressBar(oldStep, newStep) {
+        document.querySelector(`[data-step="${oldStep}"]`).classList.remove('step-active');
+        document.querySelector(`[data-step="${newStep}"]`).classList.add('step-active');
+    }
+
+    function validateStep(step) {
+        switch(step) {
+            case 1:
+                const titulo = document.getElementById('titulo').value;
+                const categoria = document.getElementById('categoria').value;
+                const descricao = document.getElementById('descricao').value;
+                
+                if (!titulo || titulo.length < 10) {
+                    showError('O título deve ter pelo menos 10 caracteres');
+                    return false;
+                }
+                if (!categoria) {
+                    showError('Selecione uma categoria');
+                    return false;
+                }
+                if (!descricao || descricao.length < 20) {
+                    showError('A descrição deve ter pelo menos 20 caracteres');
+                    return false;
+                }
+                return true;
+                
+            case 2:
+                return true;
+                
+            case 3:
+                if (selectedImages.length === 0) {
+                    showError('Adicione pelo menos uma imagem');
+                    return false;
+                }
+                return true;
+                
+            default:
+                return true;
+        }
+    }
+
+    function showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.innerHTML = `
+            <div class="alert-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="alert-content">
+                <div class="alert-title">Erro de Validação</div>
+                <p class="alert-message">${message}</p>
+            </div>
+        `;
+        
+        document.querySelector('.alert-container').appendChild(alert);
+        
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function initializeTagInput() {
+        const input = document.getElementById('tags');
+        if (input) {
+            new Tagify(input, {
+                delimiters: ",| ",
+                maxTags: 10,
+                pattern: /^[a-zA-Z0-9áéíóúâêîôûãõàèìòùç\s]{2,20}$/,
+                dropdown: {
+                    enabled: 1,
+                    maxItems: 5
+                }
+            });
+        }
+    }
+
+    function setupDragAndDrop() {
+        const dropArea = document.getElementById('dropArea');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleImageUpload({ target: { files } });
+        }
+    }
+
+    function formatCurrency(input) {
+        let value = input.value.replace(/\D/g, '');
+        value = (value / 100).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        input.value = value;
+    }
+
+    function formatPhone(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        
+        if (value.length > 0) {
+            value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+            if (value.length > 10) {
+                value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            } else {
+                value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            }
+        }
+        input.value = value;
+    }
+
+    function updateCharCounter(inputId, counterId, maxLength) {
+        const input = document.getElementById(inputId);
+        const counter = document.getElementById(counterId);
+        const length = input.value.length;
+        
+        counter.textContent = `${length}/${maxLength} caracteres`;
+        
+        if (length > maxLength * 0.9) {
+            counter.className = 'char-counter error';
+        } else if (length > maxLength * 0.75) {
+            counter.className = 'char-counter warning';
+        } else {
+            counter.className = 'char-counter';
+        }
+    }
+
+    function handleImageUpload(event) {
+        const files = event.target.files;
+        if (!files) return;
+
+        if (selectedImages.length + files.length > 10) {
+            showError('Máximo de 10 imagens permitido');
+            return;
+        }
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (!file.type.startsWith('image/')) {
+                showError('Por favor, selecione apenas imagens');
+                continue;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Imagem muito grande (máximo 5MB)');
+                continue;
+            }
+
+            selectedImages.push(file);
+            createImagePreview(file, selectedImages.length - 1);
+        }
+
+        updatePreviewImage();
+    }
+
+    function createImagePreview(file, index) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const container = document.getElementById('imagePreviewContainer');
+            const preview = document.createElement('div');
+            preview.className = 'image-preview';
+            preview.innerHTML = `
+                <img src="${e.target.result}" alt="Preview">
+                <div class="image-actions">
+                    <button type="button" class="image-btn ${index === coverImageIndex ? 'success' : ''}" 
+                            onclick="setCoverImage(${index})" title="Definir como capa">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" class="image-btn" onclick="removeImage(${index})" title="Remover">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                ${index === coverImageIndex ? '<span class="cover-badge">Capa</span>' : ''}
+            `;
+            container.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function setCoverImage(index) {
+        coverImageIndex = index;
+        updateCoverBadges();
+        updatePreviewImage();
+    }
+
+    function removeImage(index) {
+        selectedImages.splice(index, 1);
+        refreshImagePreviews();
+        updatePreviewImage();
+    }
+
+    function updateCoverBadges() {
+        const previews = document.querySelectorAll('.image-preview');
+        const buttons = document.querySelectorAll('.image-actions .image-btn');
+        
+        previews.forEach((preview, index) => {
+            const badge = preview.querySelector('.cover-badge');
+            const starBtn = preview.querySelector('.image-btn:first-child');
+            
+            if (index === coverImageIndex) {
+                if (!badge) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'cover-badge';
+                    newBadge.textContent = 'Capa';
+                    preview.appendChild(newBadge);
+                }
+                if (starBtn) {
+                    starBtn.className = 'image-btn success';
+                }
+            } else {
+                if (badge) badge.remove();
+                if (starBtn) starBtn.className = 'image-btn';
+            }
+        });
+    }
+
+    function refreshImagePreviews() {
+        const container = document.getElementById('imagePreviewContainer');
+        container.innerHTML = '';
+        selectedImages.forEach((file, index) => {
+            createImagePreview(file, index);
+        });
+    }
+
+    function updatePreviewImage() {
+        const previewImage = document.getElementById('previewImage');
+        if (selectedImages.length > 0 && coverImageIndex < selectedImages.length) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.innerHTML = `<img src="${e.target.result}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">`;
+                previewImage.classList.add('has-image');
+            };
+            reader.readAsDataURL(selectedImages[coverImageIndex]);
+        } else {
+            previewImage.innerHTML = `
+                <div class="no-image">
+                    <i class="fas fa-image"></i>
+                    <p>Nenhuma imagem selecionada</p>
+                </div>
+            `;
+            previewImage.classList.remove('has-image');
+        }
+    }
+
+    function updatePreview() {
+        const title = document.getElementById('titulo').value || 'Seu título aqui';
+        document.getElementById('previewTitle').textContent = title;
+
+        const categorySelect = document.getElementById('categoria');
+        const category = categorySelect.options[categorySelect.selectedIndex]?.text || '-';
+        document.getElementById('previewCategory').textContent = category;
+
+        const price = document.getElementById('valor').value;
+        document.getElementById('previewPrice').textContent = price ? `R$ ${price}` : 'A combinar';
+
+        const locationSelect = document.getElementById('localizacao');
+        const location = locationSelect.options[locationSelect.selectedIndex]?.text || '-';
+        document.getElementById('previewLocation').textContent = location;
+
+        const contact = document.getElementById('whatsapp').value || '-';
+        document.getElementById('previewContact').textContent = contact;
+
+        const modalidadeSelect = document.getElementById('modalidade');
+        const modalidade = modalidadeSelect.options[modalidadeSelect.selectedIndex]?.text || '-';
+        document.getElementById('previewModalidade').textContent = modalidade;
+
+        const description = document.getElementById('descricao').value || 'Sua descrição aparecerá aqui...';
+        document.getElementById('previewDescription').textContent = description;
+
+        updatePreviewTags();
+    }
+
+    function updatePreviewTags() {
+        const tagsInput = document.getElementById('tags');
+        const tagsContainer = document.getElementById('previewTags');
+        tagsContainer.innerHTML = '';
+        
+        if (tagsInput.value) {
+            const tags = tagsInput.value.split(',').filter(tag => tag.trim());
+            tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'preview-tag';
+                tagElement.textContent = tag.trim();
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+    }
+
+    document.getElementById('createAdForm').addEventListener('submit', function(e) {
+        const requiredFields = [
+            { id: 'titulo', message: 'O título é obrigatório' },
+            { id: 'categoria', message: 'A categoria é obrigatória' },
+            { id: 'descricao', message: 'A descrição é obrigatória' },
+            { id: 'localizacao', message: 'A localização é obrigatória' },
+            { id: 'whatsapp', message: 'O WhatsApp é obrigatório' }
+        ];
+
+        for (const field of requiredFields) {
+            const element = document.getElementById(field.id);
+            if (!element.value.trim()) {
+                e.preventDefault();
+                showError(field.message);
+                element.focus();
+                return false;
+            }
+        }
+
+        if (document.getElementById('titulo').value.length < 10) {
+            e.preventDefault();
+            showError('O título deve ter pelo menos 10 caracteres');
+            return false;
+        }
+
+        if (document.getElementById('descricao').value.length < 20) {
+            e.preventDefault();
+            showError('A descrição deve ter pelo menos 20 caracteres');
+            return false;
+        }
+
+        if (selectedImages.length === 0) {
+            e.preventDefault();
+            showError('Adicione pelo menos uma imagem');
+            return false;
+        }
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
+        return true;
+    });
+</script>
+{% endblock %}

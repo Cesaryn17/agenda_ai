@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gerenciar Minha Página{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --light-blue: #dbeafe;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 25px rgba(0,0,0,0.12);
+    }
+
+    .manage-page-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        color: var(--dark-gray);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .manage-form-container {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-md);
+        border: 2px solid var(--light-gray);
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+        background: var(--light-blue);
+        padding: 0.6rem;
+        border-radius: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+        font-size: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--white);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+    }
+
+    .file-upload {
+        position: relative;
+        border: 2px dashed var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .file-upload:hover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+
+    .file-upload-icon {
+        font-size: 3rem;
+        color: var(--dark-gray);
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-text {
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-title {
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+
+    .file-upload-subtitle {
+        color: var(--dark-gray);
+        font-size: 0.9rem;
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .current-image {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .current-image img {
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: var(--border-radius-sm);
+        border: 2px solid var(--medium-gray);
+    }
+
+    .current-image-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark-gray);
+    }
+
+    .btn {
+        border-radius: var(--border-radius-sm);
+        font-weight: 700;
+        padding: 1rem 2rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        color: var(--white);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline {
+        background: var(--white);
+        color: var(--primary-blue);
+        border: 2px solid var(--primary-blue);
+    }
+
+    .btn-outline:hover {
+        background: var(--light-blue);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--light-gray);
+    }
+
+    .error-message {
+        color: var(--error);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .success-message {
+        background: var(--success);
+        color: var(--white);
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .manage-page-container {
+            margin: 1rem auto;
+            padding: 0 0.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .manage-form-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="manage-page-container">
+    <!-- Cabeçalho -->
+    <div class="page-header">
+        <h1 class="page-title">Gerenciar Minha Página</h1>
+        <p class="page-subtitle">
+            Atualize as informações da sua página pessoal e mantenha seus dados sempre atualizados.
+        </p>
+    </div>
+
+    <!-- Mensagens -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Formulário -->
+    <div class="manage-form-container">
+        <form method="post" enctype="multipart/form-data" id="managePageForm">
+            {% csrf_token %}
+            
+            <!-- Seção: Informações Básicas -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Informações Básicas</span>
+                </h2>
+                
+                <!-- Nome da Página -->
+                <div class="form-group">
+                    <label for="{{ form.nome_pagina.id_for_label }}" class="form-label">
+                        Nome da Página
+                    </label>
+                    <input 
+                        type="text" 
+                        name="{{ form.nome_pagina.name }}" 
+                        id="{{ form.nome_pagina.id_for_label }}" 
+                        class="form-control" 
+                        value="{{ form.nome_pagina.value|default:'' }}"
+                        placeholder="Ex: Meus Produtos Artesanais"
+                        required
+                    >
+                    {% if form.nome_pagina.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.nome_pagina.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Biografia -->
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                        Biografia
+                    </label>
+                    <textarea 
+                        name="{{ form.bio.name }}" 
+                        id="{{ form.bio.id_for_label }}" 
+                        class="form-control" 
+                        placeholder="Conte sobre você, seus produtos, sua história..."
+                        rows="4"
+                    >{{ form.bio.value|default:'' }}</textarea>
+                    {% if form.bio.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.bio.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Seção: Visual -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-palette"></i>
+                    <span>Aparência da Página</span>
+                </h2>
+
+                <!-- Foto de Capa -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Foto de Capa
+                    </label>
+                    
+                    <!-- Imagem Atual -->
+                    {% if form.instance.foto_capa %}
+                        <div class="current-image">
+                            <span class="current-image-label">Imagem atual:</span>
+                            <img src="{{ form.instance.foto_capa.url }}" alt="Capa atual">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="file-upload" id="coverUpload">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="file-upload-text">
+                            <div class="file-upload-title">
+                                {% if form.instance.foto_capa %}
+                                    Clique para alterar a foto de capa
+                                {% else %}
+                                    Clique para adicionar uma foto de capa
+                                {% endif %}
+                            </div>
+                            <div class="file-upload-subtitle">Recomendado: 1200x400 pixels • JPG, PNG</div>
+                        </div>
+                        <input 
+                            type="file" 
+                            name="{{ form.foto_capa.name }}" 
+                            id="{{ form.foto_capa.id_for_label }}" 
+                            class="file-input" 
+                            accept="image/*"
+                        >
+                    </div>
+                    {% if form.foto_capa.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.foto_capa.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Seção: Configurações -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </h2>
+
+                <!-- Visibilidade -->
+                <div class="form-group">
+                    <label for="{{ form.visibilidade.id_for_label }}" class="form-label">
+                        Visibilidade da Página
+                    </label>
+                    <select 
+                        name="{{ form.visibilidade.name }}" 
+                        id="{{ form.visibilidade.id_for_label }}" 
+                        class="form-control form-select"
+                    >
+                        {% for value, label in form.visibilidade.field.choices %}
+                            <option value="{{ value }}" {% if form.visibilidade.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.visibilidade.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.visibilidade.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Ações do Formulário -->
+            <div class="form-actions">
+                <a href="{% url 'minha-pagina' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar para Minha Página
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Salvar Alterações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const coverUpload = document.getElementById('coverUpload');
+        const coverInput = document.getElementById('{{ form.foto_capa.id_for_label }}');
+        const manageForm = document.getElementById('managePageForm');
+
+        // Feedback visual no upload de arquivo
+        coverInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                coverUpload.style.borderColor = 'var(--success)';
+                coverUpload.style.background = 'rgba(16, 185, 129, 0.1)';
+            }
+        });
+
+        // Validação do formulário
+        manageForm.addEventListener('submit', function(e) {
+            const nomePagina = document.getElementById('{{ form.nome_pagina.id_for_label }}').value.trim();
+            
+            if (!nomePagina) {
+                e.preventDefault();
+                showToast('Por favor, preencha o nome da página.', 'error');
+                return;
+            }
+
+            // Mostrar loading no botão
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        });
+
+        function showToast(message, type = 'info') {
+            // Implementação simples de toast
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            `;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,745 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Criar Minha Página{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 25px rgba(0,0,0,0.12);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+        --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+    }
+
+    .create-page-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        color: var(--dark-gray);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .create-form-container {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        border: 2px solid var(--light-gray);
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+        background: var(--light-blue);
+        padding: 0.6rem;
+        border-radius: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+        font-size: 1rem;
+    }
+
+    .form-required {
+        color: var(--error);
+    }
+
+    .form-help {
+        font-size: 0.875rem;
+        color: var(--dark-gray);
+        margin-top: 0.25rem;
+        line-height: 1.4;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--white);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-control textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+    }
+
+    .file-upload {
+        position: relative;
+        border: 2px dashed var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .file-upload:hover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+
+    .file-upload.dragover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+
+    .file-upload-icon {
+        font-size: 3rem;
+        color: var(--dark-gray);
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-text {
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-title {
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+
+    .file-upload-subtitle {
+        color: var(--dark-gray);
+        font-size: 0.9rem;
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-preview {
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .file-preview img {
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: var(--border-radius-sm);
+        border: 2px solid var(--medium-gray);
+    }
+
+    .btn {
+        border-radius: var(--border-radius-sm);
+        font-weight: 700;
+        padding: 1rem 2rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        color: var(--white);
+        box-shadow: var(--shadow-md);
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .form-footer {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--light-gray);
+        text-align: center;
+    }
+
+    .form-footer-text {
+        color: var(--dark-gray);
+        font-size: 0.9rem;
+    }
+
+    .form-footer-link {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .form-footer-link:hover {
+        text-decoration: underline;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .benefit-card {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-radius: var(--border-radius-sm);
+        text-align: center;
+        border: 2px solid transparent;
+        transition: var(--transition);
+    }
+
+    .benefit-card:hover {
+        border-color: var(--primary-blue);
+        transform: translateY(-3px);
+    }
+
+    .benefit-icon {
+        font-size: 2rem;
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+
+    .benefit-title {
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+
+    .benefit-description {
+        color: var(--dark-gray);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .error-message {
+        color: var(--error);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .error-message i {
+        font-size: 1rem;
+    }
+
+    .success-message {
+        background: var(--success);
+        color: var(--white);
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+    }
+
+    .info-message {
+        background: var(--info);
+        color: var(--white);
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .create-page-container {
+            margin: 1rem auto;
+            padding: 0 0.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .create-form-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .create-form-container {
+            padding: 1.5rem 1rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+        }
+    }
+</style>
+
+<div class="create-page-container">
+    <!-- Cabeçalho -->
+    <div class="page-header">
+        <h1 class="page-title">Crie Sua Página Pessoal</h1>
+        <p class="page-subtitle">
+            Compartilhe seus produtos, conte sua história e conecte-se com seus clientes em um espaço único e personalizado.
+        </p>
+    </div>
+
+    <!-- Mensagens -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="{% if message.tags == 'success' %}success-message{% else %}info-message{% endif %}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Formulário -->
+    <div class="create-form-container">
+        <form method="post" enctype="multipart/form-data" id="createPageForm">
+            {% csrf_token %}
+            
+            <!-- Seção: Informações Básicas -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Informações Básicas</span>
+                </h2>
+                
+                <!-- Nome da Página -->
+                <div class="form-group">
+                    <label for="{{ form.nome_pagina.id_for_label }}" class="form-label">
+                        Nome da Página <span class="form-required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="{{ form.nome_pagina.name }}" 
+                        id="{{ form.nome_pagina.id_for_label }}" 
+                        class="form-control" 
+                        value="{{ form.nome_pagina.value|default:'' }}"
+                        placeholder="Ex: Meus Produtos Artesanais, Loja da Maria..."
+                        required
+                    >
+                    {% if form.nome_pagina.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.nome_pagina.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <div class="form-help">
+                        Escolha um nome que represente você e seus produtos. Este será o nome público da sua página.
+                    </div>
+                </div>
+
+                <!-- Biografia -->
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                        Sua História
+                    </label>
+                    <textarea 
+                        name="{{ form.bio.name }}" 
+                        id="{{ form.bio.id_for_label }}" 
+                        class="form-control" 
+                        placeholder="Conte um pouco sobre você, seus produtos, sua história... O que torna seu trabalho especial?"
+                        rows="4"
+                    >{{ form.bio.value|default:'' }}</textarea>
+                    {% if form.bio.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.bio.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <div class="form-help">
+                        Compartilhe sua história para criar conexão com seus clientes.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Visual -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-palette"></i>
+                    <span>Aparência da Página</span>
+                </h2>
+
+                <!-- Foto de Capa -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Foto de Capa
+                    </label>
+                    <div class="file-upload" id="coverUpload">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="file-upload-text">
+                            <div class="file-upload-title">Clique para adicionar uma foto de capa</div>
+                            <div class="file-upload-subtitle">Recomendado: 1200x400 pixels • JPG, PNG</div>
+                        </div>
+                        <input 
+                            type="file" 
+                            name="{{ form.foto_capa.name }}" 
+                            id="{{ form.foto_capa.id_for_label }}" 
+                            class="file-input" 
+                            accept="image/*"
+                        >
+                    </div>
+                    <div class="file-preview" id="coverPreview">
+                        <img src="" alt="Preview da capa" id="coverPreviewImage">
+                    </div>
+                    {% if form.foto_capa.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.foto_capa.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <div class="form-help">
+                        Uma imagem de capa atrativa ajuda a destacar sua página. Você pode alterar isso depois.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Configurações -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </h2>
+
+                <!-- Visibilidade -->
+                <div class="form-group">
+                    <label for="{{ form.visibilidade.id_for_label }}" class="form-label">
+                        Visibilidade da Página
+                    </label>
+                    <select 
+                        name="{{ form.visibilidade.name }}" 
+                        id="{{ form.visibilidade.id_for_label }}" 
+                        class="form-control form-select"
+                    >
+                        {% for value, label in form.visibilidade.field.choices %}
+                            <option value="{{ value }}" {% if form.visibilidade.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.visibilidade.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.visibilidade.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <div class="form-help">
+                        Escolha quem pode ver sua página. Você pode alterar isso a qualquer momento.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão de Envio -->
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-rocket"></i>
+                Criar Minha Página
+            </button>
+
+            <!-- Rodapé do Formulário -->
+            <div class="form-footer">
+                <p class="form-footer-text">
+                    Ao criar sua página, você concorda com nossos 
+                    <a href="#" class="form-footer-link">Termos de Serviço</a> e 
+                    <a href="#" class="form-footer-link">Política de Privacidade</a>.
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Benefícios -->
+    <div class="form-section">
+        <h2 class="section-title" style="justify-content: center;">
+            <i class="fas fa-star"></i>
+            <span>Por que criar uma página?</span>
+        </h2>
+        
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h3 class="benefit-title">Seu Espaço Virtual</h3>
+                <p class="benefit-description">
+                    Tenha um lugar único para mostrar seus produtos e contar sua história.
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="benefit-title">Conecte-se</h3>
+                <p class="benefit-description">
+                    Crie uma comunidade de clientes fiéis e receba feedback valioso.
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="benefit-title">Cresça Seu Negócio</h3>
+                <p class="benefit-description">
+                    Aumente sua visibilidade e venda mais com uma presença digital profissional.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const coverUpload = document.getElementById('coverUpload');
+        const coverInput = document.getElementById('{{ form.foto_capa.id_for_label }}');
+        const coverPreview = document.getElementById('coverPreview');
+        const coverPreviewImage = document.getElementById('coverPreviewImage');
+        const createForm = document.getElementById('createPageForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Preview da imagem de capa
+        coverInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    coverPreviewImage.src = e.target.result;
+                    coverPreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Drag and drop para a capa
+        coverUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        coverUpload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        coverUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                coverInput.files = files;
+                
+                // Disparar evento change manualmente
+                const event = new Event('change', { bubbles: true });
+                coverInput.dispatchEvent(event);
+            }
+        });
+
+        // Validação do formulário
+        createForm.addEventListener('submit', function(e) {
+            const nomePagina = document.getElementById('{{ form.nome_pagina.id_for_label }}').value.trim();
+            
+            if (!nomePagina) {
+                e.preventDefault();
+                showToast('Por favor, preencha o nome da página.', 'error');
+                return;
+            }
+
+            // Mostrar loading no botão
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando sua página...';
+        });
+
+        // Validação em tempo real do nome da página
+        const nomePaginaInput = document.getElementById('{{ form.nome_pagina.id_for_label }}');
+        nomePaginaInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            if (value.length > 50) {
+                this.value = value.substring(0, 50);
+                showToast('O nome da página deve ter no máximo 50 caracteres.', 'warning');
+            }
+        });
+
+        // Função para mostrar toast notifications
+        function showToast(message, type = 'info') {
+            // Remover toast existente
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Criar novo toast
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? 'var(--error)' : type === 'warning' ? 'var(--warning)' : 'var(--info)'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: var(--border-radius-sm);
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                animation: slideInRight 0.3s ease;
+                max-width: 400px;
+            `;
+
+            const icon = type === 'error' ? 'exclamation-circle' : 
+                        type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+            
+            toast.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Remover após 4 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Adicionar estilos de animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Agenda AI!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #f7fafc;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #0077B6 0%, #00D1FF 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .email-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><circle cx="50" cy="50" r="40" fill="white"/></svg>') center/cover;
+        }
+        
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #e0f7ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .email-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .email-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .email-content {
+            padding: 40px 30px;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-section h2 {
+            color: #0077B6;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-section p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        .emoji {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #00D1FF;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 209, 255, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #0077B6;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .feature-description {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #0077B6 0%, #00D1FF 100%);
+            color: white;
+            padding: 16px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.4);
+        }
+        
+        .tip-section {
+            background: #fff8e1;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #ffb300;
+            margin: 30px 0;
+        }
+        
+        .tip-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ff8f00;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .social-proof {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0077B6;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+        
+        .email-footer {
+            background: #2d3748;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #00D1FF;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.5;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .email-header {
+                padding: 30px 20px;
+            }
+            
+            .email-content {
+                padding: 30px 20px;
+            }
+            
+            .email-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .social-proof {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <span class="logo-text">AGENDA AI</span>
+            <h1>🎉 Bem-vindo à Comunidade!</h1>
+            <p>Sua jornada para conectar serviços de forma inteligente acaba de começar</p>
+        </div>
+        
+        <div class="email-content">
+            <div class="welcome-section">
+                <div class="emoji">👋</div>
+                <h2>Olá, {{ nome }}!</h2>
+                <p>Estamos extremamente felizes em ter você conosco! Sua conta foi criada com sucesso e agora você faz parte da nossa comunidade.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <div class="feature-title">Encontre Profissionais</div>
+                    <div class="feature-description">Descubra profissionais qualificados e serviços especializados na sua região</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-title">Agendamento Inteligente</div>
+                    <div class="feature-description">Agende serviços de forma rápida e organizada com nossa IA</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <div class="feature-title">Chat Direto</div>
+                    <div class="feature-description">Converse em tempo real com profissionais e clientes</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <div class="feature-title">Avaliações Transparentes</div>
+                    <div class="feature-description">Baseie suas decisões em avaliações reais da comunidade</div>
+                </div>
+            </div>
+            
+            <div class="tip-section">
+                <div class="tip-title">
+                    <span>💡</span>
+                    <span>Dica Profissional</span>
+                </div>
+                <p>Complete seu perfil com foto e uma descrição detalhada para aumentar significativamente suas conexões na plataforma!</p>
+            </div>
+            
+            <div class="cta-section">
+                <h3 style="color: #0077B6; margin-bottom: 20px;">Pronto para começar?</h3>
+                <p style="color: #718096; margin-bottom: 25px;">Explore os serviços disponíveis ou configure seu perfil em minutos!</p>
+                <a href="{{ site_url }}" class="cta-button">🚀 Explorar Agenda AI</a>
+            </div>
+        </div>
+        
+        <div class="email-footer">
+            <div class="social-links">
+                <a href="{{ app_store_link }}" class="social-link">📱 Baixe nosso App</a>
+                <a href="{{ help_center_link }}" class="social-link">❓ Central de Ajuda</a>
+                <a href="{{ blog_link }}" class="social-link">📰 Blog</a>
+            </div>
+            <div class="footer-text">
+                <p>Este é um email automático. Se você não criou esta conta, por favor ignore este email.</p>
+                <p>© 2024 Agenda AI. Todos os direitos reservados.</p>
+                <p>Para sua segurança, nunca compartilhe sua senha.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

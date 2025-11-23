@@ -1,0 +1,668 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contato - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00D1FF 0%, #0077B6 100%);
+        --primary-cyan: #00D1FF;
+        --primary-dark: #0077B6;
+        --primary-light: #90E0EF;
+        --accent-orange: #FF6B35;
+        --accent-green: #2EC4B6;
+        --white: #FFFFFF;
+        --light-gray: #F8F9FA;
+        --medium-gray: #E9ECEF;
+        --dark-gray: #6C757D;
+        --black: #212529;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        --border-radius: 16px;
+        --border-radius-sm: 8px;
+    }
+
+    .contact-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .contact-hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--primary-gradient);
+        color: var(--white);
+        border-radius: var(--border-radius);
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/pattern.svg" %}');
+        opacity: 0.1;
+    }
+
+    .contact-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .contact-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .contact-hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 4rem;
+    }
+
+    .contact-info {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .contact-form-section {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .contact-methods {
+        display: grid;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .contact-method {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 2rem;
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+
+    .contact-method:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .contact-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .contact-details h3 {
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    .contact-details p {
+        color: var(--dark-gray);
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-details .highlight {
+        color: var(--black);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .business-hours {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-top: 2rem;
+    }
+
+    .business-hours h3 {
+        color: var(--primary-dark);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 1.3rem;
+    }
+
+    .hours-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .hour-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background: var(--white);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .hour-item.day-highlight {
+        background: var(--primary-light);
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--black);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--white);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-cyan);
+        box-shadow: 0 0 0 3px rgba(0, 209, 255, 0.1);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .subject-select {
+        position: relative;
+    }
+
+    .subject-select select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1.2rem 2rem;
+        background: var(--primary-gradient);
+        color: var(--white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .social-contact {
+        margin-top: 3rem;
+        text-align: center;
+    }
+
+    .social-contact h3 {
+        color: var(--primary-dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .social-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem;
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        color: var(--black);
+        transition: var(--transition);
+        min-width: 120px;
+    }
+
+    .social-link:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        background: var(--primary-gradient);
+        color: var(--white);
+    }
+
+    .social-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .social-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .map-section {
+        margin-top: 4rem;
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .map-section h2 {
+        text-align: center;
+        color: var(--primary-dark);
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .map-placeholder {
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+    }
+
+    .success-message {
+        background: var(--accent-green);
+        color: var(--white);
+        padding: 1.5rem;
+        border-radius: var(--border-radius-sm);
+        text-align: center;
+        margin-bottom: 2rem;
+        display: none;
+    }
+
+    .error-message {
+        background: #FF6B6B;
+        color: var(--white);
+        padding: 1.5rem;
+        border-radius: var(--border-radius-sm);
+        text-align: center;
+        margin-bottom: 2rem;
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .contact-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .contact-hero h1 {
+            font-size: 2rem;
+        }
+
+        .contact-info,
+        .contact-form-section {
+            padding: 2rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-method {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .social-links {
+            gap: 0.5rem;
+        }
+
+        .social-link {
+            min-width: 100px;
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .contact-container {
+            padding: 1rem;
+        }
+
+        .contact-hero {
+            padding: 3rem 1rem;
+        }
+
+        .map-section {
+            padding: 2rem 1rem;
+        }
+
+        .map-placeholder {
+            height: 300px;
+        }
+    }
+</style>
+
+<div class="contact-container">
+    <section class="contact-hero">
+        <div class="contact-hero-content">
+            <h1>Fale Conosco</h1>
+            <p>Estamos aqui para ajudar você! Entre em contato através dos nossos canais oficiais.</p>
+        </div>
+    </section>
+
+    <div class="contact-grid">
+        <div class="contact-info">
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Telefone</h3>
+                        <p class="highlight">(61) 4004-2004</p>
+                        <p>Atendimento nacional</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Email</h3>
+                        <p class="highlight">contato@agendaai.com</p>
+                        <p>Resposta em até 24 horas</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Chat Online</h3>
+                        <p class="highlight">Atendimento Instantâneo</p>
+                        <p>Suporte via chat</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Escritório Central</h3>
+                        <p class="highlight">Ceilândia Centro</p>
+                        <p>Ceilândia - DF</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="business-hours">
+                <h3>Horário de Funcionamento</h3>
+                <div class="hours-grid">
+                    <div class="hour-item">
+                        <span>Segunda a Sexta</span>
+                        <span>8:00 - 18:00</span>
+                    </div>
+                    <div class="hour-item">
+                        <span>Sábado</span>
+                        <span>9:00 - 16:00</span>
+                    </div>
+                    <div class="hour-item day-highlight">
+                        <span>Domingo</span>
+                        <span>Plantão Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-section">
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                Mensagem enviada com sucesso! Retornaremos em breve.
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                Erro ao enviar mensagem. Tente novamente.
+            </div>
+
+            <form id="contactForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Nome</label>
+                        <input type="text" id="firstName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Sobrenome</label>
+                        <input type="text" id="lastName" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefone</label>
+                    <input type="tel" id="phone" class="form-control">
+                </div>
+
+                <div class="form-group subject-select">
+                    <label for="subject">Assunto</label>
+                    <select id="subject" class="form-control" required>
+                        <option value="">Selecione um assunto</option>
+                        <option value="suporte">Suporte Técnico</option>
+                        <option value="comercial">Dúvidas Comerciais</option>
+                        <option value="parcerias">Parcerias e Negócios</option>
+                        <option value="sugestoes">Sugestões e Melhorias</option>
+                        <option value="reclamacoes">Reclamações</option>
+                        <option value="outros">Outros Assuntos</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" class="form-control" placeholder="Descreva sua dúvida, sugestão ou problema..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar Mensagem
+                </button>
+            </form>
+
+            <div class="social-contact">
+                <h3>Siga-nos nas Redes Sociais</h3>
+                <div class="social-links">
+                    <a href="https://instagram.com/agendaai" class="social-link" target="_blank">
+                        <i class="fab fa-instagram social-icon"></i>
+                        <span class="social-name">Instagram</span>
+                    </a>
+                    <a href="https://facebook.com/agendaai" class="social-link" target="_blank">
+                        <i class="fab fa-facebook social-icon"></i>
+                        <span class="social-name">Facebook</span>
+                    </a>
+                    <a href="https://linkedin.com/company/agendaai" class="social-link" target="_blank">
+                        <i class="fab fa-linkedin social-icon"></i>
+                        <span class="social-name">LinkedIn</span>
+                    </a>
+                    <a href="https://tiktok.com/@agendaai" class="social-link" target="_blank">
+                        <i class="fab fa-tiktok social-icon"></i>
+                        <span class="social-name">TikTok</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="map-section">
+        <h2>Nossa Localização</h2>
+        <div class="map-placeholder">
+            <div>
+                <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <p>Ceilândia Centro</p>
+                <p>Ceilândia - DF</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactForm = document.getElementById('contactForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.substring(0, 11);
+            
+            if (value.length > 0) {
+                if (value.length <= 2) {
+                    value = '(' + value;
+                } else if (value.length <= 7) {
+                    value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
+                } else {
+                    value = '(' + value.substring(0, 2) + ') ' + value.substring(2, 7) + '-' + value.substring(7);
+                }
+            }
+            e.target.value = value;
+        });
+
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value.trim();
+
+            if (!firstName || !lastName || !email || !subject || !message) {
+                showError('Preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('Insira um email válido.');
+                return;
+            }
+
+            const submitBtn = contactForm.querySelector('.btn-submit');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                if (Math.random() > 0.1) {
+                    showSuccess();
+                    contactForm.reset();
+                } else {
+                    showError('Erro de conexão. Tente novamente.');
+                }
+            }, 2000);
+        });
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showSuccess() {
+            successMessage.style.display = 'block';
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        const contactMethods = document.querySelectorAll('.contact-method');
+        contactMethods.forEach((method, index) => {
+            method.style.animationDelay = `${index * 100}ms`;
+            method.style.opacity = '0';
+            method.style.transform = 'translateY(20px)';
+            method.style.animation = 'fadeInUp 0.6s ease forwards';
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

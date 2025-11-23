@@ -1,0 +1,507 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Criar Nova Postagem - Agenda AI{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 25px rgba(0,0,0,0.12);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+        --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+    }
+    
+    .create-post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .create-post-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .create-post-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .create-post-title i {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 2.5rem;
+    }
+    
+    .create-post-subtitle {
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .create-post-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 2px solid var(--light-gray);
+        overflow: hidden;
+    }
+    
+    .post-form-section {
+        padding: 2.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .form-control, .form-select {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--white);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+    }
+    
+    .upload-area {
+        border: 3px dashed var(--medium-gray);
+        border-radius: var(--border-radius);
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        background: var(--light-gray);
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .upload-area:hover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+    
+    .upload-area.has-files {
+        border-color: var(--success);
+        background: #f0fdf4;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+    
+    .upload-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .upload-subtext {
+        color: var(--dark-gray);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+        border-radius: var(--border-radius-sm);
+        font-weight: 700;
+        padding: 0.9rem 1.8rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+    .btn-primary {
+        background: var(--primary-gradient);
+        color: var(--white);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+    }
+    
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .image-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .image-preview-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        border: 2px solid var(--medium-gray);
+    }
+    
+    .image-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .remove-image {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        background: rgba(239, 68, 68, 0.9);
+        color: var(--white);
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    
+    .file-count {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--primary-blue);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .error-text {
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    .success-text {
+        color: var(--success);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    @media (max-width: 768px) {
+        .create-post-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .create-post-title {
+            font-size: 1.8rem;
+        }
+        
+        .post-form-section {
+            padding: 1.5rem;
+        }
+        
+        .upload-area {
+            padding: 2rem 1rem;
+        }
+    }
+</style>
+
+<div class="create-post-container">
+    <div class="create-post-header">
+        <h1 class="create-post-title">
+            <i class="fas fa-plus-circle"></i>
+            <span>Criar Nova Postagem</span>
+        </h1>
+        <p class="create-post-subtitle">
+            Compartilhe seus produtos e serviços com sua audiência de forma atraente e profissional
+        </p>
+    </div>
+
+    <div class="create-post-card">
+        <div class="post-form-section">
+            <!-- Exibir mensagens -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="
+                        padding: 1rem;
+                        border-radius: var(--border-radius-sm);
+                        margin-bottom: 1.5rem;
+                        background: {% if message.tags == 'success' %}#f0fdf4{% else %}#fef2f2{% endif %};
+                        border: 2px solid {% if message.tags == 'success' %}#10b981{% else %}#ef4444{% endif %};
+                        color: {% if message.tags == 'success' %}#065f46{% else %}#7f1d1d{% endif %};
+                    ">
+                        <strong>{% if message.tags == 'success' %}✓{% else %}⚠{% endif %}</strong> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" id="postForm">
+                {% csrf_token %}
+                
+                <!-- Campo de mídias oculto -->
+                <input type="file" id="id_midias" name="midias" multiple accept="image/*,video/*" style="display: none;">
+                
+                <!-- Upload de Imagens -->
+                <div class="form-group">
+                    <label class="form-label">Imagens da Postagem *</label>
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h4 class="upload-text">Arraste e solte suas imagens aqui</h4>
+                        <p class="upload-subtext">ou clique para selecionar arquivos</p>
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('id_midias').click()">
+                            <i class="fas fa-folder-open"></i> Selecionar Arquivos
+                        </button>
+                        <div class="file-count" id="fileCount" style="display: none;">0 arquivos</div>
+                    </div>
+                    <div class="image-preview-grid" id="imagePreviewGrid" style="display: none;"></div>
+                    <div class="error-text" id="fileError"></div>
+                </div>
+
+                <!-- Título -->
+                <div class="form-group">
+                    <label for="id_titulo" class="form-label">Título da Postagem *</label>
+                    {{ form.titulo }}
+                    {% if form.titulo.errors %}
+                    <div class="error-text">{{ form.titulo.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Descrição -->
+                <div class="form-group">
+                    <label for="id_descricao" class="form-label">Descrição *</label>
+                    {{ form.descricao }}
+                    {% if form.descricao.errors %}
+                    <div class="error-text">{{ form.descricao.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Produto Relacionado -->
+                <div class="form-group">
+                    <label for="id_produto_relacionado" class="form-label">Produto Relacionado (Opcional)</label>
+                    {{ form.produto_relacionado }}
+                    {% if form.produto_relacionado.errors %}
+                    <div class="error-text">{{ form.produto_relacionado.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Localização -->
+                <div class="form-group">
+                    <label for="id_localizacao" class="form-label">Localização (Opcional)</label>
+                    {{ form.localizacao }}
+                    {% if form.localizacao.errors %}
+                    <div class="error-text">{{ form.localizacao.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Hashtags -->
+                <div class="form-group">
+                    <label for="id_hashtags" class="form-label">Hashtags (Opcional)</label>
+                    {{ form.hashtags }}
+                    {% if form.hashtags.errors %}
+                    <div class="error-text">{{ form.hashtags.errors.0 }}</div>
+                    {% endif %}
+                    <small style="color: var(--dark-gray);">Separe as hashtags por vírgula. Ex: moda, estilo, verão</small>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%;">
+                        <i class="fas fa-paper-plane"></i> Publicar Postagem
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedFiles = [];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initUploadArea();
+        initFormValidation();
+    });
+    
+    function initUploadArea() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('id_midias');
+        const fileCount = document.getElementById('fileCount');
+        const fileError = document.getElementById('fileError');
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFileSelect(e.dataTransfer.files);
+        });
+        
+        // Click to select files
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', function() {
+            handleFileSelect(this.files);
+        });
+    }
+    
+    function initFormValidation() {
+        const form = document.getElementById('postForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        form.addEventListener('submit', function(e) {
+            const titulo = document.getElementById('id_titulo').value.trim();
+            const descricao = document.getElementById('id_descricao').value.trim();
+            const fileError = document.getElementById('fileError');
+            
+            // Validar campos obrigatórios
+            if (selectedFiles.length === 0) {
+                e.preventDefault();
+                fileError.textContent = 'Por favor, selecione pelo menos uma imagem.';
+                return;
+            }
+            
+            if (!titulo) {
+                e.preventDefault();
+                alert('Por favor, adicione um título para a postagem.');
+                return;
+            }
+            
+            if (!descricao) {
+                e.preventDefault();
+                alert('Por favor, adicione uma descrição para a postagem.');
+                return;
+            }
+            
+            // Mostrar loading
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+            submitBtn.disabled = true;
+        });
+    }
+    
+    function handleFileSelect(files) {
+        if (files.length > 0) {
+            selectedFiles = Array.from(files);
+            displayImagePreviews(selectedFiles);
+            updateFileCount(selectedFiles.length);
+            
+            // Limpar erro
+            document.getElementById('fileError').textContent = '';
+        }
+    }
+    
+    function displayImagePreviews(files) {
+        const previewGrid = document.getElementById('imagePreviewGrid');
+        previewGrid.innerHTML = '';
+        previewGrid.style.display = 'grid';
+        
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'image-preview-item';
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${index + 1}">
+                    <button type="button" class="remove-image" onclick="removeImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                previewGrid.appendChild(previewItem);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function removeImage(index) {
+        selectedFiles.splice(index, 1);
+        displayImagePreviews(selectedFiles);
+        updateFileCount(selectedFiles.length);
+        
+        if (selectedFiles.length === 0) {
+            document.getElementById('imagePreviewGrid').style.display = 'none';
+            document.getElementById('uploadArea').classList.remove('has-files');
+        }
+    }
+    
+    function updateFileCount(count) {
+        const fileCount = document.getElementById('fileCount');
+        const uploadArea = document.getElementById('uploadArea');
+        
+        if (count > 0) {
+            fileCount.textContent = count + ' arquivo' + (count !== 1 ? 's' : '');
+            fileCount.style.display = 'block';
+            uploadArea.classList.add('has-files');
+        } else {
+            fileCount.style.display = 'none';
+            uploadArea.classList.remove('has-files');
+        }
+    }
+</script>
+{% endblock %}

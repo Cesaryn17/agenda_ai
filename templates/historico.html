@@ -1,0 +1,1211 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agenda AI - Meu Histórico{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #2563eb;
+        --primary-dark-blue: #1e40af;
+        --primary-cyan: #06b6d4;
+        --primary-dark-cyan: #0891b2;
+        --light-blue: #dbeafe;
+        --medium-blue: #93c5fd;
+        --light-gray: #f8fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #64748b;
+        --black: #1e293b;
+        --white: #ffffff;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 25px rgba(0,0,0,0.12);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .history-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        min-height: 100vh;
+    }
+
+    .history-header {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+        border-radius: var(--border-radius);
+        padding: 3rem 2.5rem;
+        margin-bottom: 2.5rem;
+        color: var(--white);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .history-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--medium-blue) 0%, var(--primary-cyan) 100%);
+    }
+
+    .history-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: -0.5px;
+    }
+
+    .history-title i {
+        margin-right: 1rem;
+        font-size: 3.2rem;
+        background: linear-gradient(135deg, var(--medium-blue) 0%, var(--primary-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    .history-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        font-weight: 300;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.5;
+    }
+
+    .header-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: var(--transition);
+    }
+
+    .stat-badge:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        opacity: 0.9;
+    }
+
+    .stat-info {
+        text-align: left;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        display: block;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+
+    .history-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-history {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: var(--white);
+        padding: 1rem 2rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .btn-history:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .filters-section {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+    }
+
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .filters-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .filters-title i {
+        color: var(--primary-blue);
+        font-size: 1.6rem;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--light-gray);
+        font-weight: 500;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        background: var(--white);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+    }
+
+    .filter-options {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-option {
+        padding: 0.8rem 1.5rem;
+        background: var(--light-gray);
+        border: 2px solid var(--medium-gray);
+        border-radius: 50px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 600;
+        color: var(--dark-gray);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-option:hover,
+    .filter-option.active {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .history-content {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        margin-bottom: 2rem;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--medium-gray);
+    }
+
+    .content-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--black);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .content-title i {
+        color: var(--primary-blue);
+        font-size: 1.8rem;
+    }
+
+    .content-info {
+        color: var(--dark-gray);
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .history-item {
+        background: var(--white);
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+        transition: width 0.3s ease;
+    }
+
+    .history-item:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--medium-blue);
+    }
+
+    .history-item:hover::before {
+        width: 8px;
+    }
+
+    .item-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .item-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.8rem;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .item-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+    }
+
+    .history-type-search .item-icon {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
+    }
+
+    .history-type-view .item-icon {
+        background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-dark-cyan) 100%);
+    }
+
+    .history-type-favorite .item-icon {
+        background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    }
+
+    .history-type-message .item-icon {
+        background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+    }
+
+    .item-content {
+        flex: 1;
+    }
+
+    .item-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .item-description {
+        color: var(--dark-gray);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        font-size: 1.05rem;
+    }
+
+    .item-meta {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        color: var(--dark-gray);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .meta-item i {
+        font-size: 1.1rem;
+        color: var(--primary-blue);
+    }
+
+    .item-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.8rem 1.5rem;
+        border: 2px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        background: transparent;
+        color: var(--dark-gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .action-btn.primary {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+    }
+
+    .action-btn.primary:hover {
+        background: var(--primary-dark-blue);
+        border-color: var(--primary-dark-blue);
+        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+    }
+
+    .action-btn.secondary {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+    }
+
+    .action-btn.secondary:hover {
+        background: var(--primary-blue);
+        color: var(--white);
+    }
+
+    .action-btn.danger {
+        border-color: var(--error);
+        color: var(--error);
+    }
+
+    .action-btn.danger:hover {
+        background: var(--error);
+        color: var(--white);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--dark-gray);
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--medium-gray) 0%, var(--dark-gray) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .empty-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 1rem;
+    }
+
+    .empty-text {
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--medium-gray);
+    }
+
+    .pagination-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--medium-gray);
+        background: var(--white);
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        color: var(--dark-gray);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .pagination-btn:hover:not(.disabled) {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pagination-btn.active {
+        background: var(--primary-blue);
+        color: var(--white);
+        border-color: var(--primary-blue);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .pagination-info {
+        color: var(--dark-gray);
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .history-item {
+        animation: fadeInUp 0.6s ease;
+    }
+
+    .history-item:nth-child(even) {
+        animation-delay: 0.1s;
+    }
+
+    .history-item:nth-child(odd) {
+        animation-delay: 0.2s;
+    }
+
+    @media (max-width: 1024px) {
+        .history-container {
+            padding: 1.5rem 0.5rem;
+        }
+        
+        .history-header {
+            padding: 2.5rem 2rem;
+        }
+        
+        .history-title {
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .history-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .history-title {
+            font-size: 2.2rem;
+        }
+        
+        .history-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .header-stats {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-badge {
+            width: 100%;
+            max-width: 250px;
+        }
+        
+        .history-actions {
+            flex-direction: column;
+        }
+        
+        .btn-history {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .filters-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-box {
+            min-width: 100%;
+            max-width: 100%;
+        }
+        
+        .item-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .item-icon {
+            align-self: center;
+        }
+        
+        .item-meta {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .item-actions {
+            justify-content: center;
+        }
+        
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .history-content {
+            padding: 1.5rem;
+        }
+        
+        .filter-options {
+            justify-content: center;
+        }
+        
+        .filter-option {
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .action-btn {
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        .history-title {
+            font-size: 1.8rem;
+        }
+        
+        .history-subtitle {
+            font-size: 1rem;
+        }
+        
+        .item-title {
+            font-size: 1.2rem;
+        }
+        
+        .item-description {
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .history-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .history-header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .history-title {
+            font-size: 1.6rem;
+        }
+        
+        .stat-badge {
+            padding: 0.75rem 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .btn-history {
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="history-container">
+    <div class="history-header">
+        <h1 class="history-title">
+            <i class="fas fa-history"></i>
+            Meu Histórico
+        </h1>
+        <p class="history-subtitle">Acompanhe todas as suas atividades e explore seu comportamento na plataforma</p>
+        
+        <div class="header-stats">
+            <div class="stat-badge">
+                <i class="fas fa-chart-line stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total_historico }}</span>
+                    <span class="stat-label">Total de Atividades</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <i class="fas fa-search stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ search_count }}</span>
+                    <span class="stat-label">Buscas Realizadas</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <i class="fas fa-eye stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ view_count }}</span>
+                    <span class="stat-label">Anúncios Vistos</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <i class="fas fa-heart stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ favorite_count }}</span>
+                    <span class="stat-label">Favoritados</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-actions">
+            <button class="btn-history" id="clearHistoryBtn">
+                <i class="fas fa-trash"></i> Limpar Histórico
+            </button>
+            <button class="btn-history" id="exportHistoryBtn">
+                <i class="fas fa-download"></i> Exportar CSV
+            </button>
+            <button class="btn-history" id="refreshHistoryBtn">
+                <i class="fas fa-sync"></i> Atualizar
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-section">
+        <div class="filters-header">
+            <h2 class="filters-title">
+                <i class="fas fa-filter"></i>
+                Filtrar Atividades
+            </h2>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchHistory" placeholder="Buscar no histórico...">
+            </div>
+        </div>
+        
+        <div class="filter-options">
+            <div class="filter-option active" data-filter="all">
+                <i class="fas fa-layer-group"></i> Todas
+            </div>
+            <div class="filter-option" data-filter="search">
+                <i class="fas fa-search"></i> Buscas
+            </div>
+            <div class="filter-option" data-filter="view">
+                <i class="fas fa-eye"></i> Visualizações
+            </div>
+            <div class="filter-option" data-filter="favorite">
+                <i class="fas fa-heart"></i> Favoritos
+            </div>
+            <div class="filter-option" data-filter="message">
+                <i class="fas fa-comment"></i> Mensagens
+            </div>
+        </div>
+    </div>
+
+    <div class="history-content">
+        <div class="content-header">
+            <h2 class="content-title">
+                <i class="fas fa-list"></i>
+                Atividades Recentes
+            </h2>
+            <span class="content-info">
+                {{ historico.start_index }} - {{ historico.end_index }} de {{ total_historico }} atividades
+            </span>
+        </div>
+        
+        {% if historico_processado %}
+        <div class="history-list">
+            {% for entry in historico_processado %}
+            <div class="history-item history-type-{{ entry.item.tipo }}" data-type="{{ entry.item.tipo }}">
+                <div class="item-header">
+                    <div class="item-icon">
+                        {% if entry.item.tipo == 'search' %}
+                            <i class="fas fa-search"></i>
+                        {% elif entry.item.tipo == 'view' %}
+                            <i class="fas fa-eye"></i>
+                        {% elif entry.item.tipo == 'favorite' %}
+                            <i class="fas fa-heart"></i>
+                        {% elif entry.item.tipo == 'message' %}
+                            <i class="fas fa-comment"></i>
+                        {% else %}
+                            <i class="fas fa-history"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            {% if entry.item.tipo == 'search' %}
+                                🔍 Busca: "{{ entry.item.termo }}"
+                            {% elif entry.item.tipo == 'view' %}
+                                👀 Visualizou: {{ entry.titulo_item }}
+                            {% elif entry.item.tipo == 'favorite' %}
+                                ❤️ Favoritou: {{ entry.titulo_item }}
+                            {% elif entry.item.tipo == 'message' %}
+                                💬 Mensagem Enviada
+                            {% else %}
+                                📝 Atividade no Sistema
+                            {% endif %}
+                        </h3>
+                        
+                        <p class="item-description">
+                            {% if entry.item.tipo == 'search' %}
+                                Você realizou uma busca por "{{ entry.item.termo }}"{% if entry.categoria_nome %} na categoria {{ entry.categoria_nome }}{% endif %}{% if entry.localizacao_nome %} em {{ entry.localizacao_nome }}{% endif %}.
+                            {% elif entry.item.tipo == 'view' %}
+                                Você visualizou o anúncio "{{ entry.titulo_item }}".
+                            {% elif entry.item.tipo == 'favorite' %}
+                                Você adicionou "{{ entry.titulo_item }}" à sua lista de favoritos.
+                            {% elif entry.item.tipo == 'message' %}
+                                Você enviou uma mensagem para outro usuário da plataforma.
+                            {% else %}
+                                Atividade registrada em nosso sistema.
+                            {% endif %}
+                        </p>
+                        
+                        <div class="item-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ entry.item.data_busca|timesince }} atrás</span>
+                            </div>
+                            {% if entry.localizacao_nome %}
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ entry.localizacao_nome }}</span>
+                            </div>
+                            {% endif %}
+                            {% if entry.categoria_nome %}
+                            <div class="meta-item">
+                                <i class="fas fa-tag"></i>
+                                <span>{{ entry.categoria_nome }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="item-actions">
+                            {% if entry.tem_detalhes %}
+                                <a href="{{ entry.url_item }}" class="action-btn primary">
+                                    <i class="fas fa-external-link-alt"></i> Ver Detalhes
+                                </a>
+                            {% endif %}
+                            
+                            {% if entry.item.tipo == 'search' %}
+                                <button class="action-btn secondary search-again-btn" data-search-term="{{ entry.item.termo }}">
+                                    <i class="fas fa-redo"></i> Buscar Novamente
+                                </button>
+                            {% endif %}
+                            
+                            <button class="action-btn danger remove-item-btn" data-item-id="{{ entry.item.id }}">
+                                <i class="fas fa-times"></i> Remover
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="pagination">
+            {% if historico.has_previous %}
+            <a href="?page=1" class="pagination-btn">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ historico.previous_page_number }}" class="pagination-btn">
+                <i class="fas fa-angle-left"></i>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+                <i class="fas fa-angle-double-left"></i>
+            </span>
+            <span class="pagination-btn disabled">
+                <i class="fas fa-angle-left"></i>
+            </span>
+            {% endif %}
+            
+            <span class="pagination-info">
+                Página {{ historico.number }} de {{ historico.paginator.num_pages }}
+            </span>
+            
+            {% if historico.has_next %}
+            <a href="?page={{ historico.next_page_number }}" class="pagination-btn">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ historico.paginator.num_pages }}" class="pagination-btn">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+                <i class="fas fa-angle-right"></i>
+            </span>
+            <span class="pagination-btn disabled">
+                <i class="fas fa-angle-double-right"></i>
+            </span>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-history"></i>
+            </div>
+            <h3 class="empty-title">Nenhuma atividade encontrada</h3>
+            <p class="empty-text">Seu histórico de atividades aparecerá aqui conforme você usar a plataforma. Explore anúncios, faça buscas e favorite itens para começar.</p>
+            <a href="{% url 'home' %}" class="action-btn primary">
+                <i class="fas fa-compass"></i> Explorar Plataforma
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchHistory');
+        const filterOptions = document.querySelectorAll('.filter-option');
+        const historyItems = document.querySelectorAll('.history-item');
+        const removeButtons = document.querySelectorAll('.remove-item-btn');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const exportHistoryBtn = document.getElementById('exportHistoryBtn');
+        const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterItems(searchTerm, getActiveFilter());
+        });
+        
+        filterOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                filterOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                const searchTerm = searchInput.value.toLowerCase();
+                filterItems(searchTerm, this.getAttribute('data-filter'));
+            });
+        });
+        
+        document.querySelectorAll('.search-again-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const searchTerm = this.getAttribute('data-search-term');
+                if (searchTerm) {
+                    window.location.href = `/search/?q=${encodeURIComponent(searchTerm)}`;
+                }
+            });
+        });
+        
+        removeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                if (itemId && confirm('Tem certeza que deseja remover esta atividade do histórico?')) {
+                    removeHistoryItem(itemId, this);
+                }
+            });
+        });
+        
+        clearHistoryBtn.addEventListener('click', function() {
+            if (confirm('Deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+                clearHistory();
+            }
+        });
+        
+        exportHistoryBtn.addEventListener('click', function() {
+            exportHistory();
+        });
+        
+        refreshHistoryBtn.addEventListener('click', function() {
+            location.reload();
+        });
+        
+        function getActiveFilter() {
+            const activeOption = document.querySelector('.filter-option.active');
+            return activeOption ? activeOption.getAttribute('data-filter') : 'all';
+        }
+        
+        function filterItems(searchTerm, filterType) {
+            let visibleCount = 0;
+            
+            historyItems.forEach(item => {
+                const itemType = item.getAttribute('data-type');
+                const itemText = item.textContent.toLowerCase();
+                
+                const matchesSearch = searchTerm === '' || itemText.includes(searchTerm);
+                const matchesFilter = filterType === 'all' || itemType === filterType;
+                
+                if (matchesSearch && matchesFilter) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                    item.style.animation = 'fadeInUp 0.6s ease';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            const emptyState = document.querySelector('.empty-state');
+            if (visibleCount === 0 && historyItems.length > 0) {
+                if (!emptyState) {
+                    const historyList = document.querySelector('.history-list');
+                    historyList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="empty-title">Nenhuma atividade encontrada</h3>
+                            <p class="empty-text">Não há atividades que correspondam aos seus critérios de filtro.</p>
+                            <button class="action-btn primary" onclick="clearFilters()">
+                                <i class="fas fa-times"></i> Limpar Filtros
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        function clearFilters() {
+            searchInput.value = '';
+            filterOptions.forEach(opt => opt.classList.remove('active'));
+            document.querySelector('.filter-option[data-filter="all"]').classList.add('active');
+            filterItems('', 'all');
+        }
+        
+        function removeHistoryItem(itemId, button) {
+            fetch(`/historico/remover/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const itemElement = button.closest('.history-item');
+                    itemElement.style.opacity = '0';
+                    itemElement.style.transform = 'translateX(100px)';
+                    
+                    setTimeout(() => {
+                        itemElement.remove();
+                        showNotification('Atividade removida com sucesso!', 'success');
+                        
+                        const totalElement = document.querySelector('.stat-value:first-child');
+                        if (totalElement) {
+                            const currentTotal = parseInt(totalElement.textContent);
+                            totalElement.textContent = currentTotal - 1;
+                        }
+                    }, 300);
+                } else {
+                    showNotification('Erro ao remover atividade', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Erro ao remover atividade', 'error');
+            });
+        }
+        
+        function clearHistory() {
+            fetch('/historico/limpar/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Histórico limpo com sucesso!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('Erro ao limpar histórico', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Erro ao limpar histórico', 'error');
+            });
+        }
+        
+        function exportHistory() {
+            fetch('/historico/exportar/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `historico-agenda-ai-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                showNotification('Histórico exportado com sucesso!', 'success');
+            })
+            .catch(error => {
+                showNotification('Erro ao exportar histórico', 'error');
+            });
+        }
+        
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success)' : 'var(--error)'};
+                color: var(--white);
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                animation: slideInRight 0.4s ease;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            `;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}
