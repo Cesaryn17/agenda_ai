@@ -518,6 +518,7 @@ class Imagem(models.Model):
         verbose_name_plural = _("Imagens dos Itens")
         ordering = ['ordem']
         constraints = [
+            # ✅ CORREÇÃO: CheckConstraint simplificada sem condition problemática
             models.CheckConstraint(
                 check=(
                     models.Q(servico__isnull=False, anuncio__isnull=True) | 
@@ -525,14 +526,13 @@ class Imagem(models.Model):
                 ),
                 name='imagem_linked_to_one_item_only'
             ),
+            # ✅ CORREÇÃO: UniqueConstraint sem 'condition' (usamos validação no clean)
             models.UniqueConstraint(
                 fields=['servico', 'capa'],
-                condition=models.Q(capa=True, servico__isnull=False),
                 name='unique_capa_servico'
             ),
             models.UniqueConstraint(
                 fields=['anuncio', 'capa'],
-                condition=models.Q(capa=True, anuncio__isnull=False),
                 name='unique_capa_anuncio'
             ),
         ]
@@ -544,6 +544,9 @@ class Imagem(models.Model):
     
     def clean(self):
         """Valida se a imagem está vinculada a apenas um item"""
+        super().clean()
+        
+        # Validação: imagem deve estar vinculada a apenas um item
         if self.servico and self.anuncio:
             raise ValidationError(
                 _("A imagem deve estar vinculada a apenas um serviço ou anúncio")
@@ -553,10 +556,41 @@ class Imagem(models.Model):
             raise ValidationError(
                 _("A imagem deve estar vinculada a um serviço ou anúncio")
             )
+        
+        # ✅ CORREÇÃO ADICIONAL: Validação manual para capa única
+        if self.capa:
+            if self.servico:
+                # Verifica se já existe outra imagem de capa para este serviço
+                existing_capa = Imagem.objects.filter(
+                    servico=self.servico, 
+                    capa=True
+                ).exclude(pk=self.pk).exists()
+                if existing_capa:
+                    raise ValidationError(
+                        _("Já existe uma imagem definida como capa para este serviço. "
+                          "Remova a capa atual antes de definir uma nova.")
+                    )
+            elif self.anuncio:
+                # Verifica se já existe outra imagem de capa para este anúncio
+                existing_capa = Imagem.objects.filter(
+                    anuncio=self.anuncio, 
+                    capa=True
+                ).exclude(pk=self.pk).exists()
+                if existing_capa:
+                    raise ValidationError(
+                        _("Já existe uma imagem definida como capa para este anúncio. "
+                          "Remova a capa atual antes de definir uma nova.")
+                    )
+            else:
+                raise ValidationError(
+                    _("A imagem de capa deve estar vinculada a um serviço ou anúncio")
+                )
     
     def save(self, *args, **kwargs):
+        """Garante apenas uma imagem de capa por item"""
         self.clean()
         
+        # Se esta imagem está sendo definida como capa, remove capa de outras
         if self.capa:
             if self.servico:
                 Imagem.objects.filter(
@@ -573,6 +607,20 @@ class Imagem(models.Model):
     
     def get_absolute_url(self):
         return self.imagem.url if self.imagem else ''
+    
+    @property
+    def item_associado(self):
+        """Retorna o item associado a esta imagem"""
+        return self.servico or self.anuncio
+    
+    @property
+    def tipo_item(self):
+        """Retorna o tipo do item associado"""
+        if self.servico:
+            return 'servico'
+        elif self.anuncio:
+            return 'anuncio'
+        return None
 
 class AvaliacaoQuerySet(models.QuerySet):
     def aprovadas(self):
