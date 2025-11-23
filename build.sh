@@ -7,10 +7,7 @@ pip install -r requirements.txt
 echo "📦 Coletando arquivos estáticos..."
 python manage.py collectstatic --noinput
 
-echo "🗃️ Criando migrações para TODOS os apps..."
-python manage.py makemigrations --noinput
-
-echo "🚀 Aplicando TODAS as migrações..."
+echo "🚀 Aplicando migrações existentes..."
 python manage.py migrate --noinput
 
-echo "✅ Build concluído com migrações aplicadas!"
+echo "✅ Build concluído!"
