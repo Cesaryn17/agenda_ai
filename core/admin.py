@@ -139,7 +139,7 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    inlines = [ConfiguracaoUsuarioInline, NotificacaoInline, HistoricoBuscaInline, FavoritoUsuarioInline]
+    inlines = []
 
     def foto_perfil_preview(self, obj):
         if obj.foto_perfil:

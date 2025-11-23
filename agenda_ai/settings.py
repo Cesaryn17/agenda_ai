@@ -20,8 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',  
     'django.contrib.humanize',  
     
-    'channels',
     'core',
+    'channels',
     'produtos',
     'chat',
     
@@ -81,7 +81,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'core.CustomUser' 
+#AUTH_USER_MODEL = 'core.CustomUser' 
 
 AUTH_PASSWORD_VALIDATORS = [
     {
