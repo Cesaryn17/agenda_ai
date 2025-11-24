@@ -73,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agenda_ai.wsgi.application'
 
-# DATABASE CONFIGURATION
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  
@@ -112,7 +111,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# WhiteNoise configuration - só ativa em produção
 if not DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
@@ -163,21 +161,9 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# EMAIL CONFIGURATION - CORRIGIDA
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'agendaaisistema46@gmail.com'
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', '')  
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Agenda AI <agendaaisistema46@gmail.com>'
 SERVER_EMAIL = 'agendaaisistema46@gmail.com'
-
-EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 30
-
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760 
@@ -192,16 +178,13 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-# Allauth configurations (UPDATED - sem warnings)
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
-
-SOCIALACCOUNT_ADAPTER = 'core.adapters.CustomSocialAccountAdapter'
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = 'none'  
 
 LOGIN_REDIRECT_URL = 'home'  
 LOGOUT_REDIRECT_URL = '/'
@@ -255,16 +238,10 @@ ALLOWED_HOSTS = [
     '.onrender.com',  
 ]
 
-# ==============================================================================
-# CONFIGURAÇÕES PARA PRODUÇÃO NO RENDER.COM (SÓ ATIVAM EM PRODUÇÃO)
-# ==============================================================================
-
-# Configuração do banco PostgreSQL só no Render
 if not DEBUG:
     try:
         import dj_database_url
         
-        # Pega a URL do banco do ambiente (Render fornece automaticamente)
         database_url = os.environ.get('DATABASE_URL')
         if database_url and database_url.startswith('postgres://'):
             DATABASES = {
@@ -277,14 +254,12 @@ if not DEBUG:
     except ImportError:
         pass
 
-# Configurações de segurança para HTTPS (SÓ EM PRODUÇÃO)
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     
-    # Logging para produção
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -298,16 +273,11 @@ if not DEBUG:
             'level': 'INFO',
         },
     }
-    
-    # Em produção, usa SMTP real
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 else:
-    # Configurações para desenvolvimento
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
-# Hosts permitidos no Render
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
