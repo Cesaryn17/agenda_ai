@@ -155,9 +155,16 @@ class Migration(migrations.Migration):
             model_name='servico',
             index=models.Index(fields=['usuario', 'status'], name='produtos_se_usuario_43c30e_idx'),
         ),
+        # CORREÇÃO AQUI - Linha 160 corrigida:
         migrations.AddConstraint(
             model_name='imagem',
-            constraint=models.CheckConstraint(condition=models.Q(models.Q(('anuncio__isnull', True), ('servico__isnull', False)), models.Q(('anuncio__isnull', False), ('servico__isnull', True)), _connector='OR'), name='imagem_linked_to_one_item_only'),
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    models.Q(('anuncio__isnull', True), ('servico__isnull', False)) |
+                    models.Q(('anuncio__isnull', False), ('servico__isnull', True))
+                ), 
+                name='imagem_linked_to_one_item_only'
+            ),
         ),
         migrations.AddConstraint(
             model_name='imagem',

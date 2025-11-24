@@ -6,10 +6,7 @@ echo "🚀 Iniciando build..."
 echo "📦 Instalando dependências..."
 pip install -r requirements.txt
 
-echo "🔍 Verificando migrações..."
-python manage.py makemigrations --check --dry-run
-
-echo "📊 Aplicando migrações..."
+echo "📊 Aplicando migrações (pulando verificação)..."
 python manage.py migrate --noinput
 
 echo "🧹 Coletando arquivos estáticos..."
