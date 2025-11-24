@@ -10,7 +10,7 @@ class Chat(models.Model):
     )
     data_criacao = models.DateTimeField(auto_now_add=True)
     ultima_mensagem = models.ForeignKey(
-        'Mensagem',
+        'MensagemChat',  
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -41,7 +41,7 @@ class Chat(models.Model):
         self.ultima_mensagem = ultima
         self.save()
 
-class Mensagem(models.Model):
+class MensagemChat(models.Model): 
     TIPO_CHOICES = [
         ('texto', 'Texto'),
         ('imagem', 'Imagem'),
@@ -61,7 +61,7 @@ class Mensagem(models.Model):
     remetente = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='mensagens_chat_enviada'
+        related_name='mensagens_chat_enviadas'  
     )
     conteudo = models.TextField(blank=True, null=True)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='texto')
@@ -87,6 +87,8 @@ class Mensagem(models.Model):
             models.Index(fields=['chat', 'data_envio']),
             models.Index(fields=['remetente', 'data_envio']),
         ]
+        verbose_name = "Mensagem de Chat"  
+        verbose_name_plural = "Mensagens de Chat"  
 
     def __str__(self):
         return f"{self.tipo} - {self.remetente} - {self.data_envio}"
@@ -96,9 +98,18 @@ class Mensagem(models.Model):
         self.save()
 
 class MensagemVisualizacao(models.Model):
-    mensagem = models.ForeignKey(Mensagem, on_delete=models.CASCADE, related_name='visualizacoes')
+    mensagem = models.ForeignKey(
+        MensagemChat,  
+        on_delete=models.CASCADE, 
+        related_name='visualizacoes'
+    )
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     data_visualizacao = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ['mensagem', 'usuario']
+        verbose_name = "Visualização de Mensagem"  
+        verbose_name_plural = "Visualizações de Mensagens" 
+
+    def __str__(self):
+        return f"{self.usuario.nome} visualizou mensagem"

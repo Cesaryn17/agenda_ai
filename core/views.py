@@ -26,7 +26,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.exceptions import ValidationError
 from django.urls import reverse  
-from chat.models import Chat, Mensagem  
+from chat.models import Chat, MensagemChat 
 import json
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Sum
@@ -2167,7 +2167,7 @@ class MensagemAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        conversas = Mensagem.objects.filter(
+        conversas = MensagemChat.objects.filter(
             Q(remetente=request.user) | Q(destinatario=request.user)
         ).order_by('-data_envio').distinct('conversa_id')
         
@@ -2191,7 +2191,7 @@ class ConversaAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, conversa_id):
-        mensagens = Mensagem.objects.filter(
+        mensagens = MensagemChat.objects.filter(
             conversa_id=conversa_id
         ).filter(
             Q(remetente=request.user) | Q(destinatario=request.user)
@@ -2812,7 +2812,7 @@ def enviar_mensagem_view(request):
     
         try:
             logger.info("Criando mensagem no banco de dados")
-            mensagem = Mensagem.objects.create(
+            mensagem = MensagemChat.objects.create(
                 chat=chat,
                 remetente=request.user,
                 conteudo=mensagem_texto,
@@ -2851,7 +2851,7 @@ def enviar_mensagem_view(request):
                 usuario=request.user,
                 termo=f"Mensagem para {nome_destinatario}",
                 tipo='message',
-                content_type=ContentType.objects.get_for_model(Mensagem),
+                content_type=ContentType.objects.get_for_model(MensagemChat),
                 object_id=mensagem.id
             )
             
@@ -3034,7 +3034,7 @@ def conversa_view(request, anunciante_id):
         if request.method == 'POST':
             texto = request.POST.get('conteudo', '').strip()
             if texto:
-                Mensagem.objects.create(
+                MensagemChat.objects.create(
                     chat=chat,
                     remetente=request.user,
                     conteudo=texto,
@@ -3154,7 +3154,7 @@ def iniciar_conversa_view(request, anunciante_id, anuncio_id=None):
                 anuncio = get_object_or_404(Anuncio, pk=anuncio_id, usuario=anunciante)
                 mensagem_inicial = f"Olá! Tenho interesse no seu anúncio: {anuncio.titulo}"
                 
-                Mensagem.objects.create(
+                MensagemChat.objects.create(
                     chat=chat,
                     remetente=request.user,
                     conteudo=mensagem_inicial
