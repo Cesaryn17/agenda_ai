@@ -114,7 +114,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # WhiteNoise configuration - só ativa em produção
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
