@@ -203,10 +203,6 @@ ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'core.adapters.CustomSocialAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
-ACCOUNT_RATE_LIMITS = {
-    'confirm_email': '1/10m',
-}
-
 LOGIN_REDIRECT_URL = 'home'  
 LOGOUT_REDIRECT_URL = '/'
 
