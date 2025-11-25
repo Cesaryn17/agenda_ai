@@ -3,12 +3,31 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-load_dotenv()  
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'sua-chave-secreta-aqui')  
+SECRET_KEY = os.environ.get('SECRET_KEY', 'sua-chave-secreta-local-aqui')
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '192.168.1.4',
+    '192.168.1.7',
+    '10.0.2.2',
+    '192.168.1.5',
+    '.onrender.com',
+    '.railway.app',
+    'agendaaibr.up.railway.app',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://agendaaibr.up.railway.app',
+    'https://*.railway.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,8 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',  
-    'django.contrib.humanize',  
+    'django.contrib.sites',
+    'django.contrib.humanize',
     
     'core',
     'channels',
@@ -38,13 +57,13 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
 ]
 
-SITE_ID = 1  
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -63,7 +82,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -73,14 +92,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agenda_ai.wsgi.application'
 
+# CONFIGURAÇÃO DE DATABASE SIMPLIFICADA E CORRIGIDA
+# Para desenvolvimento local - SQLite puro
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
-AUTH_USER_MODEL = 'core.CustomUser' 
+# APENAS se estiver no Railway, usa PostgreSQL
+if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_SERVICE_ID'):
+    # Remove qualquer referência ao SQLite no Railway
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE', 'railway'),
+            'USER': os.environ.get('PGUSER', 'postgres'),
+            'PASSWORD': os.environ.get('PGPASSWORD', ''),
+            'HOST': os.environ.get('PGHOST', 'localhost'),
+            'PORT': os.environ.get('PGPORT', '5432'),
+        }
+    }
+
+AUTH_USER_MODEL = 'core.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -108,11 +143,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-if not DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -144,9 +178,10 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://192.168.1.100:3000",  
-    "http://10.0.2.2:3000",       
-    "exp://192.168.1.100:19000",  
+    "http://192.168.1.100:3000",
+    "http://10.0.2.2:3000",
+    "exp://192.168.1.100:19000",
+    "https://agendaaibr.up.railway.app",
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -165,8 +200,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Agenda AI <agendaaisistema46@gmail.com>'
 SERVER_EMAIL = 'agendaaisistema46@gmail.com'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 ANUNCIOS_CONFIG = {
     'MAX_IMAGES_PER_AD': 5,
@@ -178,15 +213,15 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+# CONFIGURAÇÕES ALLAUTH ATUALIZADAS (SEM DEPRECIAÇÕES)
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
-ACCOUNT_EMAIL_VERIFICATION = 'none'  
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
-LOGIN_REDIRECT_URL = 'home'  
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
@@ -228,32 +263,7 @@ ACCOUNT_FORMS = {
     'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
 }
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1', 
-    '192.168.1.4',  
-    '192.168.1.7',  
-    '10.0.2.2', 
-    '192.168.1.5',
-    '.onrender.com',  
-]
-
-if not DEBUG:
-    try:
-        import dj_database_url
-        
-        database_url = os.environ.get('DATABASE_URL')
-        if database_url and database_url.startswith('postgres://'):
-            DATABASES = {
-                'default': dj_database_url.config(
-                    default=database_url,
-                    conn_max_age=600,
-                    ssl_require=True
-                )
-            }
-    except ImportError:
-        pass
-
+# CONFIGURAÇÕES DE SEGURANÇA
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
@@ -277,7 +287,3 @@ else:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
-
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)

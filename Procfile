@@ -1,1 +1,1 @@
-web: gunicorn agenda_ai.wsgi:application --bind 0.0.0.0:$PORT
+web: python manage.py migrate && gunicorn agenda_ai.wsgi:application --bind 0.0.0.0:$PORT
