@@ -13,3 +13,5 @@ drf-yasg==1.21.7
 django-filter==23.3
 django-allauth==0.58.1
 psycopg2-binary==2.9.7
+django-cloudinary-storage==0.3.0
+cloudinary==1.36.0

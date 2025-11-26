@@ -8,8 +8,9 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'sua-chave-secreta-local-aqui')
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+# ALLOWED_HOSTS atualizado para Render
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
@@ -17,13 +18,13 @@ ALLOWED_HOSTS = [
     '192.168.1.7',
     '10.0.2.2',
     '192.168.1.5',
-    '.onrender.com',
+    '.onrender.com',  # Render
     '.railway.app',
-    'agendaaibr.up.railway.app',
+    '.agenda-ai.onrender.com',  # Seu domínio no Render
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://agendaaibr.up.railway.app',
+    'https://*.onrender.com',
     'https://*.railway.app',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -39,11 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.humanize',
     
+    # Cloudinary DEVE vir antes das suas apps
+    'cloudinary_storage',
+    'cloudinary',
+    
+    # Suas apps
     'core',
     'channels',
     'produtos',
     'chat',
     
+    # Third party
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -92,26 +99,34 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agenda_ai.wsgi.application'
 
-# CONFIGURAÇÃO DE DATABASE SIMPLIFICADA E CORRIGIDA
-# Para desenvolvimento local - SQLite puro
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# CONFIGURAÇÃO DE DATABASE PARA RENDER
+if os.environ.get('DATABASE_URL'):
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
-
-# APENAS se estiver no Railway, usa PostgreSQL
-if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_SERVICE_ID'):
-    # Remove qualquer referência ao SQLite no Railway
+elif os.environ.get('RENDER'):
+    # Render PostgreSQL
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('PGDATABASE', 'railway'),
-            'USER': os.environ.get('PGUSER', 'postgres'),
-            'PASSWORD': os.environ.get('PGPASSWORD', ''),
-            'HOST': os.environ.get('PGHOST', 'localhost'),
-            'PORT': os.environ.get('PGPORT', '5432'),
+            'NAME': os.environ.get('RENDER_DB_NAME', 'agenda_ai'),
+            'USER': os.environ.get('RENDER_DB_USERNAME', 'agenda_ai_user'),
+            'PASSWORD': os.environ.get('RENDER_DB_PASSWORD', ''),
+            'HOST': os.environ.get('RENDER_DB_HOSTNAME', 'localhost'),
+            'PORT': os.environ.get('RENDER_DB_PORT', '5432'),
+        }
+    }
+else:
+    # Desenvolvimento local - SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
@@ -145,8 +160,22 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# CONFIGURAÇÃO CLOUDINARY
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'dyphzr7eb'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '257965927464458'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'pKCNSAvts7MTClOf9i8B5_Zrgcg'),
+}
+
+# Cloudinary para produção, filesystem local para desenvolvimento
+if not DEBUG and os.environ.get('CLOUDINARY_CLOUD_NAME'):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = '/media/'  # Cloudinary vai usar esta URL
+else:
+    # Desenvolvimento local
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -181,7 +210,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.100:3000",
     "http://10.0.2.2:3000",
     "exp://192.168.1.100:19000",
-    "https://agendaaibr.up.railway.app",
+    "https://*.onrender.com",
+    "https://*.railway.app",
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -213,9 +243,10 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-# CONFIGURAÇÕES ALLAUTH ATUALIZADAS (SEM DEPRECIAÇÕES)
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+# CONFIGURAÇÕES ALLAUTH
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
@@ -263,7 +294,6 @@ ACCOUNT_FORMS = {
     'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
 }
 
-# CONFIGURAÇÕES DE SEGURANÇA
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
