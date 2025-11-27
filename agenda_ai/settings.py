@@ -20,7 +20,7 @@ ALLOWED_HOSTS = [
     '192.168.1.5',
     '.onrender.com',  # Render
     '.railway.app',
-    '.agenda-ai.onrender.com',  # Seu domínio no Render
+    'agenda-ai-ghfu.onrender.com',  # Seu domínio real
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -108,18 +108,6 @@ if os.environ.get('DATABASE_URL'):
             conn_max_age=600,
             ssl_require=True
         )
-    }
-elif os.environ.get('RENDER'):
-    # Render PostgreSQL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('RENDER_DB_NAME', 'agenda_ai'),
-            'USER': os.environ.get('RENDER_DB_USERNAME', 'agenda_ai_user'),
-            'PASSWORD': os.environ.get('RENDER_DB_PASSWORD', ''),
-            'HOST': os.environ.get('RENDER_DB_HOSTNAME', 'localhost'),
-            'PORT': os.environ.get('RENDER_DB_PORT', '5432'),
-        }
     }
 else:
     # Desenvolvimento local - SQLite
@@ -238,22 +226,31 @@ ANUNCIOS_CONFIG = {
     'MAX_AD_DAYS_ACTIVE': 30,
 }
 
+# =============================================================================
+# CONFIGURAÇÕES ALLAUTH CORRIGIDAS - PARTE IMPORTANTE!
+# =============================================================================
+
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-# CONFIGURAÇÕES ALLAUTH
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
-ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'  # IMPORTANTE para produção
 
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = '/'
+# CONFIGURAÇÕES NOVAS PARA CORRIGIR LOGIN SOCIAL
+SOCIALACCOUNT_LOGIN_ON_GET = True    # Pula tela de signup
+ACCOUNT_SIGNUP_REDIRECT_URL = '/'    # Redireciona após cadastro  
+ACCOUNT_LOGOUT_ON_GET = True         # Logout com um clique
+ACCOUNT_SESSION_REMEMBER = True      # Mantém usuário logado
+
+LOGIN_REDIRECT_URL = '/'             # Vai para home após login
+LOGOUT_REDIRECT_URL = '/'            # Vai para home após logout
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
@@ -262,6 +259,7 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_STORE_TOKENS = True
 
 SOCIALACCOUNT_ADAPTER = 'core.adapters.CustomSocialAccountAdapter'
+ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -274,7 +272,7 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     },
     'facebook': {
-        'METHOD': 'oauth2',
+        'METHOD': 'oauth2', 
         'SCOPE': ['email', 'public_profile'],
         'APP': {
             'client_id': os.getenv('FACEBOOK_APP_ID', ''),
@@ -294,7 +292,21 @@ ACCOUNT_FORMS = {
     'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
 }
 
+# Configuração automática do site para produção
 if not DEBUG:
+    # Atualiza o domínio do site automaticamente
+    try:
+        from django.contrib.sites.models import Site
+        site = Site.objects.get(id=SITE_ID)
+        current_domain = 'agenda-ai-ghfu.onrender.com'  # SEU DOMÍNIO REAL
+        if site.domain != current_domain:
+            site.domain = current_domain
+            site.name = 'Agenda AI'
+            site.save()
+            print(f"Site domain updated to: {site.domain}")
+    except Exception as e:
+        print(f"Error updating site: {e}")
+
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
