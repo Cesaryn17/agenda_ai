@@ -18,9 +18,9 @@ ALLOWED_HOSTS = [
     '192.168.1.7',
     '10.0.2.2',
     '192.168.1.5',
-    '.onrender.com',  # Render
+    '.onrender.com',
     '.railway.app',
-    'agenda-ai-ghfu.onrender.com',  # Seu domínio real
+    'agenda-ai-ghfu.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -158,7 +158,7 @@ CLOUDINARY_STORAGE = {
 # Cloudinary para produção, filesystem local para desenvolvimento
 if not DEBUG and os.environ.get('CLOUDINARY_CLOUD_NAME'):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = '/media/'  # Cloudinary vai usar esta URL
+    MEDIA_URL = '/media/'
 else:
     # Desenvolvimento local
     MEDIA_URL = '/media/'
@@ -227,7 +227,7 @@ ANUNCIOS_CONFIG = {
 }
 
 # =============================================================================
-# CONFIGURAÇÕES ALLAUTH CORRIGIDAS - PARTE IMPORTANTE!
+# CONFIGURAÇÕES ALLAUTH CORRIGIDAS - SOLUÇÃO DEFINITIVA
 # =============================================================================
 
 AUTHENTICATION_BACKENDS = (
@@ -235,29 +235,33 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
+# CONFIGURAÇÕES DE LOGIN SOCIAL - SOLUÇÃO RADICAL
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'  # IMPORTANTE para produção
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Remove verificação por email
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
-# CONFIGURAÇÕES NOVAS PARA CORRIGIR LOGIN SOCIAL
-SOCIALACCOUNT_LOGIN_ON_GET = True    # Pula tela de signup
-ACCOUNT_SIGNUP_REDIRECT_URL = '/'    # Redireciona após cadastro  
-ACCOUNT_LOGOUT_ON_GET = True         # Logout com um clique
-ACCOUNT_SESSION_REMEMBER = True      # Mantém usuário logado
+# CONFIGURAÇÕES PARA PULAR TELA DE SIGNUP
+SOCIALACCOUNT_LOGIN_ON_GET = True     # ⬅️ PULA COMPLETAMENTE A TELA DE SIGNUP
+SOCIALACCOUNT_AUTO_SIGNUP = True      # ⬅️ CRIA USUÁRIO AUTOMATICAMENTE
+ACCOUNT_SIGNUP_REDIRECT_URL = '/'     # ⬅️ REDIRECIONA APÓS CADASTRO
+ACCOUNT_LOGOUT_ON_GET = True          # ⬅️ LOGOUT DIRETO
+ACCOUNT_SESSION_REMEMBER = True       # ⬅️ MANTÉM LOGIN
 
-LOGIN_REDIRECT_URL = '/'             # Vai para home após login
-LOGOUT_REDIRECT_URL = '/'            # Vai para home após logout
+# REDIRECIONAMENTOS
+LOGIN_REDIRECT_URL = '/'              # ⬅️ VAI PARA HOME APÓS LOGIN
+LOGOUT_REDIRECT_URL = '/'             # ⬅️ VAI PARA HOME APÓS LOGOUT
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = '/' # ⬅️ REDIRECIONAMENTO ESPECÍFICO SOCIAL
 
-SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_STORE_TOKENS = True
 
+# ADAPTERS CUSTOMIZADOS
 SOCIALACCOUNT_ADAPTER = 'core.adapters.CustomSocialAccountAdapter'
 ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
 
@@ -292,21 +296,25 @@ ACCOUNT_FORMS = {
     'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
 }
 
-# Configuração automática do site para produção
+# =============================================================================
+# CONFIGURAÇÃO AUTOMÁTICA DE PRODUÇÃO
+# =============================================================================
+
 if not DEBUG:
     # Atualiza o domínio do site automaticamente
     try:
         from django.contrib.sites.models import Site
         site = Site.objects.get(id=SITE_ID)
-        current_domain = 'agenda-ai-ghfu.onrender.com'  # SEU DOMÍNIO REAL
+        current_domain = 'agenda-ai-ghfu.onrender.com'
         if site.domain != current_domain:
             site.domain = current_domain
             site.name = 'Agenda AI'
             site.save()
-            print(f"Site domain updated to: {site.domain}")
+            print(f"✅ Site domain updated to: {site.domain}")
     except Exception as e:
-        print(f"Error updating site: {e}")
+        print(f"⚠️ Error updating site: {e}")
 
+    # Configurações de segurança para produção
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True

@@ -53,31 +53,49 @@
     
     <div class="form-group">
         <label for="id_password1">Senha *</label>
-        <div class="input-with-icon">
+        <div class="input-with-icon password-container">
             <i class="fas fa-lock"></i>
-            <input type="password" id="id_password1" name="password1" class="form-input" placeholder="Crie uma senha segura" required minlength="6">
+            <input type="password" id="id_password1" name="password1" class="form-input password-input" placeholder="Crie uma senha segura" required minlength="6">
             <span class="password-toggle" id="togglePassword">
                 <i class="fas fa-eye"></i>
             </span>
         </div>
-        <div class="password-strength">
-            <div class="password-strength-bar" id="password-strength-bar"></div>
-        </div>
-        <div class="password-hints">
-            <p>Sua senha deve conter:</p>
-            <ul>
-                <li id="length-hint" class="hint-invalid">Pelo menos 6 caracteres</li>
-                <li id="number-hint" class="hint-invalid">Pelo menos 1 número</li>
-                <li id="letter-hint" class="hint-invalid">Pelo menos 1 letra</li>
-            </ul>
+        
+        <div class="password-strength-container">
+            <div class="password-strength-header">
+                <span>Força da senha:</span>
+                <span id="password-strength-text">Digite sua senha</span>
+            </div>
+            <div class="password-strength-bar-container">
+                <div class="password-strength-bar" id="password-strength-bar"></div>
+            </div>
+            
+            <div class="password-requirements">
+                <div class="requirement" id="length-req">
+                    <i class="fas fa-circle requirement-icon"></i>
+                    <span>Mínimo 6 caracteres</span>
+                </div>
+                <div class="requirement" id="number-req">
+                    <i class="fas fa-circle requirement-icon"></i>
+                    <span>Pelo menos 1 número</span>
+                </div>
+                <div class="requirement" id="letter-req">
+                    <i class="fas fa-circle requirement-icon"></i>
+                    <span>Pelo menos 1 letra</span>
+                </div>
+                <div class="requirement" id="special-req">
+                    <i class="fas fa-circle requirement-icon"></i>
+                    <span>Caractere especial (!@#$)</span>
+                </div>
+            </div>
         </div>
     </div>
     
     <div class="form-group">
         <label for="id_password2">Confirmar senha *</label>
-        <div class="input-with-icon">
+        <div class="input-with-icon password-container">
             <i class="fas fa-lock"></i>
-            <input type="password" id="id_password2" name="password2" class="form-input" placeholder="Digite novamente sua senha" required>
+            <input type="password" id="id_password2" name="password2" class="form-input password-input" placeholder="Digite novamente sua senha" required>
             <span class="password-toggle" id="toggleConfirmPassword">
                 <i class="fas fa-eye"></i>
             </span>
@@ -91,8 +109,8 @@
     <div class="terms-group">
         <input type="checkbox" id="id_terms" name="terms" required>
         <label for="id_terms" class="terms-label">
-            Concordo com os <a href="{% url 'termos_condicoes' %}">Termos de Uso</a> e 
-            <a href="#">Política de Privacidade</a> da Agenda AI *
+            Concordo com os <a href="{% url 'termos_condicoes' %}" target="_blank">Termos de Uso</a> e 
+            <a href="#" target="_blank">Política de Privacidade</a> da Agenda AI *
         </label>
     </div>
     <div class="field-error" id="terms-error" style="display: none;">
@@ -130,6 +148,123 @@
     <p>Já tem uma conta? <a href="{% url 'account_login' %}">Faça login</a></p>
 </div>
 
+<style>
+.password-strength-container {
+    margin-top: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.password-strength-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#password-strength-text {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.password-strength-bar-container {
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.password-strength-weak {
+    background: #dc3545;
+    width: 25%;
+}
+
+.password-strength-fair {
+    background: #fd7e14;
+    width: 50%;
+}
+
+.password-strength-good {
+    background: #ffc107;
+    width: 75%;
+}
+
+.password-strength-strong {
+    background: #28a745;
+    width: 100%;
+}
+
+.password-requirements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.requirement-icon {
+    font-size: 6px;
+    margin-right: 8px;
+    transition: color 0.3s ease;
+}
+
+.requirement.valid {
+    color: #28a745;
+}
+
+.requirement.valid .requirement-icon {
+    color: #28a745;
+}
+
+.requirement.invalid {
+    color: #6c757d;
+}
+
+.requirement.invalid .requirement-icon {
+    color: #6c757d;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #495057;
+}
+
+.strength-weak { color: #dc3545; }
+.strength-fair { color: #fd7e14; }
+.strength-good { color: #ffc107; }
+.strength-strong { color: #28a745; }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('registerForm');
@@ -141,75 +276,70 @@
         const termsError = document.getElementById('terms-error');
         const submitButton = document.getElementById('submitButton');
         const passwordStrengthBar = document.getElementById('password-strength-bar');
-        const lengthHint = document.getElementById('length-hint');
-        const numberHint = document.getElementById('number-hint');
-        const letterHint = document.getElementById('letter-hint');
+        const passwordStrengthText = document.getElementById('password-strength-text');
         const termsCheckbox = document.getElementById('id_terms');
         
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            const eyeIcon = this.querySelector('i');
-            if (type === 'password') {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            } else {
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            }
-        });
+        const lengthReq = document.getElementById('length-req');
+        const numberReq = document.getElementById('number-req');
+        const letterReq = document.getElementById('letter-req');
+        const specialReq = document.getElementById('special-req');
         
-        toggleConfirmPassword.addEventListener('click', function() {
-            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            confirmPasswordInput.setAttribute('type', type);
-            const eyeIcon = this.querySelector('i');
-            if (type === 'password') {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            } else {
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            }
-        });
+        function setupPasswordToggle(toggleElement, inputElement) {
+            toggleElement.addEventListener('click', function() {
+                const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
+                inputElement.setAttribute('type', type);
+                const eyeIcon = this.querySelector('i');
+                eyeIcon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            });
+        }
+        
+        setupPasswordToggle(togglePassword, passwordInput);
+        setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput);
         
         passwordInput.addEventListener('input', function() {
             const password = this.value;
-            let strength = 0;
+            let score = 0;
+            let messages = [];
             
-            if (password.length >= 6) {
-                strength += 1;
-                lengthHint.classList.remove('hint-invalid');
-                lengthHint.classList.add('hint-valid');
-            } else {
-                lengthHint.classList.remove('hint-valid');
-                lengthHint.classList.add('hint-invalid');
-            }
+            const requirements = {
+                length: password.length >= 6,
+                number: /\d/.test(password),
+                letter: /[a-zA-Z]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
             
-            if (/\d/.test(password)) {
-                strength += 1;
-                numberHint.classList.remove('hint-invalid');
-                numberHint.classList.add('hint-valid');
-            } else {
-                numberHint.classList.remove('hint-valid');
-                numberHint.classList.add('hint-invalid');
-            }
+            lengthReq.className = `requirement ${requirements.length ? 'valid' : 'invalid'}`;
+            numberReq.className = `requirement ${requirements.number ? 'valid' : 'invalid'}`;
+            letterReq.className = `requirement ${requirements.letter ? 'valid' : 'invalid'}`;
+            specialReq.className = `requirement ${requirements.special ? 'valid' : 'invalid'}`;
             
-            if (/[a-zA-Z]/.test(password)) {
-                strength += 1;
-                letterHint.classList.remove('hint-invalid');
-                letterHint.classList.add('hint-valid');
-            } else {
-                letterHint.classList.remove('hint-valid');
-                letterHint.classList.add('hint-invalid');
-            }
+            if (requirements.length) score += 25;
+            if (requirements.number) score += 25;
+            if (requirements.letter) score += 25;
+            if (requirements.special) score += 25;
             
             passwordStrengthBar.className = 'password-strength-bar';
-            if (strength === 1) {
+            passwordStrengthText.className = '';
+            
+            if (password.length === 0) {
+                passwordStrengthText.textContent = 'Digite sua senha';
+                passwordStrengthText.className = '';
+            } else if (score <= 25) {
                 passwordStrengthBar.classList.add('password-strength-weak');
-            } else if (strength === 2) {
-                passwordStrengthBar.classList.add('password-strength-medium');
-            } else if (strength === 3) {
+                passwordStrengthText.textContent = 'Fraca';
+                passwordStrengthText.className = 'strength-weak';
+            } else if (score <= 50) {
+                passwordStrengthBar.classList.add('password-strength-fair');
+                passwordStrengthText.textContent = 'Razoável';
+                passwordStrengthText.className = 'strength-fair';
+            } else if (score <= 75) {
+                passwordStrengthBar.classList.add('password-strength-good');
+                passwordStrengthText.textContent = 'Boa';
+                passwordStrengthText.className = 'strength-good';
+            } else {
                 passwordStrengthBar.classList.add('password-strength-strong');
+                passwordStrengthText.textContent = 'Forte';
+                passwordStrengthText.className = 'strength-strong';
             }
             
             validatePasswords();
@@ -218,31 +348,25 @@
         confirmPasswordInput.addEventListener('input', validatePasswords);
         
         function validatePasswords() {
-            if (passwordInput.value !== confirmPasswordInput.value && confirmPasswordInput.value !== '') {
+            const passwordsMatch = passwordInput.value === confirmPasswordInput.value;
+            const hasPassword = passwordInput.value.length > 0;
+            
+            if (!passwordsMatch && hasPassword && confirmPasswordInput.value.length > 0) {
                 passwordError.style.display = 'flex';
                 submitButton.disabled = true;
+                submitButton.style.opacity = '0.6';
             } else {
                 passwordError.style.display = 'none';
                 submitButton.disabled = false;
+                submitButton.style.opacity = '1';
             }
         }
-        
-        termsCheckbox.addEventListener('change', function() {
-            if (!this.checked) {
-                termsError.style.display = 'flex';
-            } else {
-                termsError.style.display = 'none';
-            }
-        });
         
         const phoneInput = document.getElementById('id_phone');
         if (phoneInput) {
             phoneInput.addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
-                
-                if (value.length > 11) {
-                    value = value.slice(0, 11);
-                }
+                if (value.length > 11) value = value.slice(0, 11);
                 
                 if (value.length <= 10) {
                     value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
@@ -253,6 +377,10 @@
                 e.target.value = value;
             });
         }
+        
+        termsCheckbox.addEventListener('change', function() {
+            termsError.style.display = this.checked ? 'none' : 'flex';
+        });
         
         form.addEventListener('submit', function(e) {
             let isValid = true;
