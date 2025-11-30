@@ -3,12 +3,6 @@
 
 {% block title %}Agenda AI - Plataforma de Anúncios Premium{% endblock %}
 
-{% block meta %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-{% endblock %}
-
 {% block content %}
 <style>
     :root {
@@ -37,38 +31,15 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
     }
     
     html {
         font-size: 14px;
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-        touch-action: manipulation;
     }
     
     body {
         overflow-x: hidden;
         width: 100%;
-        position: relative;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    input, textarea, select, button {
-        font-size: 16px; /* Prevenir zoom no iOS */
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-    }
-    
-    input:focus, textarea:focus, select:focus {
-        font-size: 16px; /* Manter tamanho durante o foco */
     }
     
     .home-container {
@@ -77,8 +48,6 @@
         margin: 0 auto;
         padding: 0 0.5rem;
         overflow-x: hidden;
-        position: relative;
-        min-height: 100vh;
     }
     
     .hero-section {
@@ -92,8 +61,6 @@
         overflow: hidden;
         width: 100%;
         max-width: 100%;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
     }
     
     .hero-section::before {
@@ -124,8 +91,6 @@
         word-wrap: break-word;
         hyphens: auto;
         padding: 0 0.25rem;
-        -webkit-hyphens: auto;
-        -ms-hyphens: auto;
     }
     
     .hero-subtitle {
@@ -149,8 +114,6 @@
         overflow: hidden;
         box-shadow: var(--shadow-lg);
         border: 1px solid var(--medium-blue);
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
     }
     
     .hero-search input {
@@ -162,10 +125,6 @@
         background: transparent;
         color: var(--black);
         min-width: 0;
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
-        user-select: text;
     }
     
     .hero-search input::placeholder {
@@ -198,8 +157,6 @@
         position: relative;
         margin-bottom: 2rem;
         width: 100%;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
     }
     
     .section-header {
@@ -338,8 +295,6 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
     }
     
     .category-card-horizontal:hover {
@@ -426,8 +381,6 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
     }
     
     .ad-card-horizontal:hover {
@@ -667,10 +620,6 @@
         color: var(--dark-gray);
         font-size: 0.85rem;
         min-width: max-content;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
     }
     
     .category-filter:hover,
@@ -730,10 +679,6 @@
         font-weight: 500;
         color: var(--dark-gray);
         flex-shrink: 0;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
     }
     
     .filter-option:hover,
@@ -759,10 +704,6 @@
         transition: var(--transition);
         background: var(--light-gray);
         min-width: 0;
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
-        user-select: text;
     }
     
     .price-input:focus {
@@ -812,8 +753,6 @@
         align-items: center;
         justify-content: center;
         z-index: 1000;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
     }
     
     .create-ad-btn:hover {
@@ -862,7 +801,7 @@
         pointer-events: none;
     }
 
-    /* Mobile First - Responsividade Otimizada */
+    /* Responsividade */
     @media (max-width: 320px) {
         html {
             font-size: 13px;
@@ -1084,38 +1023,16 @@
     img {
         max-width: 100%;
         height: auto;
-        -webkit-user-drag: none;
-        -khtml-user-drag: none;
-        -moz-user-drag: none;
-        -o-user-drag: none;
-        user-drag: none;
-    }
-
-    /* Prevenir zoom em double-tap no iOS */
-    .no-zoom {
-        touch-action: pan-x pan-y;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-    }
-
-    /* Fix para renderização no mobile */
-    .mobile-fix {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-perspective: 1000;
-        perspective: 1000;
     }
 </style>
 
-<div class="home-container no-zoom">
-    <section class="hero-section mobile-fix">
+<div class="home-container">
+    <section class="hero-section">
         <div class="hero-content">
             <h1 class="hero-title">Encontre os melhores serviços perto de você</h1>
             <p class="hero-subtitle">Conectamos você a profissionais qualificados em diversas categorias</p>
             
-            <div class="hero-search mobile-fix">
+            <div class="hero-search">
                 <input type="text" id="heroSearchInput" placeholder="O que você está procurando?">
                 <button id="heroSearchBtn">
                     <i class="fas fa-search"></i> Buscar
@@ -1124,14 +1041,14 @@
         </div>
     </section>
 
-    <div class="categories-scroll mobile-fix">
+    <div class="categories-scroll">
         <div class="category-filter active" data-category="all">Todos</div>
         {% for categoria in categorias|slice:":8" %}
         <div class="category-filter" data-category="{{ categoria.slug }}">{{ categoria.titulo }}</div>
         {% endfor %}
     </div>
 
-    <div class="filters-panel mobile-fix">
+    <div class="filters-panel">
         <div class="filter-group">
             <h3 class="filter-title"><i class="fas fa-filter"></i> Filtros</h3>
             <div class="filter-options">
@@ -1151,7 +1068,8 @@
         </div>
     </div>
 
-    <section class="scrollable-section mobile-fix" id="categoriesSection">
+    <!-- Categories Horizontal Section -->
+    <section class="scrollable-section" id="categoriesSection">
         <div class="section-header">
             <h2 class="section-title">
                 <i class="fas fa-tags"></i>
@@ -1167,7 +1085,7 @@
             
             <div class="scrollable-content" id="categoriesScroll">
                 {% for categoria in categorias %}
-                <a href="{% url 'category' slug=categoria.slug %}" class="category-card-horizontal mobile-fix">
+                <a href="{% url 'category' slug=categoria.slug %}" class="category-card-horizontal">
                     <div class="category-icon-horizontal">
                         {% if categoria.imagem %}
                         <img src="{{ categoria.imagem.url }}" alt="{{ categoria.titulo }}" loading="lazy">
@@ -1192,7 +1110,8 @@
         </div>
     </section>
 
-    <section class="scrollable-section mobile-fix" id="featuredAdsSection">
+    <!-- Featured Ads Horizontal Section -->
+    <section class="scrollable-section" id="featuredAdsSection">
         <div class="section-header">
             <h2 class="section-title">
                 <i class="fas fa-star"></i>
@@ -1208,7 +1127,7 @@
             
             <div class="scrollable-content" id="featuredAdsScroll">
                 {% for anuncio in anuncios_destaque %}
-                <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card-horizontal mobile-fix">
+                <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card-horizontal">
                     {% if anuncio.destaque %}
                     <span class="ad-badge ad-premium">Premium</span>
                     {% endif %}
@@ -1283,7 +1202,8 @@
         </div>
     </section>
 
-    <section class="scrollable-section mobile-fix" id="recentAdsSection">
+    <!-- Recent Ads Horizontal Section -->
+    <section class="scrollable-section" id="recentAdsSection">
         <div class="section-header">
             <h2 class="section-title">
                 <i class="fas fa-clock"></i>
@@ -1299,7 +1219,7 @@
             
             <div class="scrollable-content" id="recentAdsScroll">
                 {% for anuncio in anuncios_recentes %}
-                <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card-horizontal mobile-fix">
+                <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card-horizontal">
                     {% if anuncio.destaque %}
                     <span class="ad-badge ad-premium">Premium</span>
                     {% endif %}
@@ -1375,58 +1295,11 @@
     </section>
 </div>
 
-<button class="create-ad-btn mobile-fix" id="createAdBtn" aria-label="Criar novo anúncio">
+<button class="create-ad-btn" id="createAdBtn" aria-label="Criar novo anúncio">
     <i class="fas fa-plus"></i>
 </button>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-
-        document.addEventListener('gesturestart', function (e) {
-            e.preventDefault();
-        });
-        
-        document.addEventListener('gesturechange', function (e) {
-            e.preventDefault();
-        });
-        
-        document.addEventListener('gestureend', function (e) {
-            e.preventDefault();
-        });
-
-        setTimeout(function() {
-            window.scrollTo(0, 0);
-            document.body.style.overflowX = 'hidden';
-        }, 100);
-
-        document.body.addEventListener('touchmove', function (e) {
-            if (e.target.classList.contains('scrollable-content')) {
-                return;
-            }
-            e.preventDefault();
-        }, { passive: false });
-
-        initAllFunctions();
-    });
-
-    function initAllFunctions() {
-        initSearch();
-        initFilters();
-        initFavoriteButtons();
-        initCreateAdButton();
-        initShareButtons();
-        initImageLoading();
-        initScrollableSections();
-    }
-
     const APP_CONFIG = {
         isLoggedIn: {{ user.is_authenticated|yesno:"true,false" }},
         urls: {
@@ -1444,12 +1317,24 @@
         }
     };
 
+    document.addEventListener('DOMContentLoaded', function() {
+        initSearch();
+        initFilters();
+        initFavoriteButtons();
+        initCreateAdButton();
+        initShareButtons();
+        initImageLoading();
+        initScrollableSections();
+    });
+
     function initScrollableSections() {
+        // Inicializar scroll para todas as seções scrollable
         document.querySelectorAll('.scrollable-container').forEach(container => {
             const scrollContent = container.querySelector('.scrollable-content');
             const scrollLeftBtn = container.querySelector('.scroll-btn-left');
             const scrollRightBtn = container.querySelector('.scroll-btn-right');
             
+            // Verificar se há conteúdo para scroll
             const checkScrollButtons = () => {
                 const scrollWidth = scrollContent.scrollWidth;
                 const clientWidth = scrollContent.clientWidth;
@@ -1463,6 +1348,7 @@
                 }
             };
             
+            // Configurar botões de scroll
             if (scrollLeftBtn) {
                 scrollLeftBtn.addEventListener('click', () => {
                     scrollContent.scrollBy({ left: -300, behavior: 'smooth' });
@@ -1475,8 +1361,13 @@
                 });
             }
             
+            // Atualizar visibilidade dos botões ao scrollar
             scrollContent.addEventListener('scroll', checkScrollButtons);
+            
+            // Verificar inicialmente
             setTimeout(checkScrollButtons, 100);
+            
+            // Re-verificar ao redimensionar a janela
             window.addEventListener('resize', checkScrollButtons);
         });
     }
@@ -1673,18 +1564,5 @@
         }
         return cookieValue;
     }
-
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            document.body.style.overflowX = 'hidden';
-            window.scrollTo(0, 0);
-        }, 50);
-    });
-
-    window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768) {
-            document.body.style.zoom = "1";
-        }
-    });
 </script>
 {% endblock %}
