@@ -23,15 +23,14 @@
         --white: #ffffff;
         --success: #10b981;
         --error: #ef4444;
-        --border-radius: 20px;
-        --border-radius-sm: 14px;
-        --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
-        --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
-        --shadow-lg: 0 16px 40px rgba(0,0,0,0.15);
+        --border-radius: 16px;
+        --border-radius-sm: 12px;
+        --transition: all 0.3s ease;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+        --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
         --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-cyan) 100%);
         --gradient-hero: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
-        --gradient-destaque: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
     }
     
     * {
@@ -58,7 +57,6 @@
         width: 100%;
         touch-action: pan-y;
         -webkit-overflow-scrolling: touch;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
     
     .home-container {
@@ -69,35 +67,36 @@
         overflow-x: hidden;
     }
     
+    /* Hero Section Melhorada */
     .hero-section {
         background: var(--gradient-hero);
         color: var(--white);
-        padding: 4rem 0.5rem;
+        padding: 3rem 0.5rem;
         border-radius: var(--border-radius);
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
         text-align: center;
         position: relative;
         overflow: hidden;
         width: 100%;
         max-width: 100%;
         box-shadow: var(--shadow-lg);
-        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .hero-section::before {
         content: '';
         position: absolute;
-        top: -50%;
-        left: -50%;
-        right: -50%;
-        bottom: -50%;
-        background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: rotate 20s linear infinite;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/hero-pattern.svg" %}') center/cover;
+        opacity: 0.05;
+        animation: float 6s ease-in-out infinite;
     }
     
-    @keyframes rotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
     }
     
     .hero-content {
@@ -109,10 +108,10 @@
     }
     
     .hero-title {
-        font-size: clamp(2rem, 7vw, 3.5rem);
-        font-weight: 900;
-        margin-bottom: 1.25rem;
-        text-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        font-size: clamp(1.75rem, 6vw, 3rem);
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.2);
         line-height: 1.1;
         word-wrap: break-word;
         hyphens: auto;
@@ -121,21 +120,17 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        letter-spacing: -0.5px;
     }
     
     .hero-subtitle {
-        font-size: clamp(1.1rem, 4.5vw, 1.6rem);
-        margin-bottom: 2.5rem;
+        font-size: clamp(1rem, 4vw, 1.4rem);
+        margin-bottom: 2rem;
         opacity: 0.95;
-        font-weight: 400;
+        font-weight: 300;
         line-height: 1.4;
         word-wrap: break-word;
         padding: 0 0.5rem;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .hero-search {
@@ -144,85 +139,62 @@
         width: 100%;
         max-width: 100%;
         margin: 0 auto;
-        background: rgba(255,255,255,0.95);
+        background: var(--white);
         border-radius: var(--border-radius);
         overflow: hidden;
         box-shadow: var(--shadow-lg);
-        border: 2px solid rgba(255,255,255,0.3);
-        backdrop-filter: blur(20px);
-        transform: translateY(0);
-        transition: var(--transition);
-    }
-    
-    .hero-search:focus-within {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        border: 2px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
     }
     
     .hero-search input {
         width: 100%;
-        padding: 1.5rem;
+        padding: 1.25rem;
         border: none;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         outline: none;
         background: transparent;
         color: var(--black);
         min-width: 0;
-        font-weight: 600;
+        font-weight: 500;
     }
     
     .hero-search input::placeholder {
         color: var(--dark-gray);
-        font-weight: 500;
+        font-weight: 400;
     }
     
     .hero-search button {
         width: 100%;
-        padding: 1.5rem;
+        padding: 1.25rem;
         background: var(--gradient-primary);
         color: var(--white);
         border: none;
         cursor: pointer;
         transition: var(--transition);
-        font-weight: 800;
-        font-size: 1.2rem;
+        font-weight: 700;
+        font-size: 1.1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
+        gap: 0.75rem;
         min-width: 0;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .hero-search button::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.6s;
-    }
-    
-    .hero-search button:hover::before {
-        left: 100%;
+        letter-spacing: 0.5px;
     }
     
     .hero-search button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(6, 182, 212, 0.4);
+        box-shadow: 0 8px 25px rgba(6, 182, 212, 0.3);
     }
     
+    /* Quick Filters Melhorados */
     .categories-scroll {
         display: flex;
         overflow-x: auto;
-        gap: 1rem;
-        padding: 2rem 0.25rem;
-        margin-bottom: 2.5rem;
+        gap: 0.75rem;
+        padding: 1.5rem 0.25rem;
+        margin-bottom: 2rem;
         scrollbar-width: none;
         -ms-overflow-style: none;
         width: 100%;
@@ -235,76 +207,54 @@
     
     .category-filter {
         flex: 0 0 auto;
-        padding: 1.25rem 2rem;
+        padding: 1rem 1.5rem;
         background: var(--white);
         border-radius: var(--border-radius);
         border: 2px solid var(--medium-gray);
         cursor: pointer;
         transition: var(--transition);
         white-space: nowrap;
-        font-weight: 800;
+        font-weight: 700;
         color: var(--dark-gray);
-        font-size: 1rem;
+        font-size: 0.9rem;
         min-width: max-content;
         box-shadow: var(--shadow-sm);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .category-filter::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--gradient-primary);
-        opacity: 0;
-        transition: var(--transition);
     }
     
     .category-filter:hover,
     .category-filter.active {
+        background: var(--gradient-primary);
         color: var(--white);
         border-color: transparent;
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow: var(--shadow-md);
     }
     
-    .category-filter.active::before,
-    .category-filter:hover::before {
-        opacity: 1;
-    }
-    
-    .category-filter span {
-        position: relative;
-        z-index: 1;
-    }
-    
+    /* Filters Panel Melhorado */
     .filters-panel {
         background: var(--white);
         border-radius: var(--border-radius);
-        padding: 2rem;
-        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
         box-shadow: var(--shadow-sm);
         border: 1px solid var(--light-gray);
         width: 100%;
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(10px);
     }
     
     .filter-group {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         width: 100%;
     }
     
     .filter-title {
-        font-weight: 800;
-        margin-bottom: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
         color: var(--black);
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
     
     .filter-title i {
@@ -312,102 +262,79 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
     
     .filter-options {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem;
         width: 100%;
     }
     
     .filter-option {
-        padding: 1rem 1.5rem;
+        padding: 0.75rem 1.25rem;
         background: var(--light-gray);
         border-radius: var(--border-radius-sm);
         border: 2px solid var(--medium-gray);
         cursor: pointer;
         transition: var(--transition);
-        font-size: 0.9rem;
-        font-weight: 700;
+        font-size: 0.85rem;
+        font-weight: 600;
         color: var(--dark-gray);
         flex-shrink: 0;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .filter-option::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--gradient-primary);
-        opacity: 0;
-        transition: var(--transition);
     }
     
     .filter-option:hover,
     .filter-option.active {
+        background: var(--gradient-primary);
         color: var(--white);
         border-color: transparent;
-        transform: translateY(-2px);
-    }
-    
-    .filter-option.active::before,
-    .filter-option:hover::before {
-        opacity: 1;
-    }
-    
-    .filter-option span {
-        position: relative;
-        z-index: 1;
+        transform: translateY(-1px);
     }
     
     .price-range {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1rem;
         width: 100%;
     }
     
     .price-input-group {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
         width: 100%;
     }
     
     .price-input {
         flex: 1;
-        padding: 1.25rem;
+        padding: 1rem;
         border: 2px solid var(--medium-gray);
         border-radius: var(--border-radius-sm);
-        font-size: 1rem;
+        font-size: 0.9rem;
         transition: var(--transition);
         background: var(--light-gray);
         min-width: 0;
-        font-weight: 600;
+        font-weight: 500;
     }
     
     .price-input:focus {
         border-color: var(--primary-blue);
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         background: var(--white);
-        transform: translateY(-1px);
     }
     
     .price-separator {
         color: var(--dark-gray);
-        font-weight: 700;
-        font-size: 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
     }
     
+    /* Scrollable Sections Melhoradas */
     .scrollable-section {
         position: relative;
-        margin-bottom: 4rem;
+        margin-bottom: 3rem;
         width: 100%;
     }
     
@@ -415,21 +342,21 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 3px solid var(--light-gray);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--light-gray);
         flex-wrap: wrap;
-        gap: 1.5rem;
+        gap: 1rem;
         width: 100%;
     }
     
     .section-title {
-        font-size: clamp(1.5rem, 6vw, 2.2rem);
-        font-weight: 900;
+        font-size: clamp(1.3rem, 5vw, 1.8rem);
+        font-weight: 800;
         color: var(--black);
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
     }
     
@@ -438,45 +365,28 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
     
     .view-all {
         background: var(--gradient-primary);
         color: var(--white);
         text-decoration: none;
-        font-weight: 800;
+        font-weight: 700;
         transition: var(--transition);
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 1rem 2rem;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
         border-radius: var(--border-radius-sm);
-        font-size: 1rem;
+        font-size: 0.9rem;
         white-space: nowrap;
         flex-shrink: 0;
         box-shadow: var(--shadow-sm);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .view-all::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.6s;
-    }
-    
-    .view-all:hover::before {
-        left: 100%;
     }
     
     .view-all:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow: var(--shadow-md);
         color: var(--white);
     }
@@ -489,8 +399,8 @@
     .scrollable-content {
         display: flex;
         overflow-x: auto;
-        gap: 1.5rem;
-        padding: 1.5rem 0.25rem;
+        gap: 1.25rem;
+        padding: 1rem 0.25rem;
         scroll-behavior: smooth;
         scrollbar-width: none;
         -ms-overflow-style: none;
@@ -506,8 +416,8 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        width: 56px;
-        height: 56px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background: var(--white);
         border: 2px solid var(--medium-gray);
@@ -521,14 +431,14 @@
         z-index: 10;
         opacity: 0;
         visibility: hidden;
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
     
     .scroll-btn:hover {
         background: var(--primary-blue);
         color: var(--white);
         border-color: var(--primary-blue);
-        transform: translateY(-50%) scale(1.15);
+        transform: translateY(-50%) scale(1.1);
     }
     
     .scrollable-container:hover .scroll-btn {
@@ -537,19 +447,20 @@
     }
     
     .scroll-btn-left {
-        left: -25px;
+        left: -20px;
     }
     
     .scroll-btn-right {
-        right: -25px;
+        right: -20px;
     }
     
+    /* Categories Cards Melhorados */
     .category-card-horizontal {
         flex: 0 0 auto;
-        width: 180px;
+        width: 160px;
         background: var(--white);
         border-radius: var(--border-radius);
-        padding: 2rem 1.25rem;
+        padding: 1.5rem 1rem;
         text-align: center;
         box-shadow: var(--shadow-sm);
         transition: var(--transition);
@@ -565,13 +476,19 @@
         align-items: center;
     }
     
+    .category-card-horizontal:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-blue);
+    }
+    
     .category-card-horizontal::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 5px;
+        height: 4px;
         background: var(--gradient-primary);
         opacity: 0;
         transition: var(--transition);
@@ -581,57 +498,51 @@
         opacity: 1;
     }
     
-    .category-card-horizontal:hover {
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--primary-blue);
-    }
-    
     .category-icon-horizontal {
-        width: 70px;
-        height: 70px;
+        width: 60px;
+        height: 60px;
         background: var(--light-blue);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1.25rem;
+        margin: 0 auto 1rem;
         color: var(--primary-blue);
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         overflow: hidden;
         transition: var(--transition);
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         flex-shrink: 0;
-        position: relative;
     }
     
     .category-card-horizontal:hover .category-icon-horizontal {
         background: var(--gradient-primary);
         color: var(--white);
-        transform: scale(1.2) rotate(8deg);
+        transform: scale(1.15) rotate(5deg);
     }
     
     .category-name-horizontal {
-        font-weight: 900;
-        margin-bottom: 0.75rem;
-        font-size: 1rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
         color: var(--black);
         word-wrap: break-word;
         line-height: 1.2;
     }
     
     .category-count-horizontal {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--dark-gray);
-        font-weight: 700;
+        font-weight: 600;
         background: var(--light-gray);
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
     }
     
+    /* Ads Cards Melhorados */
     .ad-card-horizontal {
         flex: 0 0 auto;
-        width: 320px;
+        width: 300px;
         background: var(--white);
         border-radius: var(--border-radius);
         overflow: hidden;
@@ -648,30 +559,33 @@
     }
     
     .ad-card-horizontal:hover {
-        transform: translateY(-8px) scale(1.02);
+        transform: translateY(-5px);
         box-shadow: var(--shadow-lg);
         border-color: var(--primary-blue);
     }
     
     .ad-badge {
         position: absolute;
-        top: 1.25rem;
-        left: 1.25rem;
-        background: var(--gradient-destaque);
+        top: 1rem;
+        left: 1rem;
+        background: var(--gradient-primary);
         color: var(--white);
-        padding: 0.75rem 1.25rem;
+        padding: 0.5rem 1rem;
         border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 900;
+        font-size: 0.8rem;
+        font-weight: 800;
         z-index: 2;
         box-shadow: var(--shadow-sm);
         text-transform: uppercase;
-        letter-spacing: 1px;
-        border: 2px solid rgba(255,255,255,0.3);
+        letter-spacing: 0.5px;
+    }
+    
+    .ad-premium {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
     
     .ad-image-horizontal {
-        height: 200px;
+        height: 180px;
         overflow: hidden;
         position: relative;
         width: 100%;
@@ -684,8 +598,8 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 60%;
-        background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
     }
     
     .ad-image-horizontal img {
@@ -696,11 +610,11 @@
     }
     
     .ad-card-horizontal:hover .ad-image-horizontal img {
-        transform: scale(1.15);
+        transform: scale(1.1);
     }
     
     .ad-details-horizontal {
-        padding: 1.5rem;
+        padding: 1.25rem;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -708,10 +622,10 @@
     }
     
     .ad-price-horizontal {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 900;
         color: var(--primary-blue);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         display: flex;
         align-items: center;
         word-wrap: break-word;
@@ -720,23 +634,23 @@
     
     .ad-price-horizontal::before {
         content: 'R$';
-        font-size: 1rem;
-        margin-right: 0.5rem;
+        font-size: 0.9rem;
+        margin-right: 0.25rem;
         color: var(--dark-gray);
-        font-weight: 700;
+        font-weight: 600;
     }
     
     .ad-title-horizontal {
-        font-size: 1.1rem;
-        font-weight: 900;
-        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
         line-height: 1.3;
         color: var(--black);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        min-height: 2.8rem;
+        min-height: 2.6rem;
         word-wrap: break-word;
     }
     
@@ -744,15 +658,15 @@
         display: flex;
         align-items: center;
         color: var(--dark-gray);
-        font-size: 0.9rem;
-        margin-bottom: 1.25rem;
-        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
         flex-wrap: wrap;
     }
     
     .ad-location-horizontal i {
-        margin-right: 0.75rem;
-        font-size: 0.85rem;
+        margin-right: 0.5rem;
+        font-size: 0.8rem;
         color: var(--primary-blue);
         flex-shrink: 0;
     }
@@ -761,7 +675,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 1.25rem;
+        padding-top: 1rem;
         border-top: 2px solid var(--light-gray);
         margin-top: auto;
         width: 100%;
@@ -775,22 +689,21 @@
     }
     
     .seller-avatar-horizontal {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         background: var(--gradient-primary);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 1rem;
+        margin-right: 0.75rem;
         color: var(--white);
-        font-size: 0.85rem;
-        font-weight: 900;
+        font-size: 0.8rem;
+        font-weight: 800;
         overflow: hidden;
         position: relative;
         flex-shrink: 0;
         box-shadow: var(--shadow-sm);
-        border: 2px solid var(--white);
     }
     
     .seller-avatar-horizontal img {
@@ -800,8 +713,8 @@
     }
     
     .seller-name-horizontal {
-        font-size: 0.85rem;
-        font-weight: 800;
+        font-size: 0.8rem;
+        font-weight: 700;
         color: var(--black);
         overflow: hidden;
         text-overflow: ellipsis;
@@ -812,12 +725,12 @@
     
     .ad-actions-horizontal {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
     }
     
     .action-btn-horizontal {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         background: var(--light-gray);
         border: 2px solid var(--medium-gray);
@@ -827,36 +740,14 @@
         align-items: center;
         justify-content: center;
         transition: var(--transition);
-        font-size: 1rem;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .action-btn-horizontal::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--gradient-primary);
-        opacity: 0;
-        transition: var(--transition);
-    }
-    
-    .action-btn-horizontal:hover::before {
-        opacity: 1;
+        font-size: 0.9rem;
     }
     
     .action-btn-horizontal:hover {
+        background: var(--primary-blue);
         color: var(--white);
         border-color: transparent;
-        transform: scale(1.15);
-    }
-    
-    .action-btn-horizontal i {
-        position: relative;
-        z-index: 1;
+        transform: scale(1.1);
     }
     
     .action-btn-horizontal.favorited {
@@ -868,44 +759,46 @@
     .action-btn-horizontal.favorited:hover {
         background: #dc2626;
         border-color: #dc2626;
-        transform: scale(1.15);
+        transform: scale(1.1);
     }
     
+    /* Mensagens de estado */
     .no-items-message {
         text-align: center;
-        padding: 4rem 1rem;
+        padding: 3rem 1rem;
         background: var(--light-gray);
         border-radius: var(--border-radius);
-        border: 3px dashed var(--medium-gray);
+        border: 2px dashed var(--medium-gray);
         color: var(--dark-gray);
         width: 100%;
     }
     
     .no-items-message i {
-        font-size: 3.5rem;
+        font-size: 3rem;
         color: var(--medium-gray);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         display: block;
     }
     
     .no-items-message p {
         margin: 0;
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: 1rem;
+        font-weight: 600;
     }
     
+    /* Botão criar anúncio */
     .create-ad-btn {
         position: fixed;
-        bottom: 2.5rem;
-        right: 2.5rem;
-        width: 80px;
-        height: 80px;
+        bottom: 2rem;
+        right: 2rem;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
         background: var(--gradient-primary);
         color: var(--white);
         border: none;
         box-shadow: var(--shadow-lg);
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         cursor: pointer;
         transition: var(--transition);
         display: flex;
@@ -913,42 +806,41 @@
         justify-content: center;
         z-index: 1000;
         animation: pulse 2s infinite;
-        border: 3px solid rgba(255,255,255,0.3);
     }
     
     @keyframes pulse {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
-        70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
     }
     
     .create-ad-btn:hover {
-        transform: scale(1.2);
-        box-shadow: 0 15px 35px rgba(37, 99, 235, 0.5);
+        transform: scale(1.15);
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
         animation: none;
     }
     
+    /* Toast notifications */
     .toast-notification {
         position: fixed;
-        top: 1.5rem;
-        right: 1.5rem;
-        left: 1.5rem;
+        top: 1rem;
+        right: 1rem;
+        left: 1rem;
         background: var(--success);
         color: var(--white);
-        padding: 1.5rem;
+        padding: 1.25rem;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-lg);
         z-index: 10000;
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        animation: slideInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        font-weight: 800;
+        gap: 1rem;
+        animation: slideInRight 0.4s ease;
+        font-weight: 700;
         text-align: center;
         justify-content: center;
-        font-size: 1rem;
-        backdrop-filter: blur(20px);
-        border: 2px solid rgba(255,255,255,0.2);
+        font-size: 0.9rem;
+        backdrop-filter: blur(10px);
     }
     
     .toast-notification.error {
@@ -971,6 +863,7 @@
         pointer-events: none;
     }
 
+    /* Responsividade Aprimorada */
     @media (max-width: 320px) {
         html {
             font-size: 13px;
@@ -981,39 +874,39 @@
         }
         
         .hero-section {
-            padding: 2.5rem 0.375rem;
+            padding: 2rem 0.375rem;
         }
         
         .category-card-horizontal {
-            width: 160px;
-            padding: 1.5rem 1rem;
+            width: 140px;
+            padding: 1.25rem 0.75rem;
         }
         
         .category-icon-horizontal {
-            width: 60px;
-            height: 60px;
-            font-size: 1.4rem;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
         }
         
         .ad-card-horizontal {
-            width: 280px;
+            width: 260px;
         }
         
         .ad-image-horizontal {
-            height: 180px;
+            height: 160px;
         }
         
         .create-ad-btn {
-            width: 70px;
-            height: 70px;
-            font-size: 1.6rem;
-            bottom: 2rem;
-            right: 2rem;
+            width: 60px;
+            height: 60px;
+            font-size: 1.3rem;
+            bottom: 1.5rem;
+            right: 1.5rem;
         }
         
         .scroll-btn {
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
         }
     }
 
@@ -1023,15 +916,15 @@
         }
         
         .hero-section {
-            padding: 3rem 1rem;
+            padding: 2.5rem 1rem;
         }
         
         .category-card-horizontal {
-            width: 170px;
+            width: 150px;
         }
         
         .ad-card-horizontal {
-            width: 300px;
+            width: 280px;
         }
     }
     
@@ -1041,26 +934,26 @@
         }
         
         .hero-section {
-            padding: 3.5rem 1.5rem;
+            padding: 3rem 1.5rem;
         }
         
         .category-card-horizontal {
-            width: 180px;
+            width: 160px;
         }
         
         .ad-card-horizontal {
-            width: 320px;
+            width: 300px;
         }
         
         .scroll-btn {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
         }
         
         .create-ad-btn {
-            width: 80px;
-            height: 80px;
-            font-size: 1.8rem;
+            width: 70px;
+            height: 70px;
+            font-size: 1.5rem;
         }
     }
     
@@ -1075,59 +968,59 @@
         }
         
         .hero-section {
-            padding: 5rem 2rem;
-            margin-bottom: 3.5rem;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
         }
         
         .hero-search {
             flex-direction: row;
             border-radius: 50px;
-            max-width: 650px;
+            max-width: 600px;
         }
         
         .hero-search input {
             border-radius: 50px 0 0 50px;
-            padding: 1.75rem 2.5rem;
-            font-size: 1.2rem;
+            padding: 1.5rem 2rem;
+            font-size: 1.1rem;
         }
         
         .hero-search button {
             border-radius: 0 50px 50px 0;
-            padding: 1.75rem 3rem;
+            padding: 1.5rem 2.5rem;
             width: auto;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
         .category-card-horizontal {
-            width: 200px;
-            padding: 2.5rem 1.5rem;
+            width: 180px;
+            padding: 2rem 1.25rem;
         }
         
         .category-icon-horizontal {
-            width: 80px;
-            height: 80px;
-            font-size: 1.8rem;
+            width: 70px;
+            height: 70px;
+            font-size: 1.6rem;
         }
         
         .ad-card-horizontal {
-            width: 360px;
+            width: 340px;
         }
         
         .ad-image-horizontal {
-            height: 220px;
+            height: 200px;
         }
         
         .scroll-btn {
-            width: 64px;
-            height: 64px;
+            width: 56px;
+            height: 56px;
         }
         
         .create-ad-btn {
-            bottom: 3rem;
-            right: 3rem;
-            width: 90px;
-            height: 90px;
-            font-size: 2rem;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            width: 80px;
+            height: 80px;
+            font-size: 1.8rem;
         }
     }
     
@@ -1137,32 +1030,32 @@
         }
         
         .hero-section {
-            padding: 6rem 2rem;
+            padding: 5rem 2rem;
         }
         
         .categories-scroll {
-            gap: 1.25rem;
-            padding: 2.5rem 0.25rem;
-            margin-bottom: 3rem;
+            gap: 1rem;
+            padding: 2rem 0.25rem;
+            margin-bottom: 2.5rem;
         }
         
         .category-filter {
-            padding: 1.5rem 2.25rem;
-            font-size: 1.1rem;
+            padding: 1rem 1.75rem;
+            font-size: 1rem;
         }
         
         .category-card-horizontal {
-            width: 220px;
+            width: 200px;
         }
         
         .ad-card-horizontal {
-            width: 380px;
+            width: 360px;
         }
         
         .create-ad-btn {
-            width: 95px;
-            height: 95px;
-            font-size: 2.2rem;
+            width: 85px;
+            height: 85px;
+            font-size: 2rem;
         }
     }
 
@@ -1172,24 +1065,28 @@
         }
     }
 
+    /* Prevenir zoom em dispositivos móveis */
     @media (max-width: 768px) {
         input, select, textarea {
-            font-size: 16px !important;
+            font-size: 16px !important; /* Prevenir zoom no iOS */
         }
     }
 
+    /* Melhorar performance de scroll */
     .scrollable-content {
         transform: translateZ(0);
         backface-visibility: hidden;
         perspective: 1000;
     }
 
+    /* Garantir que imagens não causem overflow */
     img {
         max-width: 100%;
         height: auto;
         display: block;
     }
 
+    /* Loading states */
     .skeleton-loader {
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
         background-size: 200% 100%;
@@ -1207,6 +1104,7 @@
 </style>
 
 <div class="home-container">
+    <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
             <h1 class="hero-title">Encontre os Melhores Serviços</h1>
@@ -1221,21 +1119,23 @@
         </div>
     </section>
 
+    <!-- Quick Filters -->
     <div class="categories-scroll">
-        <div class="category-filter active" data-category="all"><span>Todos</span></div>
+        <div class="category-filter active" data-category="all">Todos</div>
         {% for categoria in categorias|slice:":8" %}
-        <div class="category-filter" data-category="{{ categoria.slug }}"><span>{{ categoria.titulo }}</span></div>
+        <div class="category-filter" data-category="{{ categoria.slug }}">{{ categoria.titulo }}</div>
         {% endfor %}
     </div>
 
+    <!-- Filters Panel -->
     <div class="filters-panel">
         <div class="filter-group">
             <h3 class="filter-title"><i class="fas fa-filter"></i> Filtros</h3>
             <div class="filter-options">
-                <div class="filter-option active" data-filter="all"><span>Todos</span></div>
-                <div class="filter-option" data-filter="premium"><span>Premium</span></div>
-                <div class="filter-option" data-filter="recent"><span>Recentes</span></div>
-                <div class="filter-option" data-filter="popular"><span>Populares</span></div>
+                <div class="filter-option active" data-filter="all">Todos</div>
+                <div class="filter-option" data-filter="premium">Premium</div>
+                <div class="filter-option" data-filter="recent">Recentes</div>
+                <div class="filter-option" data-filter="popular">Populares</div>
             </div>
         </div>
         
@@ -1251,6 +1151,7 @@
         </div>
     </div>
 
+    <!-- Categories Section -->
     <section class="scrollable-section" id="categoriesSection">
         <div class="section-header">
             <h2 class="section-title">
@@ -1294,6 +1195,7 @@
         </div>
     </section>
 
+    <!-- Featured Ads Section -->
     <section class="scrollable-section" id="featuredAdsSection">
         <div class="section-header">
             <h2 class="section-title">
@@ -1314,7 +1216,7 @@
                 {% for anuncio in anuncios_destaque %}
                 <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card-horizontal">
                     {% if anuncio.destaque %}
-                    <span class="ad-badge">Destaque</span>
+                    <span class="ad-badge ad-premium">⭐ Premium</span>
                     {% endif %}
                     <div class="ad-image-horizontal">
                         {% if anuncio.first_image %}
@@ -1387,6 +1289,7 @@
         </div>
     </section>
 
+    <!-- Recent Ads Section -->
     <section class="scrollable-section" id="recentAdsSection">
         <div class="section-header">
             <h2 class="section-title">
@@ -1407,7 +1310,7 @@
                 {% for anuncio in anuncios_recentes %}
                 <a href="{% url 'anuncio-detail' anuncio_id=anuncio.id %}" class="ad-card-horizontal">
                     {% if anuncio.destaque %}
-                    <span class="ad-badge">Destaque</span>
+                    <span class="ad-badge ad-premium">⭐ Premium</span>
                     {% endif %}
                     <div class="ad-image-horizontal">
                         {% if anuncio.first_image %}
@@ -1481,6 +1384,7 @@
     </section>
 </div>
 
+<!-- Botão Flutuante Criar Anúncio -->
 <button class="create-ad-btn" id="createAdBtn" aria-label="Criar novo anúncio">
     <i class="fas fa-plus"></i>
 </button>
@@ -1503,7 +1407,9 @@
         }
     };
 
+    // Prevenir zoom em dispositivos móveis
     document.addEventListener('DOMContentLoaded', function() {
+        // Prevenir zoom com duplo toque
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
             const now = (new Date()).getTime();
@@ -1513,6 +1419,7 @@
             lastTouchEnd = now;
         }, false);
 
+        // Prevenir zoom com gesto de pinça
         document.addEventListener('gesturestart', function (e) {
             e.preventDefault();
         });
@@ -1534,18 +1441,23 @@
     });
 
     function initPriceFormatting() {
+        // Formatadores de preço para corrigir o problema de 120,000 -> 1200,00
         const priceInputs = document.querySelectorAll('.price-input');
         
         priceInputs.forEach(input => {
+            // Formatar na saída (blur)
             input.addEventListener('blur', function(e) {
                 let value = this.value.replace(/[^\d,]/g, '');
                 
                 if (value) {
+                    // Remover pontos de milhar existentes
                     value = value.replace(/\./g, '');
                     
+                    // Converter para número
                     let numberValue = parseFloat(value.replace(',', '.'));
                     
                     if (!isNaN(numberValue)) {
+                        // Formatar com 2 casas decimais
                         this.value = numberValue.toLocaleString('pt-BR', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
@@ -1554,15 +1466,19 @@
                 }
             });
 
+            // Permitir apenas números, vírgula e ponto na entrada
             input.addEventListener('input', function(e) {
                 let value = this.value;
                 
+                // Permitir apenas números, vírgula e ponto
                 value = value.replace(/[^\d,.]/g, '');
                 
+                // Garantir que há apenas uma vírgula ou ponto decimal
                 const hasComma = value.includes(',');
                 const hasDot = value.includes('.');
                 
                 if (hasComma && hasDot) {
+                    // Se tiver ambos, manter apenas o primeiro
                     const commaIndex = value.indexOf(',');
                     const dotIndex = value.indexOf('.');
                     if (commaIndex < dotIndex) {
@@ -1572,6 +1488,7 @@
                     }
                 }
                 
+                // Substituir ponto por vírgula (padrão brasileiro)
                 if (hasDot && !hasComma) {
                     value = value.replace('.', ',');
                 }
@@ -1579,6 +1496,7 @@
                 this.value = value;
             });
 
+            // Prevenir colagem de texto não numérico
             input.addEventListener('paste', function(e) {
                 e.preventDefault();
                 const pastedText = (e.clipboardData || window.clipboardData).getData('text');
@@ -1609,13 +1527,13 @@
             
             if (scrollLeftBtn) {
                 scrollLeftBtn.addEventListener('click', () => {
-                    scrollContent.scrollBy({ left: -400, behavior: 'smooth' });
+                    scrollContent.scrollBy({ left: -350, behavior: 'smooth' });
                 });
             }
             
             if (scrollRightBtn) {
                 scrollRightBtn.addEventListener('click', () => {
-                    scrollContent.scrollBy({ left: 400, behavior: 'smooth' });
+                    scrollContent.scrollBy({ left: 350, behavior: 'smooth' });
                 });
             }
             
@@ -1655,6 +1573,7 @@
     }
 
     function initFilters() {
+        // Filtros de categoria
         document.querySelectorAll('.category-filter').forEach(function(filter) {
             filter.addEventListener('click', function() {
                 document.querySelectorAll('.category-filter').forEach(function(f) {
@@ -1662,11 +1581,13 @@
                 });
                 this.classList.add('active');
                 
+                // Aqui você pode adicionar a lógica para filtrar os anúncios
                 const category = this.getAttribute('data-category');
                 filterAdsByCategory(category);
             });
         });
 
+        // Filtros de tipo
         document.querySelectorAll('.filter-option').forEach(function(option) {
             option.addEventListener('click', function() {
                 document.querySelectorAll('.filter-option').forEach(function(o) {
@@ -1674,11 +1595,13 @@
                 });
                 this.classList.add('active');
                 
+                // Aqui você pode adicionar a lógica para filtrar os anúncios
                 const filterType = this.getAttribute('data-filter');
                 filterAdsByType(filterType);
             });
         });
 
+        // Filtros de preço
         const minPriceInput = document.getElementById('minPrice');
         const maxPriceInput = document.getElementById('maxPrice');
         
@@ -1700,14 +1623,18 @@
     }
 
     function filterAdsByCategory(category) {
+        // Implementar filtragem por categoria
         console.log('Filtrando por categoria:', category);
+        // Aqui você faria uma requisição AJAX ou filtraria os anúncios existentes
     }
 
     function filterAdsByType(filterType) {
+        // Implementar filtragem por tipo
         console.log('Filtrando por tipo:', filterType);
     }
 
     function filterAdsByPrice(minPrice, maxPrice) {
+        // Implementar filtragem por preço
         console.log('Filtrando por preço - Min:', minPrice, 'Max:', maxPrice);
     }
 
@@ -1807,6 +1734,7 @@
                             showToast('📋 Link copiado!');
                         })
                         .catch(function() {
+                            // Fallback para navegadores antigos
                             const tempInput = document.createElement('input');
                             tempInput.value = fullUrl;
                             document.body.appendChild(tempInput);
@@ -1828,6 +1756,7 @@
                 this.src = APP_CONFIG.staticUrls.defaultAdImage;
             });
             
+            // Adicionar loading skeleton
             img.addEventListener('load', function() {
                 this.style.opacity = '1';
             });
@@ -1851,12 +1780,12 @@
         
         setTimeout(function() {
             if (toast.parentElement) {
-                toast.style.animation = 'slideInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse';
+                toast.style.animation = 'slideInRight 0.4s ease reverse';
                 setTimeout(() => {
                     if (toast.parentElement) {
                         toast.remove();
                     }
-                }, 500);
+                }, 400);
             }
         }, 3000);
     }
@@ -1882,6 +1811,7 @@
         return cookieValue;
     }
 
+    // Adicionar efeitos visuais extras
     document.addEventListener('mousemove', function(e) {
         const cards = document.querySelectorAll('.ad-card-horizontal, .category-card-horizontal');
         cards.forEach(card => {
