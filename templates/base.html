@@ -1389,12 +1389,19 @@
 
                 <p class="menu-title">Categorias</p>
                 <div id="categoriesMenu">
-                    {% for categoria in categorias|slice:":8" %}
-                    <a href="{% url 'category' slug=categoria.slug %}" class="menu-item" data-page="category-{{ categoria.slug }}">
-                        <i class="fas fa-tag"></i>
-                        <span>{{ categoria.titulo }}</span>
-                    </a>
-                    {% endfor %}
+                    {% if categorias %}
+                        {% for categoria in categorias|slice:":8" %}
+                        <a href="{% url 'category' slug=categoria.slug|default:'' %}" class="menu-item" data-page="category-{{ categoria.slug|default:'default' }}">
+                            <i class="fas fa-tag"></i>
+                            <span>{{ categoria.titulo|default:"Categoria" }}</span>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="menu-item">
+                            <i class="fas fa-tag"></i>
+                            <span>Nenhuma categoria disponível</span>
+                        </div>
+                    {% endif %}
                 </div>
             </nav>
 
@@ -1600,25 +1607,8 @@
             }
 
             updateUserInfo() {
-                const userName = document.getElementById('userName');
-                const userEmail = document.getElementById('userEmail');
-                const userAvatar = document.getElementById('userAvatar');
-                const userMenuAvatar = document.getElementById('userMenuAvatar');
-
-                {% if user.is_authenticated %}
-                    const firstName = '{{ user.first_name|default:user.username|escapejs }}';
-                    const email = '{{ user.email|default:"Email não cadastrado"|escapejs }}';
-                    
-                    if (userName) userName.textContent = firstName;
-                    if (userEmail) userEmail.textContent = email;
-                    if (userAvatar) userAvatar.textContent = firstName.charAt(0).toUpperCase();
-                    if (userMenuAvatar) userMenuAvatar.textContent = firstName.charAt(0).toUpperCase();
-                {% else %}
-                    if (userName) userName.textContent = 'Visitante';
-                    if (userEmail) userEmail.textContent = 'Faça login para acessar';
-                    if (userAvatar) userAvatar.textContent = '?';
-                    if (userMenuAvatar) userMenuAvatar.textContent = '?';
-                {% endif %}
+                // Dados já estão sendo renderizados pelo Django template com tratamento de NoneType
+                console.log('Informações do usuário carregadas com tratamento de NoneType');
             }
 
             setActivePage() {
@@ -1698,7 +1688,6 @@
             async checkNotifications() {
                 try {
                     // Simulação de verificação de notificações
-                    // Em um ambiente real, você faria uma requisição para o backend
                     const hasNewNotifications = Math.random() > 0.5;
                     const hasNewMessages = Math.random() > 0.5;
                     
@@ -1710,6 +1699,9 @@
                     
                 } catch (error) {
                     console.error('Erro ao verificar notificações:', error);
+                    // Garantir que os badges sejam 0 em caso de erro
+                    this.updateBadge('notificationBadge', 0);
+                    this.updateBadge('messagesBadge', 0);
                 }
             }
 
