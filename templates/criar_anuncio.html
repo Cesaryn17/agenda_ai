@@ -5,10 +5,6 @@
 
 {% block extra_css %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
-{% endblock %}
-
-{% block content %}
 <style>
     :root {
         --primary: #2563eb;
@@ -39,6 +35,68 @@
         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.dark-mode .create-ad-container {
+        background: var(--light-gray);
+    }
+
+    body.dark-mode .form-section,
+    body.dark-mode .preview-sidebar,
+    body.dark-mode .progress-bar,
+    body.dark-mode .form-actions {
+        background: var(--white);
+        border-color: var(--medium-gray);
+        color: var(--black);
+    }
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select,
+    body.dark-mode .search-input {
+        background: var(--white);
+        color: var(--black);
+        border-color: var(--medium-gray);
+    }
+
+    body.dark-mode .form-label,
+    body.dark-mode .section-title,
+    body.dark-mode .detail-label,
+    body.dark-mode .detail-value,
+    body.dark-mode .preview-title,
+    body.dark-mode .preview-description {
+        color: var(--black);
+    }
+
+    body.dark-mode .form-hint,
+    body.dark-mode .section-subtitle,
+    body.dark-mode .preview-subtitle {
+        color: var(--dark-gray);
+    }
+
+    body.dark-mode .image-upload-area {
+        background: var(--medium-gray);
+        border-color: var(--dark-gray);
+    }
+
+    body.dark-mode .preview-detail {
+        background: var(--medium-gray);
+    }
+
+    body.dark-mode .preview-description {
+        background: var(--medium-gray);
+        border-left-color: var(--primary);
+    }
+
+    body.dark-mode .step-btn {
+        background: var(--white);
+        color: var(--black);
+        border-color: var(--medium-gray);
+    }
+
+    body.dark-mode .step-btn.next {
+        background: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
     }
 
     .create-ad-container {
@@ -219,6 +277,7 @@
         transition: var(--transition);
         background: white;
         font-family: inherit;
+        color: var(--gray-800);
     }
 
     .form-control:focus {
@@ -240,6 +299,7 @@
         background-size: 1.5em 1.5em;
         padding-right: 3rem;
         cursor: pointer;
+        appearance: none;
     }
 
     .form-hint {
@@ -484,25 +544,6 @@
         margin-top: 0.25rem;
     }
 
-    .tag-input {
-        padding: 0.75rem 1rem;
-        border: 2px solid var(--gray-200);
-        border-radius: var(--radius);
-    }
-
-    .tagify__dropdown__item--active {
-        background: var(--primary-light) !important;
-    }
-
-    .tagify__tag {
-        background: var(--primary-light) !important;
-        color: var(--primary) !important;
-    }
-
-    .tagify__tag__removeBtn {
-        color: var(--primary) !important;
-    }
-
     .form-actions {
         display: flex;
         gap: 1rem;
@@ -613,6 +654,8 @@
         color: var(--gray-400);
         border: 2px dashed var(--gray-300);
         transition: var(--transition);
+        position: relative;
+        overflow: hidden;
     }
 
     .preview-image.has-image {
@@ -641,6 +684,7 @@
     .detail-label {
         font-weight: 600;
         color: var(--gray-600);
+        flex-shrink: 0;
     }
 
     .detail-value {
@@ -660,6 +704,41 @@
         line-height: 1.6;
         color: var(--gray-700);
         border-left: 4px solid var(--primary);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .preview-conditions {
+        margin-top: 1.5rem;
+        padding: 1.25rem;
+        background: var(--success-light);
+        border-radius: var(--radius);
+        border-left: 4px solid var(--success);
+    }
+
+    .conditions-title {
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .conditions-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .condition-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.75rem;
+        background: white;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: var(--gray-700);
+        border: 1px solid var(--gray-200);
     }
 
     .no-image {
@@ -676,24 +755,23 @@
         margin-bottom: 1rem;
     }
 
-    .preview-tags {
+    .image-counter {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        color: white;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .preview-tag {
-        padding: 0.35rem 0.75rem;
-        background: var(--primary-light);
-        color: var(--primary);
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 500;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .alert-container {
         margin-bottom: 2rem;
+        display: none;
     }
 
     .alert {
@@ -832,6 +910,115 @@
         box-shadow: var(--shadow-md);
     }
 
+    .success-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .success-modal.active {
+        display: flex;
+    }
+
+    .success-modal-content {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 3rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: var(--shadow-xl);
+        animation: slideIn 0.4s ease;
+    }
+
+    .success-icon {
+        font-size: 4rem;
+        color: var(--success);
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    .success-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+
+    .success-message {
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .success-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .success-btn {
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 150px;
+        justify-content: center;
+    }
+
+    .success-btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+    }
+
+    .success-btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .success-btn-outline {
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+
+    .success-btn-outline:hover {
+        background: var(--primary-ultralight);
+    }
+
+    body.dark-mode .success-modal-content {
+        background: var(--white);
+        color: var(--black);
+    }
+
+    body.dark-mode .success-title {
+        color: var(--black);
+    }
+
+    body.dark-mode .success-message {
+        color: var(--dark-gray);
+    }
+
+    body.dark-mode .success-btn-outline {
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
     @media (max-width: 1200px) {
         .create-ad-container {
             grid-template-columns: 1fr;
@@ -896,6 +1083,28 @@
             width: 100%;
             justify-content: center;
         }
+
+        .success-modal-content {
+            padding: 2rem;
+            width: 95%;
+        }
+
+        .success-actions {
+            flex-direction: column;
+        }
+
+        .success-btn {
+            width: 100%;
+        }
+
+        .conditions-list {
+            flex-direction: column;
+        }
+
+        .condition-item {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     @media (max-width: 480px) {
@@ -918,8 +1127,43 @@
         .preview-sidebar {
             padding: 1.5rem;
         }
+
+        .success-modal-content {
+            padding: 1.5rem;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+        }
     }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="success-modal" id="successModal">
+    <div class="success-modal-content">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="success-title">Anúncio Criado com Sucesso!</h2>
+        <p class="success-message">Seu anúncio foi publicado e está agora visível para todos os usuários. Você pode gerenciá-lo na seção "Meus Anúncios".</p>
+        <div class="success-actions">
+            <a href="{% url 'home' %}" class="success-btn success-btn-primary">
+                <i class="fas fa-home"></i> Ir para Início
+            </a>
+            <a href="{% url 'my-ads' %}" class="success-btn success-btn-outline">
+                <i class="fas fa-ad"></i> Meus Anúncios
+            </a>
+            <button onclick="closeSuccessModal()" class="success-btn success-btn-outline">
+                <i class="fas fa-times"></i> Fechar
+            </button>
+        </div>
+    </div>
+</div>
 
 <div class="create-ad-container">
     <div class="form-content">
@@ -944,27 +1188,12 @@
             </div>
         </div>
 
-        {% if messages %}
-        <div class="alert-container">
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}warning{% endif %}">
-                    <div class="alert-icon">
-                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
-                    </div>
-                    <div class="alert-content">
-                        <div class="alert-title">
-                            {% if message.tags == 'error' %}Erro{% elif message.tags == 'success' %}Sucesso{% else %}Aviso{% endif %}
-                        </div>
-                        <p class="alert-message">{{ message }}</p>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+        <div class="alert-container" id="alertContainer"></div>
 
         <form id="createAdForm" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="current_step" id="currentStep" value="1">
+            <input type="hidden" name="valor_formatado" id="valorFormatado">
             
             <div class="form-section active" id="step-1">
                 <div class="section-header">
@@ -1036,10 +1265,12 @@
                         <div class="price-input-container">
                             <span class="price-prefix">R$</span>
                             <input type="text" id="valor" name="valor" class="form-control price-input" 
-                                   placeholder="0,00" oninput="formatCurrency(this); updatePreview()"
+                                   placeholder="0,00" 
+                                   oninput="formatCurrency(this); updatePreview()"
+                                   onblur="validateAndFormatPrice(this)"
                                    value="{{ form_data.valor|default:'' }}">
                         </div>
-                        <p class="form-hint">Deixe em branco se o preço for a combinar.</p>
+                        <p class="form-hint">Deixe em branco se o preço for a combinar. Use vírgula para centavos.</p>
                     </div>
 
                     <div class="form-group">
@@ -1084,14 +1315,6 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="tags" class="form-label">Palavras-chave</label>
-                    <input id="tags" name="tags" class="form-control tag-input" 
-                           placeholder="Digite palavras-chave e pressione Enter"
-                           value="{{ form_data.tags|default:'' }}">
-                    <p class="form-hint">Adicione tags relevantes para melhorar a busca</p>
-                </div>
-
                 <div class="step-navigation">
                     <button type="button" class="step-btn" onclick="prevStep(1)">
                         <i class="fas fa-arrow-left"></i> Anterior
@@ -1127,8 +1350,7 @@
                            onchange="handleImageUpload(event)">
                 </div>
 
-                <div class="image-preview-grid" id="imagePreviewContainer">
-                </div>
+                <div class="image-preview-grid" id="imagePreviewContainer"></div>
 
                 <div class="step-navigation">
                     <button type="button" class="step-btn" onclick="prevStep(2)">
@@ -1224,6 +1446,11 @@
                 </div>
             </div>
 
+            <div class="image-counter" id="imageCounter" style="display: none;">
+                <span><i class="fas fa-images"></i> <span id="imageCount">0</span> imagens</span>
+                <span><i class="fas fa-star"></i> Capa</span>
+            </div>
+
             <div class="preview-details">
                 <div class="preview-detail">
                     <span class="detail-label">Título:</span>
@@ -1255,14 +1482,13 @@
                 Sua descrição aparecerá aqui...
             </div>
 
-            <div class="preview-tags" id="previewTags">
+            <div class="preview-conditions" id="previewConditions" style="display: none;">
+                <div class="conditions-title">Condições Inclusas:</div>
+                <div class="conditions-list" id="conditionsList"></div>
             </div>
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
 
 <script>
     let currentStep = 1;
@@ -1270,7 +1496,6 @@
     let coverImageIndex = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
-        initializeTagInput();
         setupDragAndDrop();
         updatePreview();
         updateCharCounter('titulo', 'tituloCounter', 200);
@@ -1324,11 +1549,25 @@
                 return true;
                 
             case 2:
-                return true;
+                return validatePrice();
                 
             case 3:
                 if (selectedImages.length === 0) {
                     showError('Adicione pelo menos uma imagem');
+                    return false;
+                }
+                return true;
+                
+            case 4:
+                const localizacao = document.getElementById('localizacao').value;
+                const whatsapp = document.getElementById('whatsapp').value;
+                
+                if (!localizacao) {
+                    showError('Selecione uma localização');
+                    return false;
+                }
+                if (!whatsapp || whatsapp.replace(/\D/g, '').length < 10) {
+                    showError('Digite um número de WhatsApp válido');
                     return false;
                 }
                 return true;
@@ -1339,6 +1578,7 @@
     }
 
     function showError(message) {
+        const alertContainer = document.getElementById('alertContainer');
         const alert = document.createElement('div');
         alert.className = 'alert alert-error';
         alert.innerHTML = `
@@ -1351,28 +1591,42 @@
             </div>
         `;
         
-        document.querySelector('.alert-container').appendChild(alert);
+        alertContainer.style.display = 'block';
+        alertContainer.appendChild(alert);
         
         setTimeout(() => {
             alert.remove();
+            if (alertContainer.children.length === 0) {
+                alertContainer.style.display = 'none';
+            }
         }, 5000);
         
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function initializeTagInput() {
-        const input = document.getElementById('tags');
-        if (input) {
-            new Tagify(input, {
-                delimiters: ",| ",
-                maxTags: 10,
-                pattern: /^[a-zA-Z0-9áéíóúâêîôûãõàèìòùç\s]{2,20}$/,
-                dropdown: {
-                    enabled: 1,
-                    maxItems: 5
-                }
-            });
-        }
+    function showSuccess(message) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success';
+        alert.innerHTML = `
+            <div class="alert-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="alert-content">
+                <div class="alert-title">Sucesso</div>
+                <p class="alert-message">${message}</p>
+            </div>
+        `;
+        
+        alertContainer.style.display = 'block';
+        alertContainer.appendChild(alert);
+        
+        setTimeout(() => {
+            alert.remove();
+            if (alertContainer.children.length === 0) {
+                alertContainer.style.display = 'none';
+            }
+        }, 3000);
     }
 
     function setupDragAndDrop() {
@@ -1413,12 +1667,79 @@
     }
 
     function formatCurrency(input) {
-        let value = input.value.replace(/\D/g, '');
-        value = (value / 100).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+        let value = input.value.replace(/[^\d,]/g, '');
+        
+        if (value.includes(',')) {
+            const parts = value.split(',');
+            if (parts[0].length > 0) {
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+            if (parts[1] && parts[1].length > 2) {
+                parts[1] = parts[1].substring(0, 2);
+            }
+            value = parts.join(',');
+        } else if (value.length > 0) {
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
         input.value = value;
+        updatePreview();
+    }
+
+    function validateAndFormatPrice(input) {
+        let value = input.value.trim();
+        
+        if (!value) {
+            document.getElementById('valorFormatado').value = '';
+            return true;
+        }
+        
+        let cleanValue = value.replace(/[^\d,]/g, '');
+        
+        const commaCount = (cleanValue.match(/,/g) || []).length;
+        if (commaCount > 1) {
+            showError('Formato de preço inválido. Use apenas uma vírgula para centavos.');
+            input.focus();
+            return false;
+        }
+        
+        if (commaCount === 1) {
+            const parts = cleanValue.split(',');
+            if (parts[1].length > 2) {
+                parts[1] = parts[1].substring(0, 2);
+            }
+            cleanValue = parts.join(',');
+        }
+        
+        const numericValue = parseFloat(cleanValue.replace(',', '.')) || 0;
+        
+        if (isNaN(numericValue) || numericValue < 0) {
+            showError('Preço inválido. Digite um valor numérico positivo.');
+            input.focus();
+            return false;
+        }
+        
+        if (numericValue > 999999999.99) {
+            showError('Preço muito alto. O valor máximo é R$ 999.999.999,99');
+            input.focus();
+            return false;
+        }
+        
+        const formattedValue = numericValue.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true
+        });
+        
+        input.value = formattedValue;
+        document.getElementById('valorFormatado').value = numericValue.toFixed(2).replace('.', ',');
+        updatePreview();
+        return true;
+    }
+
+    function validatePrice() {
+        const priceInput = document.getElementById('valor');
+        return validateAndFormatPrice(priceInput);
     }
 
     function formatPhone(input) {
@@ -1434,6 +1755,7 @@
             }
         }
         input.value = value;
+        updatePreview();
     }
 
     function updateCharCounter(inputId, counterId, maxLength) {
@@ -1551,11 +1873,16 @@
 
     function updatePreviewImage() {
         const previewImage = document.getElementById('previewImage');
+        const imageCounter = document.getElementById('imageCounter');
+        const imageCount = document.getElementById('imageCount');
+        
         if (selectedImages.length > 0 && coverImageIndex < selectedImages.length) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 previewImage.innerHTML = `<img src="${e.target.result}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">`;
                 previewImage.classList.add('has-image');
+                imageCounter.style.display = 'flex';
+                imageCount.textContent = selectedImages.length;
             };
             reader.readAsDataURL(selectedImages[coverImageIndex]);
         } else {
@@ -1566,19 +1893,36 @@
                 </div>
             `;
             previewImage.classList.remove('has-image');
+            imageCounter.style.display = 'none';
         }
     }
 
     function updatePreview() {
         const title = document.getElementById('titulo').value || 'Seu título aqui';
-        document.getElementById('previewTitle').textContent = title;
+        const previewTitle = document.getElementById('previewTitle');
+        previewTitle.textContent = title.length > 50 ? title.substring(0, 50) + '...' : title;
+        previewTitle.style.color = title === 'Seu título aqui' ? 'var(--gray-500)' : 'var(--gray-800)';
 
         const categorySelect = document.getElementById('categoria');
         const category = categorySelect.options[categorySelect.selectedIndex]?.text || '-';
         document.getElementById('previewCategory').textContent = category;
 
-        const price = document.getElementById('valor').value;
-        document.getElementById('previewPrice').textContent = price ? `R$ ${price}` : 'A combinar';
+        const priceInput = document.getElementById('valor');
+        let priceText = 'A combinar';
+        let priceColor = 'var(--gray-500)';
+        
+        if (priceInput.value.trim()) {
+            const cleanValue = priceInput.value.replace(/[^\d,]/g, '').replace(',', '.');
+            const numericValue = parseFloat(cleanValue) || 0;
+            if (numericValue > 0) {
+                priceText = `R$ ${numericValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                priceColor = 'var(--success)';
+            }
+        }
+        
+        const previewPrice = document.getElementById('previewPrice');
+        previewPrice.textContent = priceText;
+        previewPrice.style.color = priceColor;
 
         const locationSelect = document.getElementById('localizacao');
         const location = locationSelect.options[locationSelect.selectedIndex]?.text || '-';
@@ -1589,72 +1933,113 @@
 
         const modalidadeSelect = document.getElementById('modalidade');
         const modalidade = modalidadeSelect.options[modalidadeSelect.selectedIndex]?.text || '-';
-        document.getElementById('previewModalidade').textContent = modalidade;
+        let modalidadeIcon = '';
+        switch(modalidadeSelect.value) {
+            case 'presencial': modalidadeIcon = '🏢 '; break;
+            case 'online': modalidadeIcon = '💻 '; break;
+            case 'ambos': modalidadeIcon = '🔀 '; break;
+        }
+        document.getElementById('previewModalidade').textContent = modalidadeIcon + modalidade;
 
         const description = document.getElementById('descricao').value || 'Sua descrição aparecerá aqui...';
-        document.getElementById('previewDescription').textContent = description;
+        const previewDescription = document.getElementById('previewDescription');
+        previewDescription.textContent = description.length > 250 ? 
+            description.substring(0, 250) + '...' : description;
+        previewDescription.style.color = description === 'Sua descrição aparecerá aqui...' ? 
+            'var(--gray-500)' : 'var(--gray-700)';
 
-        updatePreviewTags();
+        updatePreviewConditions();
     }
 
-    function updatePreviewTags() {
-        const tagsInput = document.getElementById('tags');
-        const tagsContainer = document.getElementById('previewTags');
-        tagsContainer.innerHTML = '';
+    function updatePreviewConditions() {
+        const conditionsContainer = document.getElementById('previewConditions');
+        const conditionsList = document.getElementById('conditionsList');
         
-        if (tagsInput.value) {
-            const tags = tagsInput.value.split(',').filter(tag => tag.trim());
-            tags.forEach(tag => {
-                const tagElement = document.createElement('span');
-                tagElement.className = 'preview-tag';
-                tagElement.textContent = tag.trim();
-                tagsContainer.appendChild(tagElement);
-            });
+        const conditions = [];
+        if (document.querySelector('input[name="disponivel_24h"]').checked) {
+            conditions.push({ icon: '🕒', text: '24 horas' });
         }
+        if (document.querySelector('input[name="orcamento_gratis"]').checked) {
+            conditions.push({ icon: '💰', text: 'Orçamento grátis' });
+        }
+        if (document.querySelector('input[name="garantia"]').checked) {
+            conditions.push({ icon: '🛡️', text: 'Com garantia' });
+        }
+
+        if (conditions.length > 0) {
+            conditionsContainer.style.display = 'block';
+            conditionsList.innerHTML = conditions.map(cond => 
+                `<span class="condition-item">${cond.icon} ${cond.text}</span>`
+            ).join('');
+        } else {
+            conditionsContainer.style.display = 'none';
+        }
+    }
+
+    function showSuccessModal() {
+        document.getElementById('successModal').classList.add('active');
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').classList.remove('active');
     }
 
     document.getElementById('createAdForm').addEventListener('submit', function(e) {
-        const requiredFields = [
-            { id: 'titulo', message: 'O título é obrigatório' },
-            { id: 'categoria', message: 'A categoria é obrigatória' },
-            { id: 'descricao', message: 'A descrição é obrigatória' },
-            { id: 'localizacao', message: 'A localização é obrigatória' },
-            { id: 'whatsapp', message: 'O WhatsApp é obrigatório' }
-        ];
-
-        for (const field of requiredFields) {
-            const element = document.getElementById(field.id);
-            if (!element.value.trim()) {
-                e.preventDefault();
-                showError(field.message);
-                element.focus();
-                return false;
-            }
+        e.preventDefault();
+        
+        if (!validateStep(currentStep)) return false;
+        if (!validatePrice()) return false;
+        
+        const formData = new FormData(this);
+        const valorFormatado = document.getElementById('valorFormatado').value;
+        if (valorFormatado) {
+            formData.set('valor', valorFormatado);
         }
-
-        if (document.getElementById('titulo').value.length < 10) {
-            e.preventDefault();
-            showError('O título deve ter pelo menos 10 caracteres');
-            return false;
-        }
-
-        if (document.getElementById('descricao').value.length < 20) {
-            e.preventDefault();
-            showError('A descrição deve ter pelo menos 20 caracteres');
-            return false;
-        }
-
-        if (selectedImages.length === 0) {
-            e.preventDefault();
-            showError('Adicione pelo menos uma imagem');
-            return false;
-        }
-
+        
+        selectedImages.forEach((file, index) => {
+            formData.append('imagens', file);
+        });
+        
         const submitBtn = this.querySelector('button[type="submit"]');
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
-
-        return true;
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessModal();
+                document.getElementById('createAdForm').reset();
+                selectedImages = [];
+                coverImageIndex = 0;
+                refreshImagePreviews();
+                updatePreviewImage();
+                updatePreview();
+                currentStep = 1;
+                document.getElementById('currentStep').value = 1;
+                document.getElementById('step-1').classList.add('active');
+                document.getElementById('step-2').classList.remove('active');
+                document.getElementById('step-3').classList.remove('active');
+                document.getElementById('step-4').classList.remove('active');
+                updateProgressBar(4, 1);
+            } else {
+                showError(data.message || 'Erro ao criar anúncio');
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Erro ao criar anúncio. Tente novamente.');
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        });
     });
 </script>
 {% endblock %}
